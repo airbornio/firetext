@@ -3,7 +3,8 @@
 * Copyright (C) Codexa Organization 2013.
 */
 
-function MessageProxy(port) {
+function MessageProxy(_port) {
+	var port;
 	var messageHandlers = {};
 	var pub = this;
 
@@ -34,18 +35,23 @@ function MessageProxy(port) {
 		return port;
 	}
 
-	port.addEventListener("message", function (e) {
-		// check for command
-		if(!messageHandlers[e.data.command]) {
-			throw new Error('No command registered: "' + e.data.command + '"');
-		}
-		// call correct callback
-		messageHandlers[e.data.command].callback(e);
-		// if command handler already removed return
-		if(!messageHandlers[e.data.command]) { return }
-		// if useOnce is specified, remove command handler
-		if(messageHandlers[e.data.command].useOnce) {
-			pub.unRegisterMessageHandler(e.data.command);
-		}
-	}, false);
+	this.setPort = function setPort(_port) {
+		port = _port;
+		port.addEventListener("message", function (e) {
+			// check for command
+			if(!messageHandlers[e.data.command]) {
+				throw new Error('No command registered: "' + e.data.command + '"');
+			}
+			// call correct callback
+			messageHandlers[e.data.command].callback(e);
+			// if command handler already removed return
+			if(!messageHandlers[e.data.command]) { return }
+			// if useOnce is specified, remove command handler
+			if(messageHandlers[e.data.command].useOnce) {
+				pub.unRegisterMessageHandler(e.data.command);
+			}
+		}, false);
+	}
+
+	this.setPort(_port);
 };

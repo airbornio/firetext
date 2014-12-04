@@ -31,6 +31,7 @@ if (!app) {
 						if(scriptTags[i].src) {
 							(function() {
 								var scriptURL = new URI(scriptTags[i].src, new URI(location.href)).toString();
+								var scriptData = scriptTags[i].dataset;
 								if(!scripts[scriptURL]) {
 									scripts[scriptURL] = [];
 									var scriptReq = new XMLHttpRequest();
@@ -44,6 +45,9 @@ if (!app) {
 											scriptText = scriptText.replace(/\[ORIGIN_OF_MAIN_DOCUMENT\]/g, window.location.origin ? window.location.origin : window.location.protocol + "//" + window.location.host);
 											inlineScript.type = "text/javascript";
 											inlineScript.src = "data:text/javascript;base64," + btoa(scriptText + '\n//# sourceURL=' + scriptURL);
+											for (var key in scriptData) {
+												inlineScript.dataset[key] = scriptData[key];
+											}
 											scripts[scriptURL][0].parentNode.replaceChild(inlineScript, scripts[scriptURL][0]);
 											for (var i = 1; i < scripts[scriptURL].length; i++) {
 												scripts[scriptURL][i].parentNode.removeChild(scripts[scriptURL][i]);

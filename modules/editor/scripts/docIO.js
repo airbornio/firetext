@@ -5,18 +5,32 @@
 
 'use strict'
 
-function initDocIO(doc, messageProxy, loadCallback) {
+function initDocIO(document, messageProxy, beforeWrite, afterWrite) {
 	/* 0.4
 	var docxeditor;
 	*/
 	var filetype;
 
+	function getHTML() {
+		var doctype = document.doctype;
+		var doctypeString = '<!DOCTYPE '
+			+ doctype.name
+			+ (doctype.publicId ? ' PUBLIC "' + doctype.publicId + '"' : '')
+			+ (!doctype.publicId && doctype.systemId ? ' SYSTEM' : '') 
+			+ (doctype.systemId ? ' "' + doctype.systemId + '"' : '')
+			+ '>';
+		return doctypeString + document.documentElement.outerHTML.replace(/<style _firetext_remove="">[\s\S]*?<\/style>/, '');
+	}
+	function getText() {
+		return document.documentElement.textContent;
+	}
+
 	function watchDocument(filetype) {
 		// Add listener to update raw
-		doc.addEventListener('input', function() {
+		document.addEventListener('input', function() {
 			messageProxy.getPort().postMessage({
 				command: "doc-changed",
-				html: doc.innerHTML,
+				html: getHTML(),
 				filetype: filetype
 			});
 		});
@@ -24,11 +38,18 @@ function initDocIO(doc, messageProxy, loadCallback) {
 
 	function load(content, ft) {
 		filetype = ft;
-		doc.innerHTML = '';
+		beforeWrite();
+		console.log('before open')
+		console.log(document, document.open);
+		document.open();
+		console.log('after open')
 		switch (filetype) {
 			case ".txt":
 				content = firetext.parsers.plain.parse(content, "HTML");
-				doc.innerHTML = content;
+				console.log('before write')
+				document.write(content);
+				//document.documentElement.innerHTML = content;
+				console.log('after write')
 				break;
 			/* 0.4
 			case ".docx":
@@ -39,11 +60,19 @@ function initDocIO(doc, messageProxy, loadCallback) {
 			*/
 			case ".html":
 			default:
-				doc.innerHTML = content;
+				console.log('before write')
+				if(!/<!DOCTYPE/i.test(content)) content = '<!DOCTYPE html>' + content;
+				document.write(content);
+				//document.documentElement.innerHTML = content;
+				console.log('after write')
 				break;
 		}
+		console.log('before close')
+		document.close();
+		console.log('after close')
+		
 		watchDocument(filetype);
-		loadCallback();
+		afterWrite();
 	}
 
 	messageProxy.registerMessageHandler(function(e) {
@@ -51,11 +80,11 @@ function initDocIO(doc, messageProxy, loadCallback) {
 		var type;
 		switch (filetype) {
 			case ".html":
-				content = doc.innerHTML;
+				content = getHTML();
 				type = "text\/html";
 				break;
 			case ".txt":
-				content = firetext.parsers.plain.encode(doc.innerHTML, "HTML");
+				content = firetext.parsers.plain.encode(getHTML(), "HTML");
 				type = "text\/plain";
 				break;
 			/* 0.4
@@ -65,7 +94,7 @@ function initDocIO(doc, messageProxy, loadCallback) {
 				break;
 			*/
 			default:
-				content = doc.textContent;
+				content = getText();
 				break;
 		}
 		

@@ -14,9 +14,9 @@
   <script type="text/javascript" src="scripts/editor_night.js"></script>
   
   <!-- Lib -->
-  <script type="text/javascript" src="../../scripts/lib/kamino.js"></script>
-  <script type="text/javascript" src="../../scripts/lib/uuid.core.js"></script>
-  <script type="text/javascript" src="../../scripts/lib/message_channel.js"></script>
+  <script data-for-content type="text/javascript" src="../../scripts/lib/kamino.js"></script>
+  <script data-for-content type="text/javascript" src="../../scripts/lib/uuid.core.js"></script>
+  <script data-for-content type="text/javascript" src="../../scripts/lib/message_channel.js"></script>
   <script type="text/javascript" src="../../scripts/lib/prettify.js"></script>
   <script type="text/javascript" src="../../scripts/lib/lang-css.js"></script>
   <script type="text/javascript" src="../../scripts/lib/lang-wiki.js"></script>
@@ -42,10 +42,20 @@
 
   <!-- Styles -->
   <style>
+  html, body {
+    padding: 0;
+    margin: 0;
+  }
+  body {
+    padding: 10px 10px 65px;
+    font-size: 20px;
+    outline: none;
+    word-wrap: break-word;
+  }
+  html:before,
+  html:after,
   body:before,
-  body:after,
-  #tempEditDiv:before,
-  #tempEditDiv:after {
+  body:after {
     display: block;
     position: absolute;
     content: " ";
@@ -56,22 +66,22 @@
     border: 1px solid #999;
     pointer-events: none;
   }
-  body:before {
+  html:before {
     border-top-width: 0;
     border-left-width: 0;
   }
-  body:after {
-    margin-top: 0;
+  html:after {
+    margin-top: -65px;
     border-bottom-width: 0;
     border-left-width: 0;
   }
-  #tempEditDiv:before {
+  body:before {
     top: 0;
     right: 0;
     border-top-width: 0;
     border-right-width: 0;
   }
-  #tempEditDiv:after {
+  body:after {
     right: 0;
     margin-top: 0;
     margin-bottom: -8px;
@@ -79,6 +89,85 @@
     border-right-width: 0;
   }
   </style>
+  <script id="content_script" type="await/content">
+  //console.log = (function(log) { return function() { log.apply(console, arguments); }; })(console.log); // Firefox
+  
+  (function(mainOrigin, parentMessageProxy, initNight) {
+    window.console.log(0);
+    
+    window.addEventListener("message", function(e) {
+      if(e.origin !== mainOrigin) {
+        throw new Error("origin did not match");
+      }
+      window.console.log(e.data.command);
+      if(e.data.command === "new-port" && e.ports.length) {
+        window.console.log(this, arguments); window.console.log("yes");
+        parentMessageProxy.setPort(e.ports[0]);
+        parentMessageProxy.getPort().start();
+      }
+    })
+    
+    window.console.log(1);
+    
+    
+    document.designMode = 'on';
+    
+    window.console.log(2);
+    
+    //doc = document.getElementById('tempEditDiv');
+    document.execCommand('enableObjectResizing', false, 'true');
+    
+    
+    
+    // Hide and show toolbar.
+    // For reviewers, just in case this looks like a security problem:
+    // This frame is sandboxed, so I had to add the listeners to do this.
+    // The content CANNOT call any of the parents functions, so this is not a security issue.
+    window.addEventListener('focus', function (event) {
+      parentMessageProxy.getPort().postMessage({
+        command: "focus",
+        focus: true
+      });
+    });
+    window.addEventListener('blur', function (event) {
+      parentMessageProxy.getPort().postMessage({
+        command: "focus",
+        focus: false
+      });
+    });
+
+    window.console.log(3);
+    
+    // Keyboard shortcuts
+    document.addEventListener('keypress', function (event) { window.console.log(event); });
+    document.addEventListener('keypress', function (event) {
+      if((event.ctrlKey || event.metaKey) && !event.shiftKey) {
+        if(event.which === 98) { // b
+          document.execCommand('bold');
+        } else if(event.which === 105) { // i
+          document.execCommand('italic');
+        } else if(event.which === 117) { // u
+          document.execCommand('underline');
+        } else {
+          return;
+        }
+        event.preventDefault();
+      }
+    });
+    
+    window.console.log(4);
+    
+    // night mode
+    initNight(document, parentMessageProxy);
+    
+    // format document
+    parentMessageProxy.registerMessageHandler(function(e) { window.console.log("format"); document.execCommand(e.data.sCmd, false, e.data.sValue); }, "format")
+    //window.addEventListener('message', function(e) { if(e.data.command === "format") { window.console.log(this, arguments); document.execCommand(e.data.sCmd, false, e.data.sValue); } });
+    
+    window.console.log(5);
+  })(window.mainOrigin, window.parentMessageProxy, window.initNight);
+  
+  </script>
 </head>
 <body>
 

@@ -180,11 +180,6 @@ function initListeners() {
 			}
 		}
 	);
-	editWindow.addEventListener(
-		'mouseenter', function mouseDown(event) {
-			editor.focus();
-		}
-	);	
 	welcomeDocsList.addEventListener(
 		'contextmenu', function contextmenu(event) {
 			event.preventDefault();
@@ -714,6 +709,16 @@ function editorCommunication(callback) {
 			// Initialize Night Mode
 			night();
 		}, "init-success", true);
+		
+		editorMessageProxy.registerMessageHandler(function(e) {
+			console.log('new-port-please', this, arguments);
+			editorMessageChannel = new MessageChannel();
+			editorMessageProxy.setPort(editorMessageChannel.port1);
+			setTimeout(function() {
+				Window.postMessage(editor.contentWindow, {command: "new-port"}, "*", [editorMessageChannel.port2]);
+				editorMessageProxy.getPort().start();
+			});
+		}, "new-port-please");
 
 		editorMessageProxy.registerMessageHandler(function(e) {
 			fileChanged = true;
@@ -915,10 +920,12 @@ function deleteSelected(confirmed) {
 ------------------------*/ 
 function formatDoc(sCmd, sValue) {
 	editorMessageProxy.getPort().postMessage({
+	//editor.contentWindow.postMessage({
 		command: "format",
 		sCmd: sCmd,
 		sValue: sValue
 	});
+	//}, '*');
 }
 
 function updateToolbar() {

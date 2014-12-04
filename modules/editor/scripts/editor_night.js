@@ -1,9 +1,9 @@
-function initNight(doc, messageProxy){
+function initNight(document, messageProxy){
 	function nightEditor(nightMode) {
 		if(nightMode) {
-			doc.style.color = '#fff';
+			document.documentElement.style.color = '#fff';
 		} else {
-			doc.style.color = '#000';
+			document.documentElement.style.color = '#000';
 		}
 	}
 	messageProxy.registerMessageHandler(function(e) { nightEditor(e.data.nightMode); }, "night");
