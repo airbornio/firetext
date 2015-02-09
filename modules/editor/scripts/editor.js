@@ -7,9 +7,6 @@
 
 // Closure to isolate code from tampering by scripts in document
 var mainClosure = function() {
-	// document to be edited
-	var doc;
-	
 	// WARNING: DO NOT REPLACE, THIS STRING IS REPLACED WITH THE ORIGIN AUTOMATICALLY WHEN LOADED FROM editorProxy.js
 	var mainOrigin = "[ORIGIN_OF_MAIN_DOCUMENT]";
 	
@@ -27,10 +24,6 @@ var mainClosure = function() {
 		if(e.origin !== mainOrigin) {
 			throw new Error("origin did not match");
 		}
-		
-		// initialize modules/register handlers
-		// night mode
-		initNight(doc, parentMessageProxy);
 		
 		var content_styles = document.querySelectorAll('link[data-for-content]');
 		

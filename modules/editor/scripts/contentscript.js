@@ -66,7 +66,7 @@
       + (!doctype.publicId && doctype.systemId ? ' SYSTEM' : '') 
       + (doctype.systemId ? ' "' + doctype.systemId + '"' : '')
       + '>';
-    return doctypeString + document.documentElement.outerHTML.replace(/<(style|link)[^>]*_firetext_remove=""[^>]*>[^<>]*(?:<\/\1>)?/g, '').replace(' _firetext_night=""', '');
+    return doctypeString + document.documentElement.outerHTML.replace(/<(style|link|svg)[^>]*_firetext_remove=""[^>]*>(?:[\s\S]*<\/\1>)?/g, '').replace(' _firetext_night=""', '');
   }
 
   // Add listener to update raw

@@ -1,3 +1,13 @@
+/*html {
+	height: 100%;
+}
+body {
+	margin: 0;
+	height: 100%;
+}*/
+
+
+
 html {
 	padding: 0;
 	margin: 0 auto;
@@ -6,8 +16,9 @@ html {
 }
 
 [_firetext_night] {
-	background-color: #000000;
-	color: #ffffff;
+	/*background-color: #000000;*/
+	-webkit-filter: url(#invertColors);
+	filter: url(#invertColors);
 }
 
 body {
@@ -19,7 +30,14 @@ body {
 }
 
 [_firetext_night] body {
-	background-color: #000000;
+	
+}
+
+svg {
+	display: block;
+	position: absolute;
+	pointer-events: none;
+	margin: -10px;
 }
 
 html:before,
@@ -74,16 +92,16 @@ body:after {
 	}
 	
 	body {				
-		border: 1px solid #ddd;
+		outline: 1px solid #ddd;
 		box-shadow: 0 0 5px #ddd;
 		padding-bottom: 10px;
 		background-color: #ffffff;
 	}
 	
-	[_firetext_night] body {
+	/*[_firetext_night] body {
 		border-color: #080808;
 		box-shadow: none;
-	}
+	}*/
 	
 	html:before,
 	body:before {
@@ -92,9 +110,5 @@ body:after {
 	
 	html:after {
 		margin-top: -10px;
-	}
-	
-	body {
-		margin: -1px;
 	}
 }
