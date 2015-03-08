@@ -2,7 +2,14 @@ html {
 	padding: 0;
 	margin: 0 auto;
 	max-width: 690px;
-	position: relative;
+	-moz-column-count: 1;
+	-moz-column-gap: 4em;
+	writing-mode: vertical-lr;
+	height: 976px;
+	position: absolute;
+	left: 50%;
+	margin-left: -345px !important;
+	/*pointer-events: none;*/
 }
 
 [_firetext_night] {
@@ -15,6 +22,8 @@ body {
 	font-size: 20px;
 	outline: none;
 	word-wrap: break-word;
+	writing-mode: initial;
+	/*pointer-events: initial;*/
 }
 
 [_firetext_night] body, [_firetext_night] img {
