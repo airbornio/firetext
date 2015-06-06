@@ -1,0 +1,9 @@
+{
+	"devDependencies": {
+		"sjcl": "~1.0.3",
+		"html-minifier": "~0.7.2",
+		"uncss": "~0.12.1",
+		"google-closure-compiler": "~20150505.0.0",
+		"more-css": "~0.12.0"
+	}
+}

@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+original_dir=$(pwd)
+
+cd $(dirname $BASH_SOURCE)
+
+npm install
+
+[ -e ../build ] || mkdir ../build
+
+node build.js ../index.html
+echo "//# sourceMappingURL=scripts.js.map" >> ../build/scripts.js
+
+cp -r ../modules ../build
+cp -r ../scripts ../build
+cp -r ../locales/ ../build
+cp ../manifest.webapp ../build
+
+mkdir -p ../build/style/icons/app
+cp ../style/icons/app/32.png ../build/style/icons/app
+cp ../style/icons/app/60.png ../build/style/icons/app
+cp ../style/icons/app/90.png ../build/style/icons/app
+cp ../style/icons/app/120.png ../build/style/icons/app
+cp ../style/icons/app/256.png ../build/style/icons/app
+
+mkdir -p ../build/style/icons/extensions
+cp ../style/icons/extensions/html.png ../build/style/icons/extensions
+cp ../style/icons/extensions/txt.png ../build/style/icons/extensions
+
+cd $original_dir
