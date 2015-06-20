@@ -70,6 +70,14 @@ body:after {
 	border-right-width: 0;
 }
 
+/* Collaboration */
+:not(html)[contenteditable="true"] {
+	box-shadow: -9px 0 0 white, -12px 0 0 green;
+}
+[contenteditable="false"] {
+	box-shadow: -9px 0 0 white, -12px 0 0 red;
+}
+
 @media (min-width: 767px) {
 	html {
 		padding-top: 65px;

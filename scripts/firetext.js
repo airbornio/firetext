@@ -739,6 +739,33 @@ function editorCommunication(callback) {
 				processActions('data-blur', editor);
 			}
 		}, "focus");
+		
+		// Collaboration
+		var socket = io('https://firetext-collab-server.herokuapp.com/');
+		socket.on('collab-message', function(content) {
+			console.log(content);
+			editorMessageProxy.postMessage({
+				command: "collab-message",
+				content: content
+			});
+		});
+		/*socket.on('reconnect', function() {
+			pushUrl = new Promise(function(_resolve) {
+				resolve = _resolve;
+			});
+			notifyPushRegister();
+		});
+		socket.on('reconnect_failed', function() {
+			console.error('socket.io reconnect failed');
+			pushUrl = null;
+			notifyPushRegister();
+		});*/
+		
+		
+		editorMessageProxy.registerMessageHandler(function(e) {
+			socket.emit('collab-message', e.data.content);
+		}, "collab-message");
+		
 		editorMessageProxy.postMessage({command: "init"});
 		
 		editor.onload = function() {
