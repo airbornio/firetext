@@ -97,7 +97,7 @@
   "activities": {
     "open": {
       "href": "./index.html",
-      "disposition": "window",
+      "disposition": "inline",
       "filters": {
         "type": [
           "text/plain",
@@ -114,7 +114,7 @@
     },
     "view": {
       "href": "./index.html",
-      "disposition": "window",
+      "disposition": "inline",
       "filters": {
         "type": [
           "text/plain",

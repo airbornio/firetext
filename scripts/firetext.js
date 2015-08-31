@@ -1124,6 +1124,8 @@ function processActions(eventAttribute, target) {
 			regions.navBack();
 		} else if (calledFunction == 'sidebar') {
 			regions.sidebar(target.getAttribute(eventAttribute + '-id'), target.getAttribute(eventAttribute + '-state'));
+		} else if (calledFunction == 'collab') {
+			collab();
 		} else if (calledFunction == 'saveFromEditor') {
 			saveFromEditor(true, true);
 		} else if (calledFunction == 'downloadFile') {
@@ -1135,12 +1137,15 @@ function processActions(eventAttribute, target) {
 					var action = target.getAttribute(eventAttribute + '-action');					 
 					if (action == 'yes') {
 						regions.navBack();
-						saveFromEditor();
-						regions.nav('welcome');					 
+						saveFromEditor(null, null, function() {
+							if(fromActivity) window.close();
+						});
+						if(!fromActivity) regions.nav('welcome');					 
 					} else if (action == 'no') {
 						fileChanged = false;
 						regions.navBack();
-						regions.nav('welcome');					 
+						if(fromActivity) window.close();
+						else regions.nav('welcome');					 
 					} else {
 						regions.navBack();
 					}
@@ -1154,7 +1159,8 @@ function processActions(eventAttribute, target) {
 			window.clearInterval(toolbarInterval);
 			
 			// Navigate to the welcome screen
-			regions.nav('welcome');
+			if(fromActivity) window.close();
+			else regions.nav('welcome');
 		} else if (calledFunction == 'formatDoc') {
 			formatDoc(target.getAttribute(eventAttribute + '-action'), target.getAttribute(eventAttribute + '-value'));
 			if (target.getAttribute(eventAttribute + '-back') == 'true') {

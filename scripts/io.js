@@ -416,7 +416,7 @@ function isValidFileName(filename) {
 	return (/^[a-zA-Z0-9-\._ ]+$/.test(filename) && !(/\.\./.test(filename)) && !(/\.$/.test(filename)));
 }
 
-function saveFromEditor(banner, spinner) {
+function saveFromEditor(banner, spinner, callback) {
 	// Clear save timeout
 	saveTimeout = null;
 
@@ -427,12 +427,57 @@ function saveFromEditor(banner, spinner) {
 	var filetype = document.getElementById('currentFileType').textContent;
 
 	var key = editorMessageProxy.registerMessageHandler(function(e){
-		firetext.io.save(directory, filename, filetype, new Blob([StringView.base64ToBytes(e.data.content)], {type: e.data.type}), banner, function(){ fileChanged = false; }, location, spinner);
+		firetext.io.save(directory, filename, filetype, new Blob([StringView.base64ToBytes(e.data.content)], {type: e.data.type}), banner, function(){
+			fileChanged = false;
+			if(callback) callback();
+		}, location, spinner);
 	}, null, true);
 	editorMessageProxy.postMessage({
 		command: "get-content-blob",
 		key: key
 	});
+}
+
+function collab() {
+	// Select elements
+	var location = document.getElementById('currentFileLocation').textContent;
+	var directory = document.getElementById('currentFileDirectory').textContent;
+	var filename = document.getElementById('currentFileName').textContent;
+	var filetype = document.getElementById('currentFileType').textContent;
+	
+	if (location === 'internal') {
+		var key = editorMessageProxy.registerMessageHandler(function(e){
+			if (e.data.type.substr(0, 5) === 'text/') {
+				var blob = new Blob([StringView.base64ToBytes(e.data.content)], {type: e.data.type});
+				var activity = new MozActivity({
+					name: 'collaborate',
+					data: {
+						'type': blob.type,
+						'filename': directory + filename + filetype,
+						'blob': blob
+					}
+				});
+				activity.addEventListener('error', function() {
+					if (this.error.name === 'NO_PROVIDER') {
+						utils.actions.types();
+					} else {
+						document.getElementById('file-action').className = 'fade-out';
+					}
+				});
+				activity.addEventListener('success', function() {
+					
+				});
+			} else {
+				firetext.notify(navigator.mozL10n.get('collaborate-html-txt-only'));
+			}
+		}, null, true);
+		editorMessageProxy.postMessage({
+			command: "get-content-blob",
+			key: key
+		});
+	} else {
+		firetext.notify(navigator.mozL10n.get('collaborate-internal-only'));
+	}
 }
 
 function download() {
