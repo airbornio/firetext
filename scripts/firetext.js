@@ -32,7 +32,6 @@ var bold, fontSelect, fontSizeSelect, italic, justifySelect, strikethrough, styl
 var underline, underlineCheckbox;
 var locationLegend, locationSelect, locationDevice, locationDropbox;
 var bugsenseInitialized = false;
-var rate;
 var editorMessageProxy, editorURL;
 
 // Lists
@@ -166,14 +165,6 @@ function initModules(callback) {
 
 	// Initialize print button
 	initPrintButton(function() {});
-
-	// Initialize rating prompter
-	rate = Object.create(fxosRate);
-	var config = {
-				usesUntilPrompt: 4
-			};
-	rate.init("firetext", version, config);
-	rate.promptRequired();
 
 	// Initialize Christmas
 	christmas();
