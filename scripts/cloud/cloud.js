@@ -16,31 +16,51 @@ var cloud = {};
 ------------------------*/
 cloud.init = function () {
 	// Dropbox
-	if (firetext.settings.get('dropbox.enabled') == 'true') {
-		cloud.dropbox.init(function(error){
-			if (!error) {	
-				// Try again to fetch previews for dropfox files
-				resetPreviews('dropbox');
-				
-				// Code to get dropbox files
-				updateDocLists(['recents', 'cloud']);
-				
-				// Show UI elements
-				locationDropbox = document.createElement('option');
-				locationDropbox.textContent = 'Dropbox';
-				locationDropbox.value = 'dropbox';
-				locationSelect.appendChild(locationDropbox);
-				
-				// This is a workaround for a very weird bug...					 
-				setTimeout(updateAddDialog, 1);				
-			} else {
-				// Hide/Remove UI elements
-				if (locationDropbox) {
-					locationSelect.removeChild(locationDropbox);
-					locationDropbox = undefined;
-				}
+	cloud.dropbox.init();
+	if (firetext.settings.get('dropbox.enabled') == 'true' && cloud.dropbox.auth) {
+		// Error Handler
+		cloud.dropbox.auth.onError.addListener(function (error) {
+			if (window.console) {
+				console.error(error);
+				cloud.dropbox.error(error);
 			}
 		});
+		if (!cloud.dropbox.client) {
+			// Auth
+			cloud.dropbox.auth.authenticate(function(error, client) {
+				if (!error && client) {
+					// Set client
+					cloud.dropbox.client = client;
+					
+					// Try again to fetch previews for dropfox files
+					resetPreviews('dropbox');
+					
+					// Code to get dropbox files
+					updateDocLists(['recents', 'cloud']);
+					
+					// Show UI elements
+					locationDropbox = document.createElement('option');
+					locationDropbox.textContent = 'Dropbox';
+					locationDropbox.value = 'dropbox';
+					locationSelect.appendChild(locationDropbox);
+					
+					// Dispatch auth event
+					window.dispatchEvent(cloud.dropbox.auth.onAuth);
+					
+					// This is a workaround for a very weird bug...					 
+					setTimeout(updateAddDialog, 1);
+				} else {
+					// Hide/Remove UI elements
+					if (locationDropbox) {
+						locationSelect.removeChild(locationDropbox);
+						locationDropbox = undefined;
+					}
+				}								 
+			});
+		} 
+		
+		// Hide connect button
+		mainButtonConnectDropbox.style.display = 'none';
 	} else {
 		// Hide/Remove UI elements
 		if (locationDropbox) {
@@ -49,7 +69,10 @@ cloud.init = function () {
 		}
 		
 		// Sign out
-		cloud.dropbox.signOut();
+		if (cloud.dropbox.client) {
+			cloud.dropbox.auth.signOut();
+			cloud.dropbox.client = undefined;
+		}
 		
 		// Close any open Dropbox files
 		if (document.getElementById('currentFileLocation').textContent == 'dropbox') {

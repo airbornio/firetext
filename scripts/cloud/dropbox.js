@@ -18,59 +18,21 @@ var authError;
 
 /* Auth
 ------------------------*/
-cloud.dropbox.init = function(callback){
+cloud.dropbox.init = function(){
 	if (firetextVariablesInitialized && firetextVariables.services.dropbox) {
 		cloud.dropbox.auth = new Dropbox.Client({
-			key: firetextVariables.services.dropbox.apiKey
+			key: "CBB0GYTWGYA=|aeSB7VBcIP94mzfQPoykIzGm++Z97KtaDn2snjXCGQ=="
 		});
 
-		cloud.dropbox.auth.authDriver(new Dropbox.AuthDriver.FFOSPopup({
+		cloud.dropbox.auth.authDriver(new Dropbox.Drivers.Popup({
 			rememberUser: true,
-			receiverUrl: firetextVariables.services.dropbox.authURL
+			receiverUrl: "https://www.airbornos.com/firetext/auth/dropbox/"
 		}));
 
-		cloud.dropbox.auth.onAuth = new CustomEvent('cloud.dropbox.authed');
-		
-		// Error Handler
-		cloud.dropbox.auth.onError.addListener(function (error) {
-			if (!authError || error.status !== Dropbox.ApiError.NETWORK_ERROR) {
-				if (window.console) {
-					console.error(error);
-				}
-				cloud.dropbox.error(error);
-				authError = true;
-			}
-		});
-		
-		// Launch authentication
-		if (!cloud.dropbox.client) {
-			// Auth
-			cloud.dropbox.auth.authenticate(function(error, client) {
-				if (!error && client) {
-					// Set client
-					cloud.dropbox.client = client;
-					authError = false;
-					
-					// Send success message
-					window.dispatchEvent(cloud.dropbox.auth.onAuth);
-					callback(false);
-				} else {
-					callback(true);
-				}								 
-			});
-		} else {
-			// Already authenticated
-			callback(false);
-		}
+		cloud.dropbox.auth.onAuth = new CustomEvent('cloud.dropbox.authed');		
 	}
-};
+}
 
-cloud.dropbox.signOut = function () {	
-	if (cloud.dropbox.client) {
-		cloud.dropbox.auth.signOut();
-		cloud.dropbox.client = undefined;
-	}
-};
 
 /* File IO
 ------------------------*/
