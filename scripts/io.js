@@ -463,16 +463,7 @@ function loadToEditor(directory, filename, filetype, location, editable) {
 	
 	// Show/hide toolbar
 	if (deviceType == 'desktop') {
-		switch (filetype) {
-			case ".txt":
-			case ".html":
-				document.getElementById('edit-bar').classList.remove('hidden');
-				break;
-			case ".odt":
-			default:
-				document.getElementById('edit-bar').classList.add('hidden');
-				break;
-		}
+		document.getElementById('edit-bar').classList.remove('hidden');
 	}
 	
 	// Fill editor
@@ -496,7 +487,6 @@ function loadToEditor(directory, filename, filetype, location, editable) {
 						document.querySelector('[data-tab-id="raw"]').classList.add('hidden-item');
 						tabRaw.classList.add('hidden-item');
 						document.getElementById('rich-tools').classList.add('hidden-item');
-						editable = false; // Do not allow user to edit odt documents at this time.
 						break;
 					case ".html":
 					default:
