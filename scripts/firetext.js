@@ -118,6 +118,20 @@ firetext.init = function () {
 			select.setAttribute('style', style);
 			select.style.width = width + 'px';
 		});
+		
+		// Asynchronously fetch fallback language, since Airborn OS doesn't support synchronous requests
+		if(
+			navigator.mozL10n.ctx.locales.en // if english locale has been created, it means we need it
+			&& !navigator.mozL10n.ctx.locales.en.isReady // if it's not ready, it means sync xhr was not supported
+		) {
+			var req = new XMLHttpRequest();
+			req.open('GET', '/locales/en.app.properties');
+			req.addEventListener('load', function() {
+				navigator.mozL10n.ctx.supportedLocales = []; // Force retranslation, now with fallback language
+				firetext.language(firetext.settings.get('language'));
+			});
+			req.send();
+		}
 	});
 };
 
