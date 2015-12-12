@@ -173,6 +173,7 @@ section[data-type="sidebar"] > nav > ul > li > a {
   line-height: 4rem;
   padding: 0.5rem 1.8rem 0.5rem 4.5rem;
   text-indent: 0;
+  cursor: pointer;
 }
 
 [dir="rtl"] section[data-type="sidebar"] > nav > ul > li > a {
