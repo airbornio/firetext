@@ -26,6 +26,17 @@ cloud.init = function () {
 			}
 		});
 		if (!cloud.dropbox.client) {
+			// Pre-open window to circumvent popup blocker
+			window._dropboxOauthSigninWindow = window.open(URL.createObjectURL(new Blob([[
+				'<script>',
+				'window.addEventListener("message", function(evt) {',
+				'	if(evt.source === window.opener) {',
+				'		window.location = evt.data.url;',
+				'	}',
+				'});',
+				'</script>',
+			].join('\n')], {type: 'text/html'})), '_dropboxOauthSigninWindow', cloud.dropbox.auth.driver.popupWindowSpec(980, 700));
+			
 			// Auth
 			cloud.dropbox.auth.authenticate(function(error, client) {
 				if (!error && client) {
