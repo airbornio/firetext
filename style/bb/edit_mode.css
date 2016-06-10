@@ -79,7 +79,7 @@
   height: 4rem;
   margin: 0 0 0 1rem;
   padding: 0 1.2rem;
-  -moz-box-sizing: border-box;
+  box-sizing: border-box;
   display: block;
   text-overflow: ellipsis;
   white-space: nowrap;

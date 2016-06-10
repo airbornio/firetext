@@ -31,14 +31,6 @@ function MessageProxy() {
 		messageHandlers[key] = undefined;
 	}
 
-	this.getMessageHandlers = function getMessageHandlers() {
-		return messageHandlers;
-	}
-
-	this.setMessageHandlers = function setMessageHandlers(_messageHandlers) {
-		messageHandlers = _messageHandlers;
-	}
-
 	this.postMessage = function postMessage(data) {
 		send.postMessage(data, "*");
 	}

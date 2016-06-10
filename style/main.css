@@ -471,29 +471,35 @@ aside select.dummy {
   background: none;
 }
 
-/* Page Setup dialog */
-#page-setup table {
+/* Document Configuration dialogs */
+.config-dialog table {
   width: 100%;
 }
 
-#page-setup table td:first-child {
+.config-dialog table td:first-child {
   width: 190px;
   height: 4.2rem;
   padding-left: 1rem;
 }
 
-#page-setup table select {
+.config-dialog table select {
   height: 2.7rem;
   width: 20rem;
 }
 
-#page-setup table input {
+.config-dialog table input {
   margin: 0;
 }
 
-#page-setup table span {
+.config-dialog table span {
   vertical-align: top;
   margin-right: 2rem;
+}
+
+.config-dialog .input-icon-button {
+  background: none !important;
+  font-size: 1.6rem !important;
+  transform: scaleX(-1);
 }
 
 /* Spinner (Throbber) */

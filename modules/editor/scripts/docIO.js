@@ -25,7 +25,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 			+ (!doctype.publicId && doctype.systemId ? ' SYSTEM' : '') 
 			+ (doctype.systemId ? ' "' + doctype.systemId + '"' : '')
 			+ '>' : '';
-		return doctypeString + document.documentElement.outerHTML.replace(/<(style|link)[^>]*_firetext_remove=""[^>]*>[^<>]*(?:<\/\1>)?/g, '').replace(' _firetext_night=""', '').replace(' _firetext_print_view=""', '');
+		return doctypeString + document.documentElement.outerHTML.replace(/<([a-z]+)[^>]*_firetext_remove=""[^>]*>[^<>]*(?:<\/\1>)?/g, '').replace(' _firetext_night=""', '').replace(' _firetext_print_view=""', '').replace(/ contenteditable="(?:true|false)"/g, '').replace(/<p[^>]+collab-added=""[^>]+><br><\/p>(<\/body>)/, '$1').replace(/ collab[-a-z]*="[a-z\d.]*"/g, '');
 	}
 	/* Function to get HTML for saving and printing */
 	function getRichHTML() {
@@ -42,9 +42,9 @@ function initDocIO(document, messageProxy, loadCallback) {
 		html = html
 			.replace('<html', '<html moznomarginboxes')
 			.replace('</head>', [
-				'',
-				'	<!--_firetext_import_remove_start-->',
+				'<!--_firetext_import_remove_start-->',
 				'	<title>' + filename.replace(/</g, '&lt;') + '</title>',
+				'	<meta name="viewport" content="width=device-width">',
 				'	<style>',
 				'	html {',
 				'		width: var(--width);',
@@ -59,7 +59,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 				'	}',
 				'	@media screen {',
 				'		html {',
-				'			padding: 65px;',
+				'			padding: 65px 0;',
 				'			background-color: #efefef;',
 				'		}',
 				'		body {',
@@ -67,6 +67,15 @@ function initDocIO(document, messageProxy, loadCallback) {
 				'			margin: -1px;',
 				'			box-shadow: 0 0 5px #ddd;',
 				'			background-color: #ffffff;',
+				'		}',
+				'		@media (max-width: ' + html.match(/--width:([^;]*)/)[1] + ') {',
+				'			html {',
+				'				padding: 0;',
+				'				width: auto;',
+				'			}',
+				'			body {',
+				'				padding: 10px;',
+				'			}',
 				'		}',
 				'	}',
 				'	@media print {',
@@ -90,12 +99,10 @@ function initDocIO(document, messageProxy, loadCallback) {
 				'		}',
 				'	}',
 				'	</style>',
-				'	<!--_firetext_import_remove_end-->',
-				'</head>',
+				'	<!--_firetext_import_remove_end--></head>',
 			].join('\n'))
 			.replace('<body>', [
-				'<body>',
-				'<!--_firetext_import_remove_start-->',
+				'<body><!--_firetext_import_remove_start-->',
 				'<table style="border-collapse: collapse; table-layout: fixed; width: 100%;">',
 				'	<thead>',
 				'		<tr class="firetext_page_margin"><td style="padding: 0;"></td></tr>',
@@ -106,8 +113,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 				'			<!--_firetext_import_remove_end-->',
 			].join('\n'))
 			.replace('</body>', [
-				'',
-				'			<!--_firetext_import_remove_start-->',
+				'<!--_firetext_import_remove_start-->',
 				'			</td>',
 				'		</tr>',
 				'	</tbody>',
@@ -115,8 +121,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 				'		<tr class="firetext_page_margin"><td style="padding: 0;"></td></tr>',
 				'	</tfoot>',
 				'</table>',
-				'<!--_firetext_import_remove_end-->',
-				'</body>',
+				'<!--_firetext_import_remove_end--></body>',
 			].join('\n'));
 		if(!/<meta[^>]+charset/.test(html)) html = html.replace('<head>', '<head><meta charset="utf-8">'); // Default to utf-8
 		return html;
@@ -186,7 +191,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 		var binary = false;
 		switch (filetype) {
 			case ".html":
-				content = (e.data.rich ? getRichHTML : getHTML)();
+				content = getRichHTML();
 				type = "text\/html";
 				break;
 			case ".txt":
@@ -220,7 +225,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 	messageProxy.registerMessageHandler(function(e) {
 		messageProxy.postMessage({
 			command: e.data.key,
-			content: (e.data.rich ? getRichHTML : getHTML)()
+			content: getRichHTML()
 		});
 	}, "get-content-html");
 
@@ -262,7 +267,6 @@ function initDocIO(document, messageProxy, loadCallback) {
 		Object.keys(e.data.properties).forEach(function(property) {
 			document.documentElement.style.setProperty('--' + property, e.data.properties[property]);
 		});
-		printViewOnInput();
-		printViewOnResize();
+		document.dispatchEvent(new CustomEvent('input', {detail: 'fromProperties'}));
 	}, "set-properties");
 }

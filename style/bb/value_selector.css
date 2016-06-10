@@ -34,7 +34,7 @@ form[role="dialog"]:before {
 
 form[role="dialog"] > section {
   padding: 0 1.5rem 0;
-  -moz-box-sizing: padding-box;
+  box-sizing: padding-box;
   width: 100%;
   height: 100%;
   display: inline-block;
@@ -71,7 +71,7 @@ form[role="dialog"] menu button {
   height: 3.8rem;
   margin: 0 0 1rem;
   padding: 0 1.5rem;
-  -moz-box-sizing: border-box;
+  box-sizing: border-box;
   display: inline-block;
   vertical-align: middle;
   text-overflow: ellipsis;

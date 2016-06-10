@@ -57,36 +57,42 @@ firetext.init = function () {
 			// Update Doc Lists
 			updateDocLists();
 		
-			// Check for recent file, and if found, load it.
-			if (firetext.settings.get('autoload') == 'true') {
-				var lastDoc = [firetext.settings.get('autoload.dir'), firetext.settings.get('autoload.name'), firetext.settings.get('autoload.ext'), firetext.settings.get('autoload.loc')];
-				if (firetext.settings.get('autoload.wasEditing') == 'true') {
-					// Wait until Dropbox is authenticated
-					if (lastDoc[3] == 'dropbox') {
-						if (firetext.settings.get('dropbox.enabled') == 'true') {
-							if (cloud.dropbox.client) {
-								loadToEditor(lastDoc[0], lastDoc[1], lastDoc[2], lastDoc[3]);
-								spinner('hide');								
-							} else {
-								window.addEventListener('cloud.dropbox.authed', function() {
+			// Init shared docs
+			if(!initSharedDocuments()) {
+				// If there were shared docs, it navigated to welcome and possibly enter-password for us.
+				// Only if there weren't do we navigate to welcome and possibly the most recent document here.
+				
+				// Check for recent file, and if found, load it.
+				if (firetext.settings.get('autoload') == 'true') {
+					var lastDoc = [firetext.settings.get('autoload.dir'), firetext.settings.get('autoload.name'), firetext.settings.get('autoload.ext'), firetext.settings.get('autoload.loc')];
+					if (firetext.settings.get('autoload.wasEditing') == 'true') {
+						// Wait until Dropbox is authenticated
+						if (lastDoc[3] == 'dropbox') {
+							if (firetext.settings.get('dropbox.enabled') == 'true') {
+								if (cloud.dropbox.client) {
 									loadToEditor(lastDoc[0], lastDoc[1], lastDoc[2], lastDoc[3]);
-									spinner('hide');
-								});								
+									spinner('hide');								
+								} else {
+									window.addEventListener('cloud.dropbox.authed', function() {
+										loadToEditor(lastDoc[0], lastDoc[1], lastDoc[2], lastDoc[3]);
+										spinner('hide');
+									});								
+								}
+							} else {
+								spinner('hide');
 							}
 						} else {
+							loadToEditor(lastDoc[0], lastDoc[1], lastDoc[2], lastDoc[3]);
 							spinner('hide');
 						}
 					} else {
-						loadToEditor(lastDoc[0], lastDoc[1], lastDoc[2], lastDoc[3]);
 						spinner('hide');
 					}
+					regions.nav('welcome');
 				} else {
 					spinner('hide');
+					regions.nav('welcome');
 				}
-				regions.nav('welcome');
-			} else {
-				spinner('hide');
-				regions.nav('welcome');
 			}
 		
 			// Create listeners
@@ -179,6 +185,9 @@ function initModules(callback) {
 
 	// Initialize print button
 	initPrintButton(function() {});
+
+	// Initialize copy buttons
+	initCopyButtons();
 
 	// Initialize Christmas
 	christmas();
@@ -511,15 +520,16 @@ function bugsenseInit() {
 ------------------------*/
 var allDocs,
 	recentsDocs,
+	sharedDocs = [],
 	internalDocs = [],
 	cloudDocs = [];
 
 function updateAllDocs() {
 	allDocs = recentsDocs.concat(internalDocs.concat(cloudDocs).sort(function(a, b) {
 		return b[5] - a[5];
-	})).filter(function(doc, j, docs) {
+	})).concat(sharedDocs).filter(function(doc, j, docs) {
 		for(var i = 0; i < j; i++) {
-			if(docs[i][0] == doc[0] && docs[i][1] == doc[1] && docs[i][2] == doc[2]) {
+			if(docs[i][0] == doc[0] && docs[i][1] == doc[1] && docs[i][2] == doc[2] && (docs[i][4] || 'internal') == (doc[4] || 'internal')) {
 				return false;
 			}
 		}
@@ -587,6 +597,12 @@ function updateDocLists(lists) {
 		updateAllDocs();
 	}
 		
+	if (lists.indexOf('all') != '-1' | lists.indexOf('shared') != '-1') {
+		// Shared
+		sharedDocs = firetext.shared.getAll();
+		updateAllDocs();
+	}
+		
 	if (lists.indexOf('all') != '-1' | lists.indexOf('internal') != '-1') {
 		// Internal
 		spinner();
@@ -638,6 +654,7 @@ function getPreview(filetype, content, error) {
 		*/
 		case ".html":
 		default:
+			content = content.replace(/<!--_firetext_import_remove_start-->[\s\S]*?<!--_firetext_import_remove_end-->/g, '');
 			if(!/<!DOCTYPE/i.test(content)) content = '<!DOCTYPE html>' + content;
 			break;
 	}
@@ -947,6 +964,34 @@ function initEditor(callback) {
 	}
 }
 
+// Collaboration
+var socket = io(airborn.top_location.origin, {
+	path: '/ft-socket.io',
+	autoConnect: false,
+});
+
+/* http://stackoverflow.com/questions/10405070/socket-io-client-respond-to-all-events-with-one-handler */
+var socket_onevent = socket.onevent;
+socket.onevent = function(packet) {
+    var args = packet.data || [];
+    socket_onevent.call(this, packet); // original call
+    packet.data = ['*'].concat(args);
+    socket_onevent.call(this, packet); // additional call to catch-all
+};
+
+socket.on('*', function(type, data) {
+    if(data && data.edit) { data.edit = JSON.parse(firetext.shared.collabDecrypt(socket.attrs['collab-use-password'] ? socket.attrs['collab-password'] : '', data.edit)); }
+    editorMessageProxy.postMessage({
+        command: "collab-message",
+        type: type,
+        data: data
+    });
+});
+
+socket.on('reconnect', function() {
+	socket.emit('open', {path: socket.path});
+});
+
 function editorCommunication(callback) {
 	editor.onload = null;
 	editor.onload = function() {
@@ -964,11 +1009,11 @@ function editorCommunication(callback) {
 		
 		// Handle errors and logs
 		editorMessageProxy.registerMessageHandler(function(e) {
-			console.log(e.data.details);
-		}, "error", true);
+			console.error.apply(console, e.data.args);
+		}, "error");
 		editorMessageProxy.registerMessageHandler(function(e) {
-			console.log(e.data.details);
-		}, "log", true);
+			console.log.apply(console, e.data.args);
+		}, "log");
 
 		editorMessageProxy.registerMessageHandler(function(e) {
 			tempText = e.data.html;
@@ -988,6 +1033,18 @@ function editorCommunication(callback) {
 				processActions('data-blur', editor);
 			}
 		}, "focus");
+		
+		// Collab
+		editorMessageProxy.registerMessageHandler(function(e) {
+			if(socket.path) {
+				var type = e.data.type;
+				var data = e.data.data;
+				data.path = socket.path;
+				if(data.edit) { data.edit = firetext.shared.collabEncrypt(socket.attrs, JSON.stringify(data.edit)); }
+				socket.emit(type, data);
+			}
+		}, "collab-message");
+		
 		editorMessageProxy.postMessage({command: "init"});
 		
 		editor.onload = function() {
@@ -1417,6 +1474,13 @@ function processActions(eventAttribute, target, event) {
 					target.parentNode.children[0].focus();
 				});
 			}
+		} else if (calledFunction == 'copyForm') {
+			event.preventDefault();
+		} else if (calledFunction == 'generateNewPasswordForm') {
+			if (target.parentNode.children[0]) {
+				target.parentNode.children[0].value = generateNewPassword();
+				event.preventDefault();
+			}
 		} else if (calledFunction == 'clearCreateForm') {
 			clearCreateForm();
 			event.preventDefault();
@@ -1608,6 +1672,124 @@ function processActions(eventAttribute, target, event) {
 					margin: margin,
 				}
 			});
+		} else if (calledFunction == 'openCollab') {
+			var location = document.getElementById('currentFileLocation').textContent;
+			var directory = document.getElementById('currentFileDirectory').textContent;
+			var filename = document.getElementById('currentFileName').textContent;
+			var filetype = document.getElementById('currentFileType').textContent;
+			
+			if(location.substr(0, 8) !== 'internal') {
+				firetext.notify(navigator.mozL10n.get('cant-collab-noninternal'));
+				return;
+			}
+			if (directory[0] !== '/') {
+				directory = '/sdcard/' + directory;
+			}
+			var shared = firetext.shared.get(location + directory + filename + filetype);
+			if(shared && shared['collab-ACL']) {
+				document.getElementById('collab-ACL').value = shared['collab-ACL'];
+				document.getElementById('collab-use-password').checked = shared['collab-use-password'];
+				document.getElementById('collab-password').value = shared['collab-password'];
+				document.getElementById('collab-iter').value = shared['collab-iter'];
+				document.getElementById('collab-salt').value = shared['collab-salt'];
+				document.getElementById('collab-link').value = firetext.shared.getCollabLink(shared);
+			} else {
+				document.getElementById('collab-ACL').value = 'public-read-write';
+				document.getElementById('collab-use-password').checked = true;
+				document.getElementById('collab-password').value = generateNewPassword();
+				document.getElementById('collab-iter').value = 10000;
+				document.getElementById('collab-salt').value = sjcl.codec.base64.fromBits(sjcl.random.randomWords(2,0));
+				document.getElementById('collab-link').value = '';
+			}
+			
+			regions.nav('collab');
+		} else if (calledFunction == 'collab') {
+			var location = document.getElementById('currentFileLocation').textContent;
+			var directory = document.getElementById('currentFileDirectory').textContent;
+			var filename = document.getElementById('currentFileName').textContent;
+			var filetype = document.getElementById('currentFileType').textContent;
+			
+			if (directory[0] !== '/') {
+				directory = '/sdcard/' + directory;
+			}
+			airborn.fs.getObjectLocation(directory.replace('/sdcard/', '/Documents/') + filename + filetype, function(objectLoc) {
+				if(!objectLoc.hist) {
+					firetext.notify(navigator.mozL10n.get('cant-collab-nohist'), '<a href="' + airborn.top_location.origin + '/plans" target="_blank">' + navigator.mozL10n.get('click-to-open-plans').replace(/</g, '&lt;') + '</a>', 10000);
+					return;
+				}
+				var shared = firetext.shared.get(location + directory + filename + filetype, shared) || {};
+				for(var i in objectLoc) { shared[i] = objectLoc[i]; }
+				shared['collab-ACL'] = document.getElementById('collab-ACL').value;
+				shared['collab-use-password'] = document.getElementById('collab-use-password').checked;
+				shared['collab-password'] = document.getElementById('collab-password').value;
+				shared['collab-iter'] = parseInt(document.getElementById('collab-iter').value);
+				shared['collab-salt'] = document.getElementById('collab-salt').value;
+				shared['collab-version'] = firetext.shared.collabVersion;
+				shared.path = location + directory + filename + filetype;
+				firetext.shared.set(location + directory + filename + filetype, shared);
+				firetext.shared.updateCollab(location + directory + filename + filetype);
+				saveFromEditor(true, true);
+				document.getElementById('collab-link').value = firetext.shared.getCollabLink(shared);
+			});
+		} else if (calledFunction == 'openPublish') {
+			var location = document.getElementById('currentFileLocation').textContent;
+			var directory = document.getElementById('currentFileDirectory').textContent;
+			var filename = document.getElementById('currentFileName').textContent;
+			var filetype = document.getElementById('currentFileType').textContent;
+			
+			if(location.substr(0, 8) !== 'internal') {
+				firetext.notify(navigator.mozL10n.get('cant-publish-noninternal'));
+				return;
+			}
+			if (directory[0] !== '/') {
+				directory = '/sdcard/' + directory;
+			}
+			var shared = firetext.shared.get(location + directory + filename + filetype);
+			if(shared && shared['publish-ACL']) {
+				document.getElementById('publish-ACL').value = shared['publish-ACL'];
+				document.getElementById('publish-use-password').checked = shared['publish-use-password'];
+				document.getElementById('publish-password').value = shared['publish-password'];
+				document.getElementById('publish-iter').value = shared['publish-iter'];
+				document.getElementById('publish-salt').value = shared['publish-salt'];
+				document.getElementById('publish-link').value = firetext.shared.getPublishLink(shared);
+			} else {
+				document.getElementById('publish-ACL').value = 'public-read';
+				document.getElementById('publish-use-password').checked = false;
+				document.getElementById('publish-iter').value = 10000;
+				document.getElementById('publish-salt').value = sjcl.codec.base64.fromBits(sjcl.random.randomWords(2,0));
+				document.getElementById('publish-link').value = '';
+			}
+			
+			regions.nav('publish');
+		} else if (calledFunction == 'publish') {
+			var location = document.getElementById('currentFileLocation').textContent;
+			var directory = document.getElementById('currentFileDirectory').textContent;
+			var filename = document.getElementById('currentFileName').textContent;
+			var filetype = document.getElementById('currentFileType').textContent;
+			
+			if (directory[0] !== '/') {
+				directory = '/sdcard/' + directory;
+			}
+			airborn.fs.getObjectLocation(directory.replace('/sdcard/', '/Documents/') + filename + filetype, function(objectLoc) {
+				if(objectLoc.demo) {
+					firetext.notify(navigator.mozL10n.get('cant-publish-demo'));
+					return;
+				}
+				var shared = firetext.shared.get(location + directory + filename + filetype, shared) || {};
+				for(var i in objectLoc) { shared[i] = objectLoc[i]; }
+				shared['publish-ACL'] = document.getElementById('publish-ACL').value;
+				shared['publish-use-password'] = document.getElementById('publish-use-password').checked;
+				shared['publish-password'] = document.getElementById('publish-password').value;
+				shared['publish-iter'] = parseInt(document.getElementById('publish-iter').value);
+				shared['publish-salt'] = document.getElementById('publish-salt').value;
+				shared.path = location + directory + filename + filetype;
+				firetext.shared.set(location + directory + filename + filetype, shared);
+				saveFromEditor(true, true);
+				document.getElementById('publish-link').value = firetext.shared.getPublishLink(shared);
+			});
+		} else if (calledFunction == 'openSharedDocument') {
+			openSharedDocument(document.getElementById('entered-password').value);
+			regions.navBack();
 		} else if (calledFunction == 'clearRecents') {
 			firetext.recents.reset();
 			firetext.notify(navigator.mozL10n.get('recents-eliminated'));
@@ -1746,7 +1928,6 @@ function printButtonCommunication(callback) {
 			}, null, true);
 			editorMessageProxy.postMessage({
 				command: "get-content-html",
-				rich: true,
 				key: key
 			});
 			regions.nav('edit');
@@ -1776,6 +1957,17 @@ function visitURL(browseLocation) {
 
 	// Open a new tab
 	window.open(browseLocation);
+}
+
+function initCopyButtons() {
+	var clipboard = new Clipboard('.copy-button');
+	clipboard.on('success', function(evt) {
+		firetext.notify(navigator.mozL10n.get('copied'));
+		evt.clearSelection();
+	});
+	clipboard.on('error', function(evt) {
+		firetext.notify(navigator.mozL10n.get('copy-manually'));
+	});
 }
 
 function christmas() {

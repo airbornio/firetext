@@ -11,7 +11,7 @@ function printView(printView) {
 		document.addEventListener('wheel', printViewOnWheel);
 		document.head.appendChild(documentSizeStyle);
 		document.head.appendChild(windowSizeStyle);
-		printViewOnInput();
+		printViewOnInput({});
 		printViewOnResize();
 	} else {
 		document.documentElement.removeAttribute('_firetext_print_view');
@@ -25,7 +25,7 @@ function printView(printView) {
 
 var documentSizeStyle = document.createElement('style');
 documentSizeStyle.setAttribute('_firetext_remove', '');
-function printViewOnInput() {
+function printViewOnInput(evt) {
 	documentSizeStyle.textContent = '';
 	var pages = Math.ceil(document.body.offsetHeight / (document.documentElement.offsetHeight - 65));
 	documentSizeStyle.textContent = [
@@ -36,6 +36,9 @@ function printViewOnInput() {
 		'	height: ' + pages + '00%;',
 		'}',
 	].join('\n');
+	if(evt.detail) { // fromCollab or fromProperties might change page size
+		printViewOnResize();
+	}
 }
 
 var windowSizeStyle = document.createElement('style');

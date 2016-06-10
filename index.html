@@ -33,6 +33,9 @@
 	<script type="text/javascript" src="scripts/lib/jszip-load.js" defer></script>
 	<script type="text/javascript" src="scripts/lib/codemirror-compressed.js" defer></script>
 	<script type="text/javascript" src="scripts/lib/closest.js" defer></script>
+	<script type="text/javascript" src="scripts/lib/socket.io.js" defer></script>
+	<script type="text/javascript" src="scripts/lib/sjcl.js" defer></script>
+	<script type="text/javascript" src="scripts/lib/clipboard.min.js" defer></script>
 	
 	<!-- Localization -->
 	<meta name="defaultLanguage" content="en">
@@ -49,6 +52,7 @@
 	<script type="text/javascript" src="scripts/language.js" defer></script>
 	<script type="text/javascript" src="scripts/night.js" defer></script>
 	<script type="text/javascript" src="scripts/recents.js" defer></script>
+	<script type="text/javascript" src="scripts/shared.js" defer></script>
 	<script type="text/javascript" src="scripts/regions.js" defer></script>
 	<script type="text/javascript" src="scripts/settings.js" defer></script>
 	<script type="text/javascript" src="scripts/notifications.js" defer></script>
@@ -241,6 +245,138 @@
 	</section>
 	<div class="background" data-click="navBack"></div>
 	
+	<section role="dialog" id="collab" class="config-dialog">
+		<header>
+			<button data-click="navBack" data-l10n-title="close"><span class="icon icon-close"></span></button>
+			<menu type="toolbar">
+				<button data-click="collab" data-l10n-id="okay"></button>
+			</menu>
+			<h1 data-l10n-id="collaborate"></h1>
+		</header>
+		<div role="main">
+			<div class="form">
+				<br>
+				<fieldset class="button-block">
+					<table>
+						<tr>
+							<td data-l10n-id="public"></td>
+							<td>
+								<p>
+									<select id="collab-ACL">
+										<option value="private" data-l10n-id="no"></option>
+										<option value="public-read" data-l10n-id="can-view"></option>
+										<option value="public-read-write" data-l10n-id="can-edit"></option>
+									</select>
+								</p>
+							</td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" id="collab-use-password"> <span data-l10n-id="use-password"></span></label></td>
+							<td>
+								<p>
+									<input type="text" id="collab-password" data-enter="collab">
+									<button type="reset" data-mouse-down="generateNewPasswordForm" class="input-icon-button icon-refresh"></button>
+									<input type="hidden" id="collab-iter">
+									<input type="hidden" id="collab-salt">
+								</p>
+							</td>
+						</tr>
+						<tr>
+							<td data-l10n-id="link"></td>
+							<td>
+								<p>
+									<input readonly="" type="text" id="collab-link">
+									<button type="reset" data-mouse-down="copyForm" data-clipboard-target="#collab-link" class="copy-button input-icon-button icon-content-copy"></button>
+								</p>
+							</td>
+						</tr>
+					</table>
+				</fieldset>
+			</div>
+		</div>
+	</section>
+	<div class="background" data-click="navBack"></div>
+	
+	<section role="dialog" id="publish" class="config-dialog">
+		<header>
+			<button data-click="navBack" data-l10n-title="close"><span class="icon icon-close"></span></button>
+			<menu type="toolbar">
+				<button data-click="publish" data-l10n-id="okay"></button>
+			</menu>
+			<h1 data-l10n-id="publish"></h1>
+		</header>
+		<div role="main">
+			<div class="form">
+				<br>
+				<fieldset class="button-block">
+					<table>
+						<tr>
+							<td data-l10n-id="public"></td>
+							<td>
+								<p>
+									<select id="publish-ACL">
+										<option value="private" data-l10n-id="no"></option>
+										<option value="public-read" data-l10n-id="can-view"></option>
+									</select>
+								</p>
+							</td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" id="publish-use-password"> <span data-l10n-id="use-password"></span></label></td>
+							<td>
+								<p>
+									<input type="text" id="publish-password" data-enter="publish">
+									<button type="reset" data-mouse-down="generateNewPasswordForm" class="input-icon-button icon-refresh"></button>
+									<input type="hidden" id="publish-iter">
+									<input type="hidden" id="publish-salt">
+								</p>
+							</td>
+						</tr>
+						<tr>
+							<td data-l10n-id="link"></td>
+							<td>
+								<p>
+									<input readonly="" type="text" id="publish-link">
+									<button type="reset" data-mouse-down="copyForm" data-clipboard-target="#publish-link" class="copy-button input-icon-button icon-content-copy"></button>
+								</p>
+							</td>
+						</tr>
+					</table>
+				</fieldset>
+			</div>
+		</div>
+	</section>
+	<div class="background" data-click="navBack"></div>
+	
+	<section role="dialog" id="enter-password" class="config-dialog">
+		<header>
+			<button data-click="navBack" data-l10n-title="close"><span class="icon icon-close"></span></button>
+			<menu type="toolbar">
+				<button data-click="openSharedDocument" data-l10n-id="okay"></button>
+			</menu>
+			<h1 data-l10n-id="shared-document"></h1>
+		</header>
+		<div role="main">
+			<div class="form">
+				<br>
+				<fieldset class="button-block">
+					<table>
+						<tr>
+							<td data-l10n-id="password"></td>
+							<td>
+								<p>
+									<input required="" type="text" id="entered-password" data-enter="openSharedDocument">
+									<button type="reset" data-mouse-down="clearForm"></button>
+								</p>
+							</td>
+						</tr>
+					</table>
+				</fieldset>
+			</div>
+		</div>
+	</section>
+	<div class="background" data-click="navBack"></div>
+	
 	<section role="dialog" id="open" class="menuless">
 		<header>
 			<button data-click="navBack" data-l10n-title="close"><span class="icon icon-close"></span></button>
@@ -266,6 +402,8 @@
 			<ul>
 				<li><a href="#" data-click="saveFromEditor"><span class="icon icon-content-save"></span><span data-l10n-id="save"></span></a></li>
 				<li><a href="#" data-click="nav" data-click-location="save-as" data-l10n-id="save-as"></a></li>
+				<li><a href="#" data-click="openCollab" data-l10n-id="collaborate"></a></li>
+				<li><a href="#" data-click="openPublish" data-l10n-id="publish"></a></li>
 				<li><a href="#" data-click="downloadFile"><span class="icon icon-cloud-download"></span><span data-l10n-id="export"></span></a></li>
 				<li><a href="#" data-click="openPageSetup" data-l10n-id="page-setup"></a></li>
 				<li>
@@ -499,7 +637,7 @@
 	</section>
 	<div class="background" data-click="navBack"></div>
 	
-	<section role="dialog" id="page-setup">
+	<section role="dialog" id="page-setup" class="config-dialog">
 		<header>
 			<button data-click="navBack" data-l10n-title="close"><span class="icon icon-close"></span></button>
 			<menu type="toolbar">

@@ -28,13 +28,15 @@ var mainClosure = function() {
 			throw new Error("origin did not match");
 		}
 		
-		// Send message on error or console.log()
-		window.onerror = function(a,b,c){
-			parentMessageProxy.postMessage({command: "error", details: [a,b,c]});
-		};
-		console.log = function(msg){
-			parentMessageProxy.postMessage({command: "log", details: msg});
-		};
+		if(navigator.userAgent.indexOf('Firefox') !== -1) {
+			// Send message on error or console.log()
+			window.onerror = function(){
+				parentMessageProxy.postMessage({command: "error", args: Array.prototype.slice.call(arguments)});
+			};
+			console.log = function(){
+				parentMessageProxy.postMessage({command: "log", args: Array.prototype.slice.call(arguments)});
+			};
+		}
 		
 		// initialize modules/register handlers
 		// night mode

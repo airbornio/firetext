@@ -91,7 +91,8 @@
     "device-storage:sdcard": {
       "description": "Required for document storage.",
       "access": "readwrite"
-    }
+    },
+    "get-object-locations": {}
   },
   "redirects": [
     {

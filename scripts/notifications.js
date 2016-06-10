@@ -5,7 +5,7 @@
 
 'use strict';
 
-firetext.notify = function (message, title, time) {
+firetext.notify = function (message, html, time) {
 	// Fix variables
 	if (!time) {
 		time = 5000;
@@ -17,16 +17,16 @@ firetext.notify = function (message, title, time) {
 	
 	var notification = document.createElement('div');
 	
-	if (title) {
-		var notificationTitle = document.createElement('p');
-		notificationTitle.classList.add('notification-title');
-		notificationTitle.textContent = title;
-		notification.appendChild(notificationTitle);		
-	}
-	
 	var notificationBody = document.createElement('p');
 	notificationBody.textContent = message;
 	notification.appendChild(notificationBody);
+	
+	if (html) {
+		var notificationHtml = document.createElement('p');
+		notificationHtml.classList.add('notification-html');
+		notificationHtml.innerHTML = html;
+		notification.appendChild(notificationHtml);		
+	}
 	
 	notificationContainer.appendChild(notification);
 	document.querySelector('section.current').appendChild(notificationContainer);
