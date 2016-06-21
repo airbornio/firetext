@@ -522,7 +522,7 @@ function loadToEditor(directory, filename, filetype, location, editable) {
 		
 				// Show editor
 				regions.nav('edit');
-				regions.tab(document.querySelector('#editTabs'), 'design');
+				regions.tab('design', 'design');
 		
 				// Hide save button if autosave is enabled
 				if (firetext.settings.get('autosave') != 'false') {
