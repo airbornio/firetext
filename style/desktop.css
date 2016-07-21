@@ -40,7 +40,8 @@ form[role="dialog"] {
 }
 
 section[role="dialog"] + .background,
-form[role="dialog"] + .background {
+form[role="dialog"] + .background,
+section[data-type="sidebar"] + .background {
   z-index: 101;
   top: 0;
   left: 0;
@@ -62,7 +63,8 @@ form[role="dialog"] + .background {
 section[role="dialog"].current + .background,
 section[role="dialog"].parent + .background,
 form[role="dialog"].current + .background,
-form[role="dialog"].parent + .background {
+form[role="dialog"].parent + .background,
+section[data-type="sidebar"].current + .background {
   opacity: 1;
   visibility: visible;
   pointer-events: all;
@@ -212,10 +214,10 @@ section[data-type="sidebar"] [role="toolbar"] button.active {
   background-color: #ccc; 
 }
 
-[data-state="drawer"].current,
-[data-state="drawer"][data-position="right"].current,
-[dir="rtl"] [data-state="drawer"].current,
-[dir="rtl"] [data-state="drawer"][data-position="right"].current {
+[data-type="sidebar"].current ~ .parent,
+[data-type="sidebar"][data-position="right"].current ~ .parent,
+[dir="rtl"] [data-type="sidebar"].current ~ .parent,
+[dir="rtl"] [data-type="sidebar"][data-position="right"].current ~ .parent {
     -moz-transform: translateX(0) !important;
     -webkit-transform: translateX(0) !important;
     -o-transform: translateX(0) !important;

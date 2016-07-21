@@ -85,14 +85,14 @@
 	<link rel="stylesheet" type="text/css" href="style/icons.css"/>
 	<link rel="stylesheet" type="text/css" href="style/action_menu.css"/>
 	<link rel="stylesheet" type="text/css" media="(min-width: 767px)" href="style/desktop.css"/>
-	<link rel="stylesheet" type="text/css" media="(max-width: 767px)" href="style/mobile.css"/>
+	<link rel="stylesheet" type="text/css" media="(max-width: 766px)" href="style/mobile.css"/>
 	<link rel="stylesheet" type="text/css" href="style/night.css" />
 </head>
 
 <body role="application" data-esc="closeOverlay">
 	<div class="spinner center" id="loadSpinner" style="z-index: 1000;"><div></div></div>
 
-	<section data-type="sidebar" id="sidebar_welcome" data-position="right" data-swipe-right="sidebar" data-swipe-right-id="welcome">
+	<section data-type="sidebar" id="sidebar_welcome" data-position="right" data-swipe-right="navBack">
 		<header>
 			<h1 data-l10n-id="menu"></h1>
 		</header>
@@ -114,13 +114,13 @@
 	</section>
 	
 	<section role="region" id="welcome" 
-		data-swipe-left="sidebar" data-swipe-left-id="welcome" data-swipe-left-state="open" data-swipe-left-only="current" 
-		data-swipe-right="sidebar" data-swipe-right-id="welcome" data-swipe-right-state="close" data-swipe-right-only="current"
-		data-click="sidebar" data-click-id="welcome" data-click-state="close" data-click-only="current">
+		data-swipe-left="nav" data-swipe-left-location="sidebar_welcome" data-swipe-left-only="current"
+		data-swipe-right="navBack" data-swipe-right-only="parent"
+		data-click="navBack" data-click-only="parent">
 		<header>
 			<menu type="toolbar">
 				<button data-click="nav" data-click-location="create" data-l10n-title="create"><span class="icon icon-pencil"></span></button>
-				<button data-click="sidebar" data-click-id="welcome" class="drawerEnabled" data-l10n-title="menu"><span class="icon icon-menu"></span></button>
+				<button data-click="sidebar" data-click-location="sidebar_welcome" class="drawerEnabled" data-l10n-title="menu"><span class="icon icon-menu"></span></button>
 			</menu>
 			<h1 class="firetext icon-"><img src="style/icons/app/firetext.svg" alt="Firetext" id="welcome-wordmark"></h1>
 		</header>
@@ -393,7 +393,7 @@
 	</section>
 	<div class="background" data-click="navBack"></div>
 	
-	<section data-type="sidebar" id="sidebar_main" data-position="right" data-swipe-right="sidebar" data-swipe-right-id="main">
+	<section data-type="sidebar" id="sidebar_main" data-position="right" data-swipe-right="navBack">
 		<header>
 			<h1 class="file-name"></h1>
 		</header>
@@ -428,12 +428,12 @@
 		</div>
 	</section>
 	
-	<section role="region" id="edit" data-click="sidebar" data-click-id="main" data-click-state="close" data-click-only="current">
+	<section role="region" id="edit" data-click="navBack" data-click-only="parent">
 		<header class="edit-header top-bar">
 			<button id="header-close-file" data-click="closeFile" class="no-zen" data-l10n-title="close"><span class="icon icon-close"></span></button>
 			<menu type="toolbar">
 				<button data-click="fullscreen" class="desktop-only" id="editor-zen-button" data-l10n-title="fullscreen"><span class="icon icon-fullscreen"></span></button>
-				<button data-click="sidebar" data-click-id="main" class="menu drawerEnabled no-zen" data-l10n-title="menu"><span class="icon icon-menu"></span></button>
+				<button data-click="sidebar" data-click-location="sidebar_main" class="menu drawerEnabled no-zen" data-l10n-title="menu"><span class="icon icon-menu"></span></button>
 			</menu>
 			<h1 id="fileName" class="no-zen"><span id="currentFileLocation" style="display:none;"></span><span id="currentFileDirectory" style="display:none;"></span><span id="currentFileName"></span><span id="currentFileType"></span></h1>
 			<div class="tabBar">

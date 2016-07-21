@@ -67,14 +67,14 @@ section[role="dialog"] + .background {
 	transition: .4s visibility 0s;
 }
 
-[data-type="sidebar"].active {
+[data-type="sidebar"].current {
 		-moz-transition: 0s visibility 0s;
 		-webkit-transition: 0s visibility 0s;
 		-o-transition: 0s visibility 0s;
 	transition: 0s visibility 0s;
 }
 
-[data-state="drawer"].current {
+[data-type="sidebar"].current ~ .parent {
 		-moz-transform: translateX(80%) !important;
 		-webkit-transform: translateX(80%) !important;
 		-o-transform: translateX(80%) !important;
@@ -82,7 +82,7 @@ section[role="dialog"] + .background {
 	transform: translateX(80%) !important;
 }
 
-[dir="rtl"] [data-state="drawer"].current {
+[dir="rtl"] [data-type="sidebar"].current ~ .parent {
 		-moz-transform: translateX(-80%) !important;
 		-webkit-transform: translateX(-80%) !important;
 		-o-transform: translateX(-80%) !important;
@@ -90,15 +90,11 @@ section[role="dialog"] + .background {
 	transform: translateX(-80%) !important;
 }
 
-[data-state="drawer"].current > *:not(.drawerEnabled) {
+[data-type="sidebar"].current ~ .parent > * {
 	pointer-events: none;		
 }
 
-[data-state="drawer"].current .drawerEnabled {
-	pointer-events: all;
-}
-
-[data-state="drawer"][data-position="right"].current {
+[data-type="sidebar"][data-position="right"].current ~ .parent {
 		-moz-transform: translateX(-80%) !important;
 		-webkit-transform: translateX(-80%) !important;
 		-o-transform: translateX(-80%) !important;
@@ -106,7 +102,7 @@ section[role="dialog"] + .background {
 	transform: translateX(-80%) !important;
 }
 
-[dir="rtl"] [data-state="drawer"][data-position="right"].current {
+[dir="rtl"] [data-type="sidebar"][data-position="right"].current ~ .parent {
 		-moz-transform: translateX(80%) !important;
 		-webkit-transform: translateX(80%) !important;
 		-o-transform: translateX(80%) !important;

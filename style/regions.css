@@ -58,6 +58,6 @@ section[role="dialog"].current {
   visibility: collapse;
 }
 
-[data-type="sidebar"].active {
+[data-type="sidebar"].current {
   visibility: visible;
 }

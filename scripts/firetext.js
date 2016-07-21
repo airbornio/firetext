@@ -108,9 +108,6 @@ firetext.init = function () {
 		// Add l10n title attributes and long-press help popups
 		initElementTitles();
 		
-		// Update document title
-		setDocumentTitle();
-		
 		// Let Bugsense know about language
 		if (bugsenseInitialized) {
 			Bugsense.addExtraData('app_locale', navigator.mozL10n.language.code);
@@ -1407,6 +1404,15 @@ function processActions(eventAttribute, target, event) {
 		}
 		
 		var calledFunction = target.getAttribute(eventAttribute);
+		if(!calledFunction) {
+			return;
+		}
+		
+		// Don't navigate to #
+		if (eventAttribute === 'data-click' && event.target.nodeName.toLowerCase() === 'a') {
+			event.preventDefault();
+		}
+		
 		if (calledFunction == 'loadToEditor') {
 			loadToEditor(target.getAttribute(eventAttribute + '-directory'), target.getAttribute(eventAttribute + '-filename'), target.getAttribute(eventAttribute + '-filetype'), target.getAttribute(eventAttribute + '-location'));
 		} else if (calledFunction == 'nav') {
@@ -1416,7 +1422,7 @@ function processActions(eventAttribute, target, event) {
 		} else if (calledFunction == 'closeOverlay') {
 			regions.closeOverlay();
 		} else if (calledFunction == 'sidebar') {
-			regions.sidebar(target.getAttribute(eventAttribute + '-id'), target.getAttribute(eventAttribute + '-state'));
+			regions.sidebar(target.getAttribute(eventAttribute + '-location'));
 		} else if (calledFunction == 'saveFromEditor') {
 			saveFromEditor(true, true);
 		} else if (calledFunction == 'downloadFile') {
@@ -1805,27 +1811,21 @@ function processActions(eventAttribute, target, event) {
 /* Miscellaneous
 ------------------------*/
 function checkDevice() {
-	var width, height;
-	if (window.screen) {
-		width = window.screen.availWidth;
-		height = window.screen.availHeight;
-	} else if (window.innerWidth && window.innerHeight) {
-		width = window.innerWidth;
-		height = window.innerHeight;
-	} else if (document.body) {
-		width = document.body.clientWidth;
-		height = document.body.clientHeight;
-	}	 
-	if (width <= 766) {			 
-		deviceType = 'mobile';	
-	} else {
-		deviceType = 'desktop';
+	function updateDevice(mq) {
+		if (mq.matches) {
+			deviceType = 'desktop';
+		} else {
+			deviceType = 'mobile';
+		}
+		
+		// Let Bugsense know about device type 
+		if (bugsenseInitialized) {
+			Bugsense.addExtraData('device_type', deviceType);
+		}
 	}
-	
-	// Let Bugsense know about device type 
-	if (bugsenseInitialized) {
-		Bugsense.addExtraData('device_type', deviceType);
-	}
+	var mq = window.matchMedia('(min-width: 767px)');
+	mq.addListener(updateDevice);
+	updateDevice(mq);
 };
 
 function clearCreateForm() {
@@ -1936,14 +1936,12 @@ function printButtonCommunication(callback) {
 }
 
 function setDocumentTitle() {
-	var selectedRegion = document.querySelector('section.current');
+	var selectedRegion = document.querySelector('section.parent') || document.querySelector('section.current');
 	if (selectedRegion) {
-		if (selectedRegion.id == 'welcome') {
-			document.title = 'Firetext';
-		} else if (selectedRegion.id == 'edit') {
+		if (selectedRegion.id == 'edit') {
 			document.title = currentFileName.textContent+currentFileType.textContent+' - Firetext';
 		} else {
-			document.title = selectedRegion.querySelector('header:first-child h1').textContent+' - Firetext';
+			document.title = 'Firetext';
 		}		
 	}
 }

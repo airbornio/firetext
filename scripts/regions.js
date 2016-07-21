@@ -10,53 +10,51 @@
 /* Namespace Container
 ------------------------*/ 
 var regions = {};
+var awaitingPopState = false;
 
 
 /* Variables
 ------------------------*/
-regions.history = new Array();
-var tempLoc = '';
 
 
 /* Navigation
 ------------------------*/
-regions.nav = function (location) {
+regions.nav = function (location, histEntry) {
+	if (awaitingPopState) {
+		setTimeout(regions.nav, 0, location, histEntry);
+		return;
+	}
 	if (editState == true && location == 'edit') {
 		editDocs(); // Close edit mode
 	}
-	tempLoc = '';
 	if (document.getElementById(location)) {
-		tempLoc = location;
-		if (document.querySelector('.current') && document.querySelector('.current').getAttribute('data-state') == 'drawer') {
-			regions.sidebar(document.querySelector('[data-type=sidebar].active').id.replace(/sidebar_/, ''));
-			setTimeout(function() { nav2(); }, 500);
-		} else {
-			nav2();
+		if (!document.getElementById(location).classList.contains('parent') &&
+			regions.closeOverlay()) {
+			setTimeout(regions.nav, deviceType == 'desktop' ? 0 : 500, location, histEntry);
+			return;
 		}
-	}
-};
-
-function nav2() {
-	var tempElement = document.getElementById(tempLoc);
-	if (tempElement) {
+		
+		var locationElement = document.getElementById(location);
+		var parentRegion = document.querySelector('.parent');
+		if (parentRegion) {
+			parentRegion.classList.remove('parent');
+		}
 		var currentRegion = document.querySelector('.current');
 		if (currentRegion) {
-			if (tempElement.getAttribute('role') != 'region') {
+			if (locationElement.getAttribute('role') != 'region') {
 				currentRegion.classList.add('parent');
-			} else {				
-				currentRegion.classList.remove('parent');
 			}
 			currentRegion.classList.remove('current');
 		}
-		var parentRegion = document.querySelector('.parent');
-		if (parentRegion && tempElement.getAttribute('role') == 'region') {
-			parentRegion.classList.remove('parent');
+		locationElement.classList.add('current');
+		if (histEntry === false || !history.state) {
+			history.replaceState({location: location}, '', '');
+		} else {
+			history.pushState({location: location}, '', '');
 		}
-		regions.history.push(tempLoc);
-		tempElement.classList.add('current');
 		
 		/* Remove this section when porting to other projects */
-		if (tempLoc == 'edit') {
+		if (location == 'edit') {
 			// Save edit status
 			firetext.settings.save('autoload.wasEditing', 'true');
 			firetext.settings.save('autoload.dir', document.getElementById('currentFileDirectory').textContent);
@@ -71,7 +69,7 @@ function nav2() {
 				screen.mozLockOrientation('portrait');
 			}			
 		} else {
-			if (tempElement.getAttribute('role') === 'region') {
+			if (locationElement.getAttribute('role') === 'region') {
 				// Not editing if region
 				firetext.settings.save('autoload.wasEditing', 'false');
 			}
@@ -83,21 +81,21 @@ function nav2() {
 				screen.mozUnlockOrientation();
 			}
 		}
-	
+
 		// Update docs lists
-		if (tempLoc == 'welcome' || tempLoc == 'welcome-edit-mode' || tempLoc == 'open') {
+		if (location == 'welcome' || location == 'welcome-edit-mode' || location == 'open') {
 			updateDocLists(['all']);
 		}
 		
-		if (tempLoc == 'edit') {
+		if (location == 'edit') {
 			// Focus editor
 			setTimeout(function() {
 				editor.focus();
 			});
-		} else if (tempLoc != 'welcome-edit-mode') {
+		} else if (location != 'welcome-edit-mode') {
 			// Focus first input
 			setTimeout(function() {
-				var input = tempElement.querySelector('input:not([disabled]), .config-dialog select') || tempElement.querySelector('button');
+				var input = locationElement.querySelector('input:not([disabled]), .config-dialog select') || locationElement.querySelector('button');
 				if (input) {
 					editor.blur();
 					input.focus();
@@ -107,14 +105,14 @@ function nav2() {
 		}
 		
 		// Prefill filename and show filetype
-		if (tempLoc == 'save-as') {
+		if (location == 'save-as') {
 			document.getElementById('saveAsDialogFileName').value = document.getElementById('currentFileName').textContent;
 			document.getElementById('saveAsDialogFileType').textContent = document.getElementById('currentFileType').textContent;
 		}
 		
 		// Move file location selector to active region
-		if (tempLoc == 'create' || tempLoc == 'upload' || tempLoc == 'save-as') {
-			tempElement.getElementsByClassName('button-block')[0].appendChild(locationLegend);
+		if (location == 'create' || location == 'upload' || location == 'save-as') {
+			locationElement.getElementsByClassName('button-block')[0].appendChild(locationLegend);
 		}
 		
 		// Document title
@@ -124,27 +122,15 @@ function nav2() {
 }
 
 regions.navBack = function () {
-	document.querySelector('.current').classList.remove('parent');
-	document.querySelector('.current').classList.remove('current');
-	regions.history.pop();
-	
-	// This is a weird way to do this, but I couldn't figure out a better one.
-	regions.nav(regions.history.pop());
+	awaitingPopState = true;
+	history.back();
 }
 
-regions.sidebar = function (name, state) {
-	if (document.getElementById('sidebar_' + name) && document.querySelector('.current')) {
-		if ((state && (state != 'open' || state == 'close')) || 
-			(!state && document.querySelector('.current').getAttribute('data-state') == 'drawer')) {
-			document.getElementById('sidebar_' + name).classList.remove('active');
-			document.querySelector('.current').setAttribute('data-state', 'none');
-		} else {
-			document.getElementById('sidebar_' + name).classList.add('active');
-			document.querySelector('.current').setAttribute('data-state', 'drawer'); 
-			if (document.getElementById('sidebar_' + name).getAttribute('data-position') == 'right') {
-				document.querySelector('.current').setAttribute('data-position', 'right'); 
-			}
-		}
+regions.sidebar = function (name) {
+	if(document.querySelector('.current').id == name) {
+		regions.navBack();
+	} else {
+		regions.nav(name);
 	}
 };
 
@@ -195,12 +181,22 @@ regions.tab = function (id, name) {
 };
 
 regions.closeOverlay = function () {
-	if (document.querySelector('.current') && document.querySelector('.current').getAttribute('data-state') == 'drawer') {
-		regions.sidebar(document.querySelector('[data-type=sidebar].active').id.replace(/sidebar_/, ''));
-	} else if (document.querySelector('.current') &&
-		(document.querySelector('.current').getAttribute('role') == 'dialog' ||
+	if (document.querySelector('.current') &&
+		(document.querySelector('.current').getAttribute('data-type') == 'sidebar' ||
+		document.querySelector('.current').getAttribute('role') == 'dialog' ||
 		document.querySelector('.current').getAttribute('role') == 'action')
 	) {
 		regions.navBack();
+		return true;
 	}
 };
+
+regions.popstate = function(evt) {
+	if(evt.state) {
+		awaitingPopState = false;
+		regions.nav(evt.state.location, false);
+	}
+};
+
+regions.popstate(history);
+window.addEventListener('popstate', regions.popstate);

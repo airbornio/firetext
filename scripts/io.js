@@ -43,7 +43,8 @@ firetext.io.init = function (api, callback) {
 				storage.onchange = function (change) {
 					var fileparts = firetext.io.split(change.path)
 					resetPreview(fileparts[0], fileparts[1], fileparts[2], 'internal');
-					if (tempLoc == 'welcome' || tempLoc == 'welcome-edit-mode' || tempLoc == 'open') {
+					var location = (document.querySelector('.current') || {}).id;
+					if (location == 'welcome' || location == 'welcome-edit-mode' || location == 'open') {
 						updateDocLists(['internal', 'recents']);
 					}
 				}

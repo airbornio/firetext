@@ -29,7 +29,11 @@ firetext.notify = function (message, html, time) {
 	}
 	
 	notificationContainer.appendChild(notification);
-	document.querySelector('section.current').appendChild(notificationContainer);
+	(
+		document.querySelector('section.current').getAttribute('data-type') == 'sidebar' ?
+		document.querySelector('section.parent') :
+		document.querySelector('section.current')
+	).appendChild(notificationContainer);
 	
 	setTimeout(function(){
 		notification.classList.add('notification-shown');
