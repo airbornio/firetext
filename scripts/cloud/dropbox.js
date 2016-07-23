@@ -19,18 +19,16 @@ var authError;
 /* Auth
 ------------------------*/
 cloud.dropbox.init = function(){
-	if (firetextVariablesInitialized && firetextVariables.services.dropbox) {
-		cloud.dropbox.auth = new Dropbox.Client({
-			key: "CBB0GYTWGYA=|aeSB7VBcIP94mzfQPoykIzGm++Z97KtaDn2snjXCGQ=="
-		});
+	cloud.dropbox.auth = new Dropbox.Client({
+		key: "k/pkgSoz5hA=|I9i/hab9v6zM7V6F9xQoTtS32oKYGrPs79R//ibM3w=="
+	});
 
-		cloud.dropbox.auth.authDriver(new Dropbox.Drivers.Popup({
-			rememberUser: true,
-			receiverUrl: "https://www.airbornos.com/firetext/auth/dropbox/"
-		}));
+	cloud.dropbox.auth.authDriver(new Dropbox.Drivers.Popup({
+		rememberUser: true,
+		receiverUrl: "https://www.airbornos.com/firetext/auth/dropbox/"
+	}));
 
-		cloud.dropbox.auth.onAuth = new CustomEvent('cloud.dropbox.authed');		
-	}
+	cloud.dropbox.auth.onAuth = new CustomEvent('cloud.dropbox.authed');		
 }
 
 
