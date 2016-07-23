@@ -1292,7 +1292,7 @@ function processActions(eventAttribute, target, event) {
 		}
 		
 		if (calledFunction == 'loadToEditor') {
-			loadToEditor(target.getAttribute(eventAttribute + '-directory'), target.getAttribute(eventAttribute + '-filename'), target.getAttribute(eventAttribute + '-filetype'), target.getAttribute(eventAttribute + '-location'));
+			loadToEditor(target.getAttribute(eventAttribute + '-directory'), target.getAttribute(eventAttribute + '-filename'), target.getAttribute(eventAttribute + '-filetype'), target.getAttribute(eventAttribute + '-location'), target.getAttribute(eventAttribute + '-editable') != 'false', target.getAttribute(eventAttribute + '-addtorecents') != 'false');
 		} else if (calledFunction == 'nav') {
 			regions.nav(target.getAttribute(eventAttribute + '-location'));
 		} else if (calledFunction == 'navBack') {
@@ -1670,6 +1670,48 @@ function processActions(eventAttribute, target, event) {
 				firetext.shared.set(location + directory + filename + filetype, shared);
 				saveFromEditor(true, true);
 				document.getElementById('publish-link').value = firetext.shared.getPublishLink(shared);
+			});
+		} else if (calledFunction == 'openHistory') {
+			if(document.querySelector('.current').id == 'sidebar_history') {
+				regions.navBack();
+				return;
+			}
+			
+			var location = document.getElementById('currentFileLocation').textContent;
+			var directory = document.getElementById('currentFileDirectory').textContent;
+			var filename = document.getElementById('currentFileName').textContent;
+			var filetype = document.getElementById('currentFileType').textContent;
+			
+			if(location.substr(0, 8) !== 'internal') {
+				firetext.notify(navigator.mozL10n.get('cant-view-hist-noninternal'));
+				return;
+			}
+			if (directory[0] !== '/') {
+				directory = '/sdcard/' + directory;
+			}
+			var path = (directory + filename + filetype).replace(/\.history\/.*$/, '');
+			airborn.fs.getObjectLocation(path.replace('/sdcard/', '/Documents/'), function(objectLoc) {
+				if(!objectLoc.hist) {
+					firetext.notify(navigator.mozL10n.get('cant-view-hist'), '<a href="' + airborn.top_location.origin + '/plans" target="_blank">' + navigator.mozL10n.get('click-to-open-plans').replace(/</g, '&lt;') + '</a>', 10000);
+					return;
+				}
+				
+				airborn.fs.getFile(path.replace('/sdcard/', '/Documents/') + '.history/', {codec: 'dir'}, function(contents, err) {
+					if (err) {
+						firetext.notify(navigator.mozL10n.get('load-unsuccessful') + err.statusText);
+						return;
+					}
+					
+					var split = firetext.io.split(path);
+					document.getElementById('history_entries').innerHTML = [
+						`<li><a href="#" data-click="loadToEditor" data-click-directory="${split[0]}" data-click-filename="${split[1]}" data-click-filetype="${split[2]}" data-click-location="${location}">${split[0] === directory && split[1] === filename && split[2] === filetype ? ' <span class="icon icon-checkbox-blank-circle"></span>' : ''}<span data-l10n-id="current-version"></span></a></li>`
+					].concat(Object.keys(contents).reverse().map(function(name) {
+						var split = firetext.io.split(name);
+						return `<li><a href="#" data-click="loadToEditor" data-click-directory="${path + '.history/'}" data-click-filename="${split[1]}" data-click-filetype="${split[2]}" data-click-location="${location}" data-click-editable="false" data-click-addtorecents="false">${path + '.history/' === directory && split[1] === filename && split[2] === filetype ? ' <span class="icon icon-checkbox-blank-circle"></span>' : ''}${name}</a></li>`;
+					})).join('\n');
+				});
+			
+				regions.nav('sidebar_history');
 			});
 		} else if (calledFunction == 'openSharedDocument') {
 			openSharedDocument(document.getElementById('entered-password').value);

@@ -95,13 +95,14 @@
 		<header>
 			<h1 data-l10n-id="menu"></h1>
 		</header>
-		<nav class="url-menu">
-			<h2 data-l10n-id="documents"></h2>
-			<ul>
-				<li><a href="#" data-click="nav" data-click-location="create"><span class="icon icon-pencil"></span><span data-l10n-id="create"></span></a></li>
-				<li><a href="#" data-click="nav" data-click-location="import"><span class="icon icon-cloud-upload"></span><span data-l10n-id="import"></span></a></li>
-				<li><a href="#" data-click="nav" data-click-location="open" data-l10n-id="open"></a></li>
-			</ul>
+		<nav>
+			<div class="url-menu">
+				<ul>
+					<li><a href="#" data-click="nav" data-click-location="create"><span class="icon icon-pencil"></span><span data-l10n-id="create"></span></a></li>
+					<li><a href="#" data-click="nav" data-click-location="import"><span class="icon icon-cloud-upload"></span><span data-l10n-id="import"></span></a></li>
+					<li><a href="#" data-click="nav" data-click-location="open" data-l10n-id="open"></a></li>
+				</ul>
+			</div>
 		</nav>
 		<div role="toolbar">
 			<ul>
@@ -396,27 +397,28 @@
 		<header>
 			<h1 class="file-name"></h1>
 		</header>
-		<nav class="url-menu">
-			<h2 class="desktop-only file-name"></h2>
-			<ul>
-				<li><a href="#" data-click="saveFromEditor"><span class="icon icon-content-save"></span><span data-l10n-id="save"></span></a></li>
-				<li><a href="#" data-click="nav" data-click-location="save-as" data-l10n-id="save-as"></a></li>
-				<li><a href="#" data-click="openCollab" data-l10n-id="collaborate"></a></li>
-				<li><a href="#" data-click="openPublish" data-l10n-id="publish"></a></li>
-				<li><a href="#" data-click="downloadFile"><span class="icon icon-cloud-download"></span><span data-l10n-id="export"></span></a></li>
-				<li><a href="#" data-click="openPageSetup" data-l10n-id="page-setup"></a></li>
-				<li>
-					<a href="#" data-click="printFile"><span class="icon icon-printer"></span><span data-l10n-id="print"></span></a>
-					<iframe class="printButton" id="printButton" sandbox="allow-scripts allow-popups allow-modals" src=""></iframe>
-				</li>
-				<li><a href="#" data-click="closeFile" data-l10n-id="close"></a></li>
-			</ul>
-			<h2 data-l10n-id="documents"></h2>
-			<ul>
-				<li><a href="#" data-click="nav" data-click-location="create"><span class="icon icon-pencil"></span><span data-l10n-id="create"></span></a></li>
-				<li><a href="#" data-click="nav" data-click-location="import"><span class="icon icon-cloud-upload"></span><span data-l10n-id="import"></span></a></li>
-				<li><a href="#" data-click="nav" data-click-location="open" data-l10n-id="open"></a></li>
-			</ul>
+		<nav>
+			<div class="url-menu">
+				<ul>
+					<li><a href="#" data-click="saveFromEditor"><span class="icon icon-content-save"></span><span data-l10n-id="save"></span></a></li>
+					<li><a href="#" data-click="nav" data-click-location="save-as" data-l10n-id="save-as"></a></li>
+					<li><a href="#" data-click="openCollab" data-l10n-id="collaborate"></a></li>
+					<li><a href="#" data-click="openPublish" data-l10n-id="publish"></a></li>
+					<li><a href="#" data-click="downloadFile"><span class="icon icon-cloud-download"></span><span data-l10n-id="export"></span></a></li>
+					<li><a href="#" data-click="openPageSetup" data-l10n-id="page-setup"></a></li>
+					<li>
+						<a href="#" data-click="printFile"><span class="icon icon-printer"></span><span data-l10n-id="print"></span></a>
+						<iframe class="printButton" id="printButton" sandbox="allow-scripts allow-popups allow-modals" src=""></iframe>
+					</li>
+					<li><a href="#" data-click="closeFile" data-l10n-id="close"></a></li>
+				</ul>
+				<h2 data-l10n-id="documents"></h2>
+				<ul>
+					<li><a href="#" data-click="nav" data-click-location="create"><span class="icon icon-pencil"></span><span data-l10n-id="create"></span></a></li>
+					<li><a href="#" data-click="nav" data-click-location="import"><span class="icon icon-cloud-upload"></span><span data-l10n-id="import"></span></a></li>
+					<li><a href="#" data-click="nav" data-click-location="open" data-l10n-id="open"></a></li>
+				</ul>
+			</div>
 		</nav>
 		<div role="toolbar">
 		 <ul>
@@ -427,11 +429,23 @@
 		</div>
 	</section>
 	
+	<section data-type="sidebar" id="sidebar_history" data-position="right" data-swipe-right="navBack">
+		<header>
+			<h1 data-l10n-id="history"></h1>
+		</header>
+		<nav>
+			<div class="url-menu">
+				<ul id="history_entries"></ul>
+			</div>
+		</nav>
+	</section>
+	
 	<section role="region" id="edit" data-click="navBack" data-click-only="parent">
 		<header class="edit-header top-bar">
 			<button id="header-close-file" data-click="closeFile" class="no-zen" data-l10n-title="close"><span class="icon icon-close"></span></button>
 			<menu type="toolbar">
 				<button data-click="fullscreen" class="desktop-only" id="editor-zen-button" data-l10n-title="fullscreen"><span class="icon icon-fullscreen"></span></button>
+				<button data-click="openHistory" class="menu drawerEnabled no-zen" data-l10n-title="history"><span class="icon icon-history"></span></button>
 				<button data-click="sidebar" data-click-location="sidebar_main" class="menu drawerEnabled no-zen" data-l10n-title="menu"><span class="icon icon-menu"></span></button>
 			</menu>
 			<h1 id="fileName" class="no-zen"><span id="currentFileLocation" style="display:none;"></span><span id="currentFileDirectory" style="display:none;"></span><span id="currentFileName"></span><span id="currentFileType"></span></h1>

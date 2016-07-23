@@ -31,3 +31,7 @@ section > header:first-child [class*=" icon-"] {
   box-sizing: border-box;
   color: #1f1f1f;
 }
+
+section > header:first-child .icon-history {
+  transform: scale(0.8);
+}

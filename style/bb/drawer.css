@@ -188,16 +188,14 @@ section[data-type="sidebar"][data-position="right"]:after {
     -ms-transform: rotate(180deg);
 }
 
-section[data-type="sidebar"] > nav {
+section[data-type="sidebar"] > nav > .url-menu {
   overflow-y: auto;
   overflow-x: hidden;
   max-height: calc(100% - 5rem);
-    max-height: -moz-calc(100% - 5rem);
-    max-height: -webkit-calc(100% - 5rem);
   width: 100%;
 }
 
-section[data-type="sidebar"] > nav > h2 {
+section[data-type="sidebar"] > nav > .url-menu > h2 {
   font-family: "Open Sans";
   font-weight: normal;
   font-size: 1.4rem;
@@ -240,13 +238,13 @@ section[data-type="sidebar"] [role="toolbar"] + nav {
     max-height: -webkit-calc(100% - 5rem - 4rem);
 }
 
-section[data-type="sidebar"] > nav > ul { 
+section[data-type="sidebar"] > nav > .url-menu > ul { 
   width: 100%;
   margin: 0;
   padding: 0;
 }
 
-section[data-type="sidebar"] > nav > ul > li {
+section[data-type="sidebar"] > nav > .url-menu > ul > li {
   list-style: none;
   transition: background 0.2s ease;
     -moz-transition: background 0.2s ease;
@@ -254,11 +252,11 @@ section[data-type="sidebar"] > nav > ul > li {
     -o-transition: background 0.2s ease;
 }
 
-section[data-type="sidebar"] > nav > ul > li:active {
+section[data-type="sidebar"] > nav > .url-menu > ul > li:active {
   background: #6f6f6f;  
 }
 
-section[data-type="sidebar"] > nav > ul > li > a { 
+section[data-type="sidebar"] > nav > .url-menu > ul > li > a { 
   text-decoration: none;
   color: inherit;
   font-size: 1.6rem;

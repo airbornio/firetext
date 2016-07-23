@@ -95,9 +95,7 @@ section[data-type="sidebar"] {
   top: 5.5rem;
   margin: 0 4px;
   z-index: 1000;
-    height: -moz-calc(100% - 5.5rem - 3rem);
-    height: -webkit-calc(100% - 5.5rem - 3rem);
-  height: calc(100% - 5.5rem - 3rem);
+  height: calc(100% - 5rem - 5rem - 3rem);
   transition: none;
   background-color: transparent;
   color: #1f1f1f;
@@ -108,8 +106,6 @@ section[data-type="sidebar"] {
 
 .fullscreen section[data-type="sidebar"] {
   top: 4.5rem;
-    height: -moz-calc(100% - 4.5rem - 3rem);
-    height: -webkit-calc(100% - 4.5rem - 3rem);
   height: calc(100% - 4.5rem - 3rem);
 }
 
@@ -117,26 +113,32 @@ section[data-type="sidebar"] > * {
   pointer-events: all;
 }
 
+section[data-type="sidebar"] > :first-child {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  border: 1px solid #ccc !important;
+  border-bottom-width: 0 !important;
+}
+
+section[data-type="sidebar"] > :last-child {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  overflow: hidden;
+}
+
 section[data-type="sidebar"] > header:first-child {
-  display: none;
+  color: inherit;
+  background-color: white;
+  height: 3.5rem;
+  padding-top: .5rem;
+  width: 100%;
 }
 
-section[data-type="sidebar"] > nav {
-  height: auto;
-    max-height: -moz-calc(100% - 5rem);
-    max-height: -webkit-calc(100% - 5rem);
-  max-height: calc(100% - 5rem);
-  border: 1px solid #ccc;
-  border-bottom-width: 0;
-  padding: 5px 0;
-  border-radius: inherit;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  background-color: #ffffff;
-}
-
-section[data-type="sidebar"] > nav:before,
-section[data-type="sidebar"] > nav:after {
+section[data-type="sidebar"] > header h1:before,
+section[data-type="sidebar"] > header h1:after {
   height: 0;
   width: 0;
   position: absolute;
@@ -147,30 +149,75 @@ section[data-type="sidebar"] > nav:after {
   right: 9px;
 }
 
-section[data-type="sidebar"] > nav:before {
+section[data-type="sidebar"] > header h1:before {
   border-bottom-color: #ccc;
   bottom: 100%;
 }
 
-section[data-type="sidebar"] > nav:after {
+section[data-type="sidebar"] > header h1:after {
   border-bottom-color: #fff;
-    bottom: -moz-calc(100% - 1px);
-    bottom: -webkit-calc(100% - 1px);
   bottom: calc(100% - 1px);
 }
 
-section[data-type="sidebar"] > nav > h2 {
+#sidebar_history > header h1:before,
+#sidebar_history > header h1:after {
+  right: 52px;
+}
+
+section[data-type="sidebar"] > nav {
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  background-color: #ffffff;
+  height: auto;
+  width: 100%;
+  position: relative;
+}
+
+section[data-type="sidebar"] > nav:before,
+section[data-type="sidebar"] > nav:after {
+  display: block;
+  content: '';
+  height: 2rem;
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  left: 16px;
+  right: 16px;
+}
+
+section[data-type="sidebar"] > nav:before {
+  background-image: linear-gradient(to bottom, white, transparent);
+}
+
+section[data-type="sidebar"] > nav:after {
+  background-image: linear-gradient(to top, white, transparent);
+  bottom: -1px;
+}
+
+section[data-type="sidebar"] > nav > .url-menu {
+  height: auto;
+  max-height: calc(100vh - 5rem - 4.5rem - 4rem - 3rem) !important;
+  margin-right: 16px;
+}
+
+[dir="rtl"] section[data-type="sidebar"] > nav > .url-menu {
+  margin-right: 0;
+  margin-left: 16px;
+}
+
+section[data-type="sidebar"] > nav > .url-menu > h2 {
   background-color: transparent;
   text-indent: 0;
   font-size: 1.8rem;
-  padding: 0.5rem 1.8rem;
+  padding: 0.5rem 12.5rem 0.5rem 1.8rem;
+  padding: 0.5rem 2rem;
 }
 
-section[data-type="sidebar"] > nav > ul > li:active {
+section[data-type="sidebar"] > nav > .url-menu > ul > li:active {
   background-color: #efefef;
 }
 
-section[data-type="sidebar"] > nav > ul > li > a {
+section[data-type="sidebar"] > nav > .url-menu > ul > li > a {
   font-size: 1.8rem;
   line-height: 4rem;
   padding: 0.5rem 1.8rem 0.5rem 4.5rem;
@@ -178,16 +225,16 @@ section[data-type="sidebar"] > nav > ul > li > a {
   cursor: pointer;
 }
 
-[dir="rtl"] section[data-type="sidebar"] > nav > ul > li > a {
+[dir="rtl"] section[data-type="sidebar"] > nav > .url-menu > ul > li > a {
   padding: 0.5rem 4.5rem 0.5rem 1.8rem;
 }
 
-section[data-type="sidebar"] > nav > ul > li > a > .icon {
+section[data-type="sidebar"] > nav > .url-menu > ul > li > a > .icon {
   left: 1.8rem;
   top: 1.8rem;
 }
 
-[dir="rtl"] section[data-type="sidebar"] > nav > ul > li > a > .icon {
+[dir="rtl"] section[data-type="sidebar"] > nav > .url-menu > ul > li > a > .icon {
   left: auto;
   right: 1.8rem;
 }
@@ -197,12 +244,7 @@ section[data-type="sidebar"] [role="toolbar"] {
   position: static;
   background-color: #efefef;
   color: inherit;
-  border-radius: inherit;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
   overflow: hidden;
-  border: 1px solid #ccc;
-  border-top-width: 0;
 }
 
 section[data-type="sidebar"] [role="toolbar"] button {
@@ -225,10 +267,17 @@ section[data-type="sidebar"] [role="toolbar"] button.active {
   transform: translateX(0) !important;   
 }
 
-[dir="rtl"] section[data-type="sidebar"] > nav:before,
-[dir="rtl"] section[data-type="sidebar"] > nav:after {
+[dir="rtl"] section[data-type="sidebar"] > header h1:before,
+[dir="rtl"] section[data-type="sidebar"] > header h1:after {
   right: auto;
   left: 9px;
+  margin-left: 0;
+}
+
+[dir="rtl"] #sidebar_history > header h1:before,
+[dir="rtl"] #sidebar_history > header h1:after {
+  right: auto;
+  left: 52px;
   margin-left: 0;
 }
 
@@ -289,8 +338,6 @@ section[data-type="sidebar"] [role="toolbar"] button.active {
 }
 
 [role="dialog"]:not(.menuless) [role="main"] {
-    height: -moz-calc(100% - 10rem);
-    height: -webkit-calc(100% - 10rem);
   height: calc(100% - 10rem);
 }
 

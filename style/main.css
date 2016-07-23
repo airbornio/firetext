@@ -97,14 +97,20 @@ html, body {
 }
 
 section[data-type="sidebar"] > nav {
-    height: -moz-calc(100% - 5rem - 4rem);
-    height: -webkit-calc(100% - 5rem - 4rem);
-  height: calc(100% - 5rem - 4rem);
+  height: calc(100% - 4rem);
 }
 
 section[data-type="sidebar"] [role="toolbar"] .icon-settings {
   padding-top: .3rem;
   font-size: 2.5rem;
+}
+
+section[data-type="sidebar"].current ~ .parent > * {
+  pointer-events: none;   
+}
+
+section[data-type="sidebar"].current ~ .parent .drawerEnabled {
+  pointer-events: all;
 }
 
 .firetext {
@@ -115,10 +121,10 @@ section[data-type="sidebar"] [role="toolbar"] .icon-settings {
   overflow: hidden;
 }
 
-section[data-type="sidebar"] > nav > ul > li {
+section[data-type="sidebar"] > nav > .url-menu > ul > li {
   position: relative;
 }
-section[data-type="sidebar"] > nav > ul > li > iframe {
+section[data-type="sidebar"] > nav > .url-menu > ul > li > iframe {
   border: 0;
   position: absolute;
   top: 0;
@@ -126,15 +132,20 @@ section[data-type="sidebar"] > nav > ul > li > iframe {
   height: 100%;
 }
 
-section[data-type="sidebar"] > nav > ul > li > a {
+section[data-type="sidebar"] > nav > .url-menu > ul > li > a {
   padding-left: 3rem;
 }
 
-section[data-type="sidebar"] > nav > ul > li > a > [class^="icon"] {
+section[data-type="sidebar"] > nav > .url-menu > ul > li > a > [class^="icon"] {
   position: absolute;
   left: 0;
   top: 1.35rem;
   opacity: .7;
+}
+
+section[data-type="sidebar"] > nav > .url-menu > ul > li > a > .icon-checkbox-blank-circle {
+  opacity: .6;
+  transform: scale(.75);
 }
 
 .titlePopup {
@@ -655,12 +666,12 @@ aside select.dummy {
     margin-right: 0;
 }
 
-[dir="rtl"] section[data-type="sidebar"] > nav > ul > li > a {
+[dir="rtl"] section[data-type="sidebar"] > nav > .url-menu > ul > li > a {
   padding-left: none;
   padding-right: 3rem;
 }
 
-[dir="rtl"] section[data-type="sidebar"] > nav > ul > li > a > [class^="icon"] {
+[dir="rtl"] section[data-type="sidebar"] > nav > .url-menu > ul > li > a > [class^="icon"] {
   left: auto;
   right: 2rem;
 }

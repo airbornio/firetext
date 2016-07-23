@@ -127,7 +127,8 @@ prepareFile(argv._[0].replace('../', ''), {compat: false, _compat: false, bootst
 	var scriptsFileName = argv._[0].replace('../', '../build/').replace(/[^\/]*\.html/, 'scripts.js');
 	var cc = require('child_process').spawn('java', [
 		'-jar', 'node_modules/google-closure-compiler/compiler.jar',
-		'--language_in', 'ECMASCRIPT5',
+		'--language_in', 'ECMASCRIPT6',
+		'--language_out', 'ECMASCRIPT5',
 		'--js_output_file', scriptsFileName,
 	].concat(argv.sourceMap === false ? [] : [
 		'--create_source_map', '%outname%.map'
@@ -190,6 +191,7 @@ prepareFile(argv._[0].replace('../', ''), {compat: false, _compat: false, bootst
 				/\.icon-format-align-left/,
 				/\.icon-format-float-left/,
 				/\.icon-chevron-right/,
+				/\.icon-checkbox-blank-circle/,
 			]
 		}, function(err, css) {
 			// Remove unused glyphs from icon font

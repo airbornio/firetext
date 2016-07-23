@@ -442,7 +442,7 @@ function download() {
 	});
 }
 
-function loadToEditor(directory, filename, filetype, location, editable) {
+function loadToEditor(directory, filename, filetype, location, editable, addToRecents) {
 	// Reset variables
 	tempText = undefined;
 	
@@ -477,6 +477,7 @@ function loadToEditor(directory, filename, filetype, location, editable) {
 					filename: filename,
 					filetype: filetype,
 					user_location: user_location,
+					readOnly: editable == false,
 				});
 
 				firetext.shared.updateCollab(location + fileInfo.slice(0, 3).join(''));
@@ -501,18 +502,13 @@ function loadToEditor(directory, filename, filetype, location, editable) {
 						break;
 				}
 				
-				// Handle read-only files
-				if (editable == false) {
-					formatDoc('contentReadOnly', true);
-				} else {
-					formatDoc('contentReadOnly', false);			
-				}
-				
 				// Add listener to update views
 				watchDocument(filename, filetype);
 				
-				// Add file to recent docs
-				firetext.recents.add([fileInfo[0], fileInfo[1], fileInfo[2]], location);
+				if (addToRecents != false) {
+					// Add file to recent docs
+					firetext.recents.add([fileInfo[0], fileInfo[1], fileInfo[2]], location);
+				}
 		
 				// Show editor
 				regions.nav('edit');

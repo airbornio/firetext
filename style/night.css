@@ -216,15 +216,22 @@
 	.night section[data-type="sidebar"] {
 		background-color: transparent;
 	}
+	.night section[data-type="sidebar"] > header:first-child,
 	.night section[data-type="sidebar"] > nav {
 		background: #161616;
-		border-color: #555;		 
+		border-color: #555 !important;
 	}
-	.night section[data-type="sidebar"] > nav:before {
+	.night section[data-type="sidebar"] > header h1:before {
 		border-bottom-color: #555;
 	}
-	.night section[data-type="sidebar"] > nav:after {
+	.night section[data-type="sidebar"] > header h1:after {
 		border-bottom-color: #161616;
+	}
+	.night section[data-type="sidebar"] > nav:before {
+		background-image: linear-gradient(to bottom, #161616, transparent);
+	}
+	.night section[data-type="sidebar"] > nav:after {
+		background-image: linear-gradient(to top, #161616, transparent);
 	}
 	.night section[data-type="sidebar"] > nav > h2 {
 		background-color: transparent;

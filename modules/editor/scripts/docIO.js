@@ -136,7 +136,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 		return textValue;
 	}
 
-	function load(content, _filename, _filetype, user_location) {
+	function load(content, _filename, _filetype, user_location, _readOnly) {
 		// Check for night
 		var wasNight = false
 		if (document.documentElement.hasAttribute('_firetext_night')) {
@@ -145,7 +145,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 		
 		filename = _filename;
 		filetype = _filetype;
-		readOnly = false;
+		readOnly = _readOnly;
 		document.open();
 		switch (filetype) {
 			case ".txt":
@@ -230,7 +230,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 	}, "get-content-html");
 
 	messageProxy.registerMessageHandler(function(e) {
-		load(e.data.content, e.data.filename, e.data.filetype, e.data.user_location);
+		load(e.data.content, e.data.filename, e.data.filetype, e.data.user_location, e.data.readOnly);
 		if(e.data.key) {
 			messageProxy.postMessage({
 				command: e.data.key

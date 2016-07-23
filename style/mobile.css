@@ -90,10 +90,6 @@ section[role="dialog"] + .background {
 	transform: translateX(-80%) !important;
 }
 
-[data-type="sidebar"].current ~ .parent > * {
-	pointer-events: none;		
-}
-
 [data-type="sidebar"][data-position="right"].current ~ .parent {
 		-moz-transform: translateX(-80%) !important;
 		-webkit-transform: translateX(-80%) !important;
