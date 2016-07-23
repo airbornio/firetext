@@ -21,7 +21,6 @@ var defaultSettings = {
 	"language": "auto",
 	"nightmode": "false",
 	"previews.enabled": "auto",
-	"stats.enabled": "true"
 };
 
 firetext.settings.init = function () {
@@ -33,7 +32,6 @@ firetext.settings.init = function () {
 	var languageSelect = document.querySelector('#language-select');
 	var nightmodeSelect = document.querySelector('#nightmode-select');
 	var previewsSelect = document.querySelector('#previews-select');
-	var statsEnabled = document.querySelector('#stats-enabled-switch');
 	
 	// Save version
 	if (!firetext.settings.get("lastVersion")) {
@@ -182,27 +180,6 @@ firetext.settings.init = function () {
 		// Update
 		updatePreviewsEnabled();
 	});
-
-	// Stats
-	switch (firetext.settings.get('stats.enabled')) {
-		case "true":
-			statsEnabled.setAttribute('checked', '');
-			break;
-		case "false":
-			statsEnabled.removeAttribute('checked');
-			break;
-	}
-	statsEnabled.onchange = function () {
-		firetext.settings.save('stats.enabled', this.checked);
-		if (!this.checked) {
-			var r = confirm(navigator.mozL10n.get('needs-restart'));
-			if (r) {
-				window.location.reload();
-			}
-		} else {
-			bugsenseInit();
-		}
-	}
 };
 
 firetext.settings.get = function (name, forceTrueValue) {
@@ -215,9 +192,6 @@ firetext.settings.get = function (name, forceTrueValue) {
 };
 
 firetext.settings.save = function (name, value) {
-	if (bugsenseInitialized) {
-		Bugsense.leaveBreadcrumb("Setting: "+name+" set to: "+value);
-	}
 	if (defaultSettings[name] == value.toString()) {
 		firetext.settings.clear(name);
 	} else {
@@ -241,7 +215,6 @@ function purgeOldSettings(version) {
 				"dropbox.enabled": "false",
 				"nightmode": "auto",
 				"previews.enabled": "true",
-				"stats.enabled": "true"
 			};
 			
 			// Reset defaults

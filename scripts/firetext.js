@@ -31,7 +31,6 @@ var deviceType, fileChanged, saveTimeout, saving, firetextVariables={}, firetext
 var bold, fontSelect, fontSizeSelect, italic, justifySelect, strikethrough, styleSelect;
 var underline, underlineCheckbox;
 var locationLegend, locationSelect, locationDevice, locationDropbox;
-var bugsenseInitialized = false;
 var editorMessageProxy, editorURL;
 
 // Lists
@@ -108,11 +107,6 @@ firetext.init = function () {
 		// Add l10n title attributes and long-press help popups
 		initElementTitles();
 		
-		// Let Bugsense know about language
-		if (bugsenseInitialized) {
-			Bugsense.addExtraData('app_locale', navigator.mozL10n.language.code);
-		}
-		
 		// Freeze style selectors width, for Chrome
 		Array.prototype.forEach.call(toolbar.getElementsByTagName('select'), function(select) {
 			var style = select.getAttribute('style') || '';
@@ -141,9 +135,6 @@ firetext.init = function () {
 function initModules(callback) {	
 	// Initialize urls
 	initVariables(function(){
-		// Initialize Bugsense
-		bugsenseInit();
-		
 		// Add extra links to menu
 		addURLs();
     
@@ -455,14 +446,6 @@ function addURLs() {
 /* Add dialog
 ------------------------*/
 function updateAddDialog() {
-	if (bugsenseInitialized) {
-		var storageSystems = [], tempLocationOption;
-		for (var i=0;i<locationSelect.length;i++) {
-			tempLocationOption = locationSelect.children[i];
-			storageSystems.push(tempLocationOption.value);
-		}
-		Bugsense.addExtraData('storage_systems', storageSystems.toString());
-	}
 	if (locationSelect.length < 1) {
 		[].forEach.call(document.getElementsByClassName('create-dialog'), function(createDialog) {
 			// Disable elements
@@ -496,19 +479,6 @@ function updateAddDialog() {
 				noStorageNotice.classList.add('hidden-item');
 			}
 		});
-	}
-}
-
-
-/* Bugsense
-------------------------*/
-function bugsenseInit() {
-	if (firetextVariablesInitialized && firetextVariables.services.splunk.apiKey) {
-		if (firetext.settings.get('stats.enabled') != 'false' &&
-				!bugsenseInitialized) {
-			Bugsense.initAndStartSession({ appname: 'Firetext', appVersion: version, apiKey: firetextVariables.services.splunk.apiKey });
-			bugsenseInitialized = true;
-		}
 	}
 }
 
@@ -1816,11 +1786,6 @@ function checkDevice() {
 			deviceType = 'desktop';
 		} else {
 			deviceType = 'mobile';
-		}
-		
-		// Let Bugsense know about device type 
-		if (bugsenseInitialized) {
-			Bugsense.addExtraData('device_type', deviceType);
 		}
 	}
 	var mq = window.matchMedia('(min-width: 767px)');
