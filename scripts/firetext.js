@@ -27,7 +27,7 @@ var html = document.getElementsByTagName('html')[0], head = document.getElements
 var themeColor = document.getElementById("theme-color");
 var loadSpinner, editor, toolbar, editWindow, editState, rawEditor, rawEditorElement, tempText, tabRaw, tabDesign, printButton, mainButtonConnectDropbox;
 var currentFileName, currentFileType, currentFileLocation, currentFileDirectory;
-var deviceType, fileChanged, saveTimeout, saving, firetextVariables={}, firetextVariablesInitialized = false;
+var deviceType, fileChanged, saveTimeout, saving;
 var bold, fontSelect, fontSizeSelect, italic, justifySelect, strikethrough, styleSelect;
 var underline, underlineCheckbox;
 var locationLegend, locationSelect, locationDevice, locationDropbox;
@@ -133,14 +133,8 @@ firetext.init = function () {
 };
 
 function initModules(callback) {	
-	// Initialize urls
-	initVariables(function(){
-		// Add extra links to menu
-		addURLs();
-    
-		// Initialize cloud services
-		cloud.init();
-	});
+	// Initialize cloud services
+	cloud.init();
 	
 	// Get user's location
 	initLocation();
@@ -343,20 +337,6 @@ function initListeners() {
 	);
 }
 
-function initVariables(callback) {
-	var requestURL = serverURL+'?request=firetext_variables&version='+version+'&locale='+html.getAttribute('lang');
-	var xhr = new XMLHttpRequest();
-	xhr.open('get',requestURL,true);
-	xhr.onreadystatechange = function() {
-		if(xhr.readyState == 4 && xhr.status == 200) {
-			firetextVariables = JSON.parse(xhr.responseText);
-			firetextVariablesInitialized = true;
-			callback();
-		}
-	}
-	xhr.send();
-}
-
 var user_location = {};
 function initLocation() {
 	var requestURL = serverURL+'/location';
@@ -368,78 +348,6 @@ function initLocation() {
 		}
 	}
 	xhr.send();
-}
-
-function addURLs() {
-	// Create url array
-	var urls = {};
-	for (var category in firetextVariables.urlCategories) {
-		urls[firetextVariables.urlCategories[category].id] = {
-			"name": firetextVariables.urlCategories[category].name,
-			"items": {}
-		};
-	}
-	urls["other"] = {
-		"name": "Other",
-		"items": {}
-	};
-	for (var url in firetextVariables.urls) {
-		var currentUrl = firetextVariables.urls[url];
-		var category = urls[currentUrl.category] ? currentUrl.category : "other";
-		urls[category]["items"][url] = {
-			"name": currentUrl.name,
-			"id": currentUrl.id,
-			"url": currentUrl.url
-		};
-	}
-	
-	// Get url menus and clear old urls
-	var urlMenus = document.getElementsByClassName("url-menu");
-	var tempOldUrls = document.getElementsByClassName("remote-url");
-	while(tempOldUrls[0]) tempOldUrls[0].parentNode.removeChild(tempOldUrls[0]);
-	
-	// Create DOM elements
-	for (var urlCategory in urls) {
-		var tempCategoryTitle = document.createElement("h2");
-		tempCategoryTitle.classList.add("remote-url");
-		if (navigator.mozL10n.get(urlCategory) != ""){
-			tempCategoryTitle.setAttribute("data-l10n-id",urlCategory);
-			tempCategoryTitle.textContent = navigator.mozL10n.get(urlCategory);
-		} else {
-			tempCategoryTitle.textContent = urls[urlCategory].name;
-		}
-		
-		var tempLinkContainer = document.createElement("ul");
-		tempLinkContainer.classList.add("remote-url");
-		for (var thisUrl in urls[urlCategory].items) {
-			// Generate link elements
-			var thisUrlItem = urls[urlCategory].items[thisUrl];
-			var tempListItem = document.createElement("li");
-			var tempLink = document.createElement("a");
-			tempLink.href = "#";
-			tempLink.setAttribute("data-click","browser");
-			tempLink.setAttribute("data-click-location",thisUrlItem.url);
-			tempLink.setAttribute("data-url-id",thisUrlItem.id);		
-			if (navigator.mozL10n.get(thisUrlItem.id) != ""){
-				tempLink.setAttribute("data-l10n-id",thisUrlItem.id);
-				tempLink.textContent = navigator.mozL10n.get(thisUrlItem.id);
-			} else {
-				tempLink.textContent = thisUrlItem.name;
-			}
-			
-			// Add link to list item
-			tempListItem.appendChild(tempLink);
-			
-			// Add to category container
-			tempLinkContainer.appendChild(tempListItem);
-		}
-		
-		// Add category to url menus
-		Array.prototype.filter.call(urlMenus, function(menu){
-			menu.appendChild(tempCategoryTitle.cloneNode(true));
-			menu.appendChild(tempLinkContainer.cloneNode(true));
-		});
-	}
 }
 
 
