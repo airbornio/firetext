@@ -446,13 +446,6 @@ function loadToEditor(directory, filename, filetype, location, editable, addToRe
 	// Reset variables
 	tempText = undefined;
 	
-	// Initialize raw editor
-	if (!(rawEditor instanceof CodeMirror)) {
-		rawEditor = CodeMirror(rawEditorElement, {
-			lineNumbers: true
-		});
-	}
-	
 	// Set file name and type
 	currentFileName.textContent = filename;
 	currentFileType.textContent = filetype;
@@ -470,7 +463,7 @@ function loadToEditor(directory, filename, filetype, location, editable, addToRe
 	// Fill editor
 	firetext.io.load(directory, filename, filetype, function(result, error, fileInfo) {
 		if (!error) {
-			initEditor(function() {
+			initEditor(filetype, function() {
 				editorMessageProxy.postMessage({
 					command: "load",
 					content: result,
@@ -498,12 +491,9 @@ function loadToEditor(directory, filename, filetype, location, editable, addToRe
 						document.querySelector('[data-tab-id="raw"]').classList.remove('hidden-item');
 						tabRaw.classList.remove('hidden-item');
 						document.getElementById('rich-tools').classList.remove('hidden-item');
-						rawEditor.swapDoc(new CodeMirror.Doc(result, 'text/html'));
+						tempText = result.replace(/<!--_firetext_import_remove_start-->[\s\S]*?<!--_firetext_import_remove_end-->/g, '');
 						break;
 				}
-				
-				// Add listener to update views
-				watchDocument(filename, filetype);
 				
 				if (addToRecents != false) {
 					// Add file to recent docs
@@ -547,30 +537,31 @@ firetext.io.save = function (directory, filename, filetype, contentBlob, showBan
 			if (directory[0] !== '/') {
 				directory = '/sdcard/' + directory;
 			}
-			var options = firetext.shared.getOptions(location + directory + filename + filetype);
-			if (options.demo) {
-				saving = false;
-				// Hide spinner
-				if (showSpinner != false) {
-					spinner('hide');
-				}
-				callback();
-				return;
-			}
-			options.codec = 'blob';
-			airborn.fs.putFile(directory.replace('/sdcard/', '/Documents/') + filename + filetype, options, contentBlob, function(err) {
-				saving = false;
-				if (showSpinner == true) {
-					spinner('hide');
-				}
-				if (err) {
-					firetext.notify(navigator.mozL10n.get('save-unsuccessful') + err.statusText);
+			firetext.shared.getOptions(location + directory + filename + filetype, function(options) {
+				if (options.demo) {
+					saving = false;
+					// Hide spinner
+					if (showSpinner != false) {
+						spinner('hide');
+					}
+					callback();
 					return;
 				}
-				if (showBanner) {
-					showSaveBanner(directory + filename + filetype);
-				}
-				callback();
+				options.codec = 'blob';
+				airborn.fs.putFile(directory.replace('/sdcard/', '/Documents/') + filename + filetype, options, contentBlob, function(err) {
+					saving = false;
+					if (showSpinner == true) {
+						spinner('hide');
+					}
+					if (err) {
+						firetext.notify(navigator.mozL10n.get('save-unsuccessful') + err.statusText);
+						return;
+					}
+					if (showBanner) {
+						showSaveBanner(directory + filename + filetype);
+					}
+					callback();
+				});
 			});
 		} else if (deviceAPI == 'file') {
 			storage.root.getFile(directory + filename + filetype, {create: true}, function(fileEntry) {
@@ -653,28 +644,29 @@ firetext.io.load = function (directory, filename, filetype, callback, location, 
 			if (directory[0] !== '/') {
 				directory = '/sdcard/' + directory;
 			}
-			var options = firetext.shared.getOptions(location + directory + filename + filetype);
-			if (options.demo) {
-				// Hide spinner
-				if (showSpinner != false) {
-					spinner('hide');
-				}
-				callback(firetext.io.getDefaultContent(filetype), undefined, [directory, filename, filetype]);
-				return;
-			}
-			if (filetype == ".odt") {
-				options.codec = 'arrayBuffer';
-			}
-			airborn.fs.getFile(directory.replace('/sdcard/', '/Documents/') + filename + filetype, options, function(contents, err) {
-				// Hide spinner
-				if (showSpinner != false) {
-					spinner('hide');
-				}
-				if (err) {
-					firetext.notify(navigator.mozL10n.get('load-unsuccessful') + err.statusText);
+			firetext.shared.getOptions(location + directory + filename + filetype, function(options) {
+				if (options.demo) {
+					// Hide spinner
+					if (showSpinner != false) {
+						spinner('hide');
+					}
+					callback(firetext.io.getDefaultContent(filetype), undefined, [directory, filename, filetype]);
 					return;
 				}
-				callback(contents, undefined, [directory, filename, filetype]);
+				if (filetype == ".odt") {
+					options.codec = 'arrayBuffer';
+				}
+				airborn.fs.getFile(directory.replace('/sdcard/', '/Documents/') + filename + filetype, options, function(contents, err) {
+					// Hide spinner
+					if (showSpinner != false) {
+						spinner('hide');
+					}
+					if (err) {
+						firetext.notify(navigator.mozL10n.get('load-unsuccessful') + err.statusText);
+						return;
+					}
+					callback(contents, undefined, [directory, filename, filetype]);
+				});
 			});
 		} else if (deviceAPI == 'file') {
 			storage.root.getFile(directory + filename + filetype, {}, function(fileEntry) {

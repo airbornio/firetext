@@ -21,13 +21,15 @@ mkdir -p ../build/scripts/parsers/odt.js/lib
 cp ../scripts/messages.js  ../build/scripts
 cp ../scripts/cloud/dropbox.min.js  ../build/scripts/cloud
 cp ../scripts/cloud/dropbox_authdriver_firefoxos_receiver.js  ../build/scripts/cloud
+cp ../scripts/lib/codemirror-compressed.js  ../build/scripts/lib
+cp ../scripts/lib/socket.io.js  ../build/scripts/lib
+cp ../scripts/lib/sjcl.js  ../build/scripts/lib
 cp ../scripts/lib/jszip.js  ../build/scripts/lib
 cp ../scripts/lib/jszip-deflate.js  ../build/scripts/lib
 cp ../scripts/lib/jszip-inflate.js  ../build/scripts/lib
 cp ../scripts/lib/jszip-load.js  ../build/scripts/lib
 cp ../scripts/lib/stringview.js  ../build/scripts/lib
 cp ../scripts/lib/innertext.js  ../build/scripts/lib
-cp ../scripts/parsers/docx.js  ../build/scripts/parsers
 cp ../scripts/parsers/plain-text.js  ../build/scripts/parsers
 cp ../scripts/parsers/odt.js/lib/odt.js  ../build/scripts/parsers/odt.js/lib
 

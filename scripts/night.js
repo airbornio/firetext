@@ -56,7 +56,7 @@ function startNight(start) {
 				nightMode: true
 			});
 		}
-		if (rawEditor instanceof CodeMirror) {
+		if(window.CodeMirror) {
 			rawEditor.setOption("theme", 'tomorrow-night-bright');
 		}
 	} else {
@@ -67,8 +67,9 @@ function startNight(start) {
 				command: "night",
 				nightMode: false
 			});
+			
 		}
-		if (rawEditor instanceof CodeMirror) {
+		if(window.CodeMirror) {
 			rawEditor.setOption("theme", 'default');
 		}
 	}

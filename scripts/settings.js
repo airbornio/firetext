@@ -107,7 +107,7 @@ firetext.settings.init = function () {
 	}
 	dropboxEnabled.onchange = function () {
 		firetext.settings.save('dropbox.enabled', this.checked);
-		cloud.init();
+		cloud.init(true);
 	}
 
 	// Language

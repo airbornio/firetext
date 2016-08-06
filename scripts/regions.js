@@ -157,11 +157,25 @@ regions.tab = function (id, name) {
 
 		/* Remove this section when porting to other projects */
 		if (name === 'raw') {
-			setTimeout(function(){rawEditor.focus();},300);
-			if (tempText) {
-				rawEditor.setValue(tempText);
-				tempText = undefined;				
-			}
+			ljs.load('scripts/lib/codemirror-compressed.js', function() {
+				if (!(rawEditor instanceof CodeMirror)) {
+					// Initialize raw editor
+					rawEditor = CodeMirror(rawEditorElement, {
+						lineNumbers: true
+					});
+					
+					// Add listener to update views
+					watchDocument();
+					
+					// Re-initialize night
+					night();
+				}
+				setTimeout(function(){rawEditor.focus();},300);
+				if (tempText) {
+					rawEditor.setValue(tempText);
+					tempText = undefined;				
+				}
+			});
 			document.getElementById('edit-bar').classList.add('hidden');
 		} else {
 			if (document.getElementById('currentFileType').textContent != '.txt' &&

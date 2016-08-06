@@ -31,7 +31,7 @@ var deviceType, fileChanged, saveTimeout, saving;
 var bold, fontSelect, fontSizeSelect, italic, justifySelect, strikethrough, styleSelect;
 var underline, underlineCheckbox;
 var locationLegend, locationSelect, locationDevice, locationDropbox;
-var editorMessageProxy, editorURL;
+var editorMessageProxy;
 
 // Lists
 var welcomeMainArea, welcomeDocsList, openDialogMainArea, openDialogRecentsArea, openDialogRecentsList;
@@ -57,7 +57,7 @@ firetext.init = function () {
 			updateDocLists();
 		
 			// Init shared docs
-			if(!initSharedDocuments()) {
+			initSharedDocuments(function noNewDocs() {
 				// If there were shared docs, it navigated to welcome and possibly enter-password for us.
 				// Only if there weren't do we navigate to welcome and possibly the most recent document here.
 				
@@ -92,7 +92,7 @@ firetext.init = function () {
 					spinner('hide');
 					regions.nav('welcome');
 				}
-			}
+			});
 		
 			// Create listeners
 			initListeners();
@@ -638,6 +638,14 @@ function setPreview(description, previews) {
 	}
 }
 
+ljs.addAliases({odt: [
+	'scripts/lib/jszip.js',
+	'scripts/lib/jszip-deflate.js',
+	'scripts/lib/jszip-inflate.js',
+	'scripts/lib/jszip-load.js',
+	'scripts/parsers/odt.js/lib/odt.js',
+]});
+
 function updatePreviews() {
 	if(!welcomeDocsList.classList.contains('previews')) {
 		return;
@@ -657,16 +665,21 @@ function updatePreviews() {
 			var key = [directory, filename, filetype, location];
 			if(!gettingPreview[key]) {
 				gettingPreview[key] = true;
+				if(filetype === '.odt') {
+					ljs.load('odt');
+				}
 				firetext.io.load(directory, filename, filetype, function (result, error) {
-					gettingPreview[key] = [getPreview(filetype, result, error)];
-					Array.prototype.forEach.call(document.querySelectorAll(
-						'.fileListItem' +
-						'[data-click-directory="' + directory + '"]' +
-						'[data-click-filename="' + filename + '"]' +
-						'[data-click-filetype="' + filetype + '"]' +
-						'[data-click-location="' + location + '"]'
-					), function(item) {
-						setPreview(item.getElementsByClassName('fileItemDescription')[0], gettingPreview[key]);
+					(filetype === '.odt' ? ljs.load.bind(ljs, 'odt') : setTimeout)(function() {
+						gettingPreview[key] = [getPreview(filetype, result, error)];
+						Array.prototype.forEach.call(document.querySelectorAll(
+							'.fileListItem' +
+							'[data-click-directory="' + directory + '"]' +
+							'[data-click-filename="' + filename + '"]' +
+							'[data-click-filetype="' + filetype + '"]' +
+							'[data-click-location="' + location + '"]'
+						), function(item) {
+							setPreview(item.getElementsByClassName('fileItemDescription')[0], gettingPreview[key]);
+						});
 					});
 				}, location, false);
 			} else if(gettingPreview[key] !== true) {
@@ -824,50 +837,43 @@ function extIcon() {
 
 /* Editor
 ------------------------*/ 
-function initEditor(callback) {
-	if (editorURL) {
-		app.modules.fill(editorURL, editor, function() {
-			editorCommunication(function(){
-				callback();
-			});
-		});
-	} else {
-		app.modules.load('modules/editor/editor.html', editor, function(u) {
-			editorURL = u;
-			editorCommunication(function(){
-				callback();
-			});
-		}, true, true);
-	}
+function initEditor(filetype, callback) {
+	app.modules.load(filetype == '.odt' ? 'modules/editor/editor-odt.html' : 'modules/editor/editor.html', editor, function() {
+		editorCommunication(callback);
+	});
 }
 
 // Collaboration
-var socket = io(airborn.top_location.origin, {
-	path: '/ft-socket.io',
-	autoConnect: false,
-});
+var socket;
+function initSocket() {
+	socket = io(airborn.top_location.origin, {
+		path: '/ft-socket.io',
+		autoConnect: false,
+	});
 
-/* http://stackoverflow.com/questions/10405070/socket-io-client-respond-to-all-events-with-one-handler */
-var socket_onevent = socket.onevent;
-socket.onevent = function(packet) {
-    var args = packet.data || [];
-    socket_onevent.call(this, packet); // original call
-    packet.data = ['*'].concat(args);
-    socket_onevent.call(this, packet); // additional call to catch-all
-};
+	/* http://stackoverflow.com/questions/10405070/socket-io-client-respond-to-all-events-with-one-handler */
+	var socket_onevent = socket.onevent;
+	socket.onevent = function(packet) {
+	    var args = packet.data || [];
+	    socket_onevent.call(this, packet); // original call
+	    packet.data = ['*'].concat(args);
+	    socket_onevent.call(this, packet); // additional call to catch-all
+	};
 
-socket.on('*', function(type, data) {
-    if(data && data.edit) { data.edit = JSON.parse(firetext.shared.collabDecrypt(socket.attrs['collab-use-password'] ? socket.attrs['collab-password'] : '', data.edit)); }
-    editorMessageProxy.postMessage({
-        command: "collab-message",
-        type: type,
-        data: data
-    });
-});
+	socket.on('*', function(type, data) {
+	    if(data && data.edit) { data.edit = JSON.parse(firetext.shared.collabDecrypt(socket.attrs['collab-use-password'] ? socket.attrs['collab-password'] : '', data.edit)); }
+	    editorMessageProxy.postMessage({
+	        command: "collab-message",
+	        type: type,
+	        data: data
+	    });
+	});
 
-socket.on('reconnect', function() {
-	socket.emit('open', {path: socket.path});
-});
+	socket.on('reconnect', function() {
+		socket.emit('open', {path: socket.path});
+	});
+}
+
 
 function editorCommunication(callback) {
 	editor.onload = null;
@@ -930,28 +936,26 @@ function editorCommunication(callback) {
 	}
 }
 
-function watchDocument(filename, filetype) {
-	if(filetype === ".html") {
-		// Add listener to update design
-		rawEditor.on('change', function() {
-			fileChanged = true;
-			editorMessageProxy.registerMessageHandler(function(e) { autosave(); }, 'autosave-ready');
-			editorMessageProxy.postMessage({
-				command: "load",
-				content: rawEditor.getValue(),
-				filename: filename,
-				filetype: ".html",
-				user_location: user_location,
-				key: 'autosave-ready'
-			});
+function watchDocument() {
+	// Add listener to update design
+	rawEditor.on('change', function() {
+		fileChanged = true;
+		editorMessageProxy.registerMessageHandler(function(e) { autosave(); }, 'autosave-ready');
+		editorMessageProxy.postMessage({
+			command: "load",
+			content: rawEditor.getValue(),
+			filename: document.getElementById('currentFileName').textContent,
+			filetype: document.getElementById('currentFileType').textContent,
+			user_location: user_location,
+			key: 'autosave-ready'
 		});
-		rawEditor.on('focus', function() {
-			processActions('data-focus',rawEditorElement);	
-		});
-		rawEditor.on('blur', function() {
-			processActions('data-blur',rawEditorElement);	
-		});
-	}
+	});
+	rawEditor.on('focus', function() {
+		processActions('data-focus',rawEditorElement);	
+	});
+	rawEditor.on('blur', function() {
+		processActions('data-blur',rawEditorElement);	
+	});
 }
 
 function forceAutosave() {
@@ -1571,24 +1575,26 @@ function processActions(eventAttribute, target, event) {
 			if (directory[0] !== '/') {
 				directory = '/sdcard/' + directory;
 			}
-			var shared = firetext.shared.get(location + directory + filename + filetype);
-			if(shared && shared['collab-ACL']) {
-				document.getElementById('collab-ACL').value = shared['collab-ACL'];
-				document.getElementById('collab-use-password').checked = shared['collab-use-password'];
-				document.getElementById('collab-password').value = shared['collab-password'];
-				document.getElementById('collab-iter').value = shared['collab-iter'];
-				document.getElementById('collab-salt').value = shared['collab-salt'];
-				document.getElementById('collab-link').value = firetext.shared.getCollabLink(shared);
-			} else {
-				document.getElementById('collab-ACL').value = 'public-read-write';
-				document.getElementById('collab-use-password').checked = true;
-				document.getElementById('collab-password').value = generateNewPassword();
-				document.getElementById('collab-iter').value = 10000;
-				document.getElementById('collab-salt').value = sjcl.codec.base64.fromBits(sjcl.random.randomWords(2,0));
-				document.getElementById('collab-link').value = '';
-			}
-			
-			regions.nav('collab');
+			ljs.load('sjcl', function() {
+				var shared = firetext.shared.get(location + directory + filename + filetype);
+				if(shared && shared['collab-ACL']) {
+					document.getElementById('collab-ACL').value = shared['collab-ACL'];
+					document.getElementById('collab-use-password').checked = shared['collab-use-password'];
+					document.getElementById('collab-password').value = shared['collab-password'];
+					document.getElementById('collab-iter').value = shared['collab-iter'];
+					document.getElementById('collab-salt').value = shared['collab-salt'];
+					document.getElementById('collab-link').value = firetext.shared.getCollabLink(shared);
+				} else {
+					document.getElementById('collab-ACL').value = 'public-read-write';
+					document.getElementById('collab-use-password').checked = true;
+					document.getElementById('collab-password').value = generateNewPassword();
+					document.getElementById('collab-iter').value = 10000;
+					document.getElementById('collab-salt').value = sjcl.codec.base64.fromBits(sjcl.random.randomWords(2,0));
+					document.getElementById('collab-link').value = '';
+				}
+				
+				regions.nav('collab');
+			});
 		} else if (calledFunction == 'collab') {
 			var location = document.getElementById('currentFileLocation').textContent;
 			var directory = document.getElementById('currentFileDirectory').textContent;
@@ -1630,23 +1636,25 @@ function processActions(eventAttribute, target, event) {
 			if (directory[0] !== '/') {
 				directory = '/sdcard/' + directory;
 			}
-			var shared = firetext.shared.get(location + directory + filename + filetype);
-			if(shared && shared['publish-ACL']) {
-				document.getElementById('publish-ACL').value = shared['publish-ACL'];
-				document.getElementById('publish-use-password').checked = shared['publish-use-password'];
-				document.getElementById('publish-password').value = shared['publish-password'];
-				document.getElementById('publish-iter').value = shared['publish-iter'];
-				document.getElementById('publish-salt').value = shared['publish-salt'];
-				document.getElementById('publish-link').value = firetext.shared.getPublishLink(shared);
-			} else {
-				document.getElementById('publish-ACL').value = 'public-read';
-				document.getElementById('publish-use-password').checked = false;
-				document.getElementById('publish-iter').value = 10000;
-				document.getElementById('publish-salt').value = sjcl.codec.base64.fromBits(sjcl.random.randomWords(2,0));
-				document.getElementById('publish-link').value = '';
-			}
-			
-			regions.nav('publish');
+			ljs.load('sjcl', function() {
+				var shared = firetext.shared.get(location + directory + filename + filetype);
+				if(shared && shared['publish-ACL']) {
+					document.getElementById('publish-ACL').value = shared['publish-ACL'];
+					document.getElementById('publish-use-password').checked = shared['publish-use-password'];
+					document.getElementById('publish-password').value = shared['publish-password'];
+					document.getElementById('publish-iter').value = shared['publish-iter'];
+					document.getElementById('publish-salt').value = shared['publish-salt'];
+					document.getElementById('publish-link').value = firetext.shared.getPublishLink(shared);
+				} else {
+					document.getElementById('publish-ACL').value = 'public-read';
+					document.getElementById('publish-use-password').checked = false;
+					document.getElementById('publish-iter').value = 10000;
+					document.getElementById('publish-salt').value = sjcl.codec.base64.fromBits(sjcl.random.randomWords(2,0));
+					document.getElementById('publish-link').value = '';
+				}
+				
+				regions.nav('publish');
+			});
 		} else if (calledFunction == 'publish') {
 			var location = document.getElementById('currentFileLocation').textContent;
 			var directory = document.getElementById('currentFileDirectory').textContent;
@@ -1821,10 +1829,8 @@ document.addEventListener('webkitfullscreenerror', onFullScreenError);
 ------------------------*/ 
 function initPrintButton(callback) {
 	app.modules.load('modules/printButton/printButton.html', printButton, function() {
-		printButtonCommunication(function(){
-			callback();
-		});
-	}, true, true);
+		printButtonCommunication(callback);
+	});
 }
 
 function printButtonCommunication(callback) {
