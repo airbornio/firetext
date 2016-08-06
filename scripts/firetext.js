@@ -104,18 +104,6 @@ firetext.init = function () {
 	});
 	
 	navigator.mozL10n.ready(function () {
-		// Add l10n title attributes and long-press help popups
-		initElementTitles();
-		
-		// Freeze style selectors width, for Chrome
-		Array.prototype.forEach.call(toolbar.getElementsByTagName('select'), function(select) {
-			var style = select.getAttribute('style') || '';
-			select.setAttribute('style', '');
-			var width = select.clientWidth;
-			select.setAttribute('style', style);
-			select.style.width = width + 'px';
-		});
-		
 		// Asynchronously fetch fallback language, since Airborn OS doesn't support synchronous requests
 		if(
 			navigator.mozL10n.ctx.locales.en // if english locale has been created, it means we need it
@@ -128,7 +116,21 @@ firetext.init = function () {
 				firetext.language(firetext.settings.get('language'));
 			});
 			req.send();
+			
+			return; // Let's wait until english locale is ready to do the below
 		}
+		
+		// Add l10n title attributes and long-press help popups
+		initElementTitles();
+		
+		// Freeze style selectors width, for Chrome
+		Array.prototype.forEach.call(toolbar.getElementsByTagName('select'), function(select) {
+			var style = select.getAttribute('style') || '';
+			select.setAttribute('style', '');
+			var width = select.clientWidth;
+			select.setAttribute('style', style);
+			select.style.width = width + 'px';
+		});
 	});
 };
 
