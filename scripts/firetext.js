@@ -143,9 +143,6 @@ function initModules(callback) {
 	
 	// Find device type
 	checkDevice();
-		
-	// Initialize Settings
-	firetext.settings.init();
 	
 	// Initialize Language
 	firetext.language(firetext.settings.get('language'));
@@ -164,6 +161,9 @@ function initModules(callback) {
 	
 	// Initialize IO
 	firetext.io.init(null, function() {
+		// Initialize Settings
+		firetext.settings.init();
+		
 		callback();
 	});
 
