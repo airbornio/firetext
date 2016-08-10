@@ -178,6 +178,10 @@ td, blockquote {
 	--margin: 2px;
 }
 
+img {
+	cursor: default;
+}
+
 @media (min-width: 767px) {
 	html {
 		padding-top: 65px;

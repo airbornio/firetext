@@ -148,6 +148,18 @@ document.addEventListener('keydown', function (event) {
   }
 });
 
+// [Chrome] Select images on click
+document.addEventListener('click', onImageClick);
+document.addEventListener('contextmenu', onImageClick);
+function onImageClick(event) {
+  if(event.target.nodeName.toLowerCase() === 'img') {
+    var range = document.createRange();
+    range.selectNode(event.target);
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(range);
+  }
+}
+
 // Fix up document
 document.addEventListener('input', fixupDocument);
 fixupDocument();
