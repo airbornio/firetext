@@ -182,6 +182,10 @@ img {
 	cursor: default;
 }
 
+[_firetext_ctrl_held] a {
+	cursor: pointer;
+}
+
 @media (min-width: 767px) {
 	html {
 		padding-top: 65px;

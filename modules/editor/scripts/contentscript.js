@@ -152,13 +152,46 @@ document.addEventListener('keydown', function (event) {
 document.addEventListener('click', onImageClick);
 document.addEventListener('contextmenu', onImageClick);
 function onImageClick(event) {
-  if(event.target.nodeName.toLowerCase() === 'img') {
+  if(event.target.nodeName === 'IMG') {
     var range = document.createRange();
     range.selectNode(event.target);
     document.getSelection().removeAllRanges();
     document.getSelection().addRange(range);
   }
 }
+
+// [Chrome] Follow links on ctrl/cmd-click
+var isMac = navigator.platform.substr(0, 3) === 'Mac';
+var ctrlKeyCodes = isMac ? [
+  91, // Meta left Chrome / Safari
+  93, // Meta right Chrome / Safari
+  224, // Meta Firefox
+] : [
+  17, // Control
+];
+document.addEventListener('keydown', function(event) {
+  if(ctrlKeyCodes.indexOf(event.keyCode) !== -1) {
+    document.documentElement.setAttribute('_firetext_ctrl_held', '');
+  }
+});
+document.addEventListener('keyup', function(event) {
+  if(ctrlKeyCodes.indexOf(event.keyCode) !== -1) {
+    document.documentElement.removeAttribute('_firetext_ctrl_held');
+  }
+});
+document.addEventListener('mousedown', function(event) {
+  if(event.target.nodeName === 'A') {
+    if(document.documentElement.hasAttribute('_firetext_ctrl_held')) {
+      // Document was focused
+    } else if(isMac ? event.metaKey : event.ctrlKey) {
+      // Document wasn't focused
+      document.documentElement.setAttribute('_firetext_ctrl_held', '');
+    } else {
+      return;
+    }
+    event.target.setAttribute('contenteditable', 'false');
+  }
+});
 
 // Fix up document
 document.addEventListener('input', fixupDocument);
@@ -211,7 +244,7 @@ function getHTML(doc) {
     + (!doctype.publicId && doctype.systemId ? ' SYSTEM' : '') 
     + (doctype.systemId ? ' "' + doctype.systemId + '"' : '')
     + '>' : '';
-  return doctypeString + (doc || document).documentElement.outerHTML.replace(/<([a-z]+)[^>]*_firetext_remove=""[^>]*>[^<>]*(?:<\/\1>)?/g, '').replace(' _firetext_night=""', '').replace(' _firetext_print_view=""', '').replace(/ contenteditable="(?:true|false)"/g, '').replace(/<p[^>]+collab-added=""[^>]+><br><\/p>(<\/body>)/, '$1').replace(/ collab[-a-z]*="[a-z\d.]*"/g, '');
+  return doctypeString + (doc || document).documentElement.outerHTML.replace(/<([a-z]+)[^>]*_firetext_remove=""[^>]*>[^<>]*(?:<\/\1>)?/g, '').replace(/ _firetext_[a-z_]+=""/g, '').replace(/ contenteditable="(?:true|false)"/g, '').replace(/<p[^>]+collab-added=""[^>]+><br><\/p>(<\/body>)/, '$1').replace(/ collab[-a-z]*="[a-z\d.]*"/g, '');
 }
 function getElementInnerHTML(element) {
   return element.innerHTML.replace(/ contenteditable="(?:true|false)"/g, ''); // Don't remove collab-id's

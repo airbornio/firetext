@@ -147,6 +147,9 @@ function keepKeyboardOpen() {
 setInterval(function() {
   Array.prototype.forEach.call(document.querySelectorAll('html[contenteditable="false"], html [contenteditable]'), function(element) {
     if(!locks[elementPath(element)]) {
+      if(element.nodeName === 'A' && document.documentElement.hasAttribute('_firetext_ctrl_held')) {
+        return;
+      }
       var selection = recordSelection();
       var scroll = recordScroll();
       keepKeyboardOpen();
