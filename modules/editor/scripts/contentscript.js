@@ -48,6 +48,9 @@ if(!readOnly) {
   document.execCommand('enableObjectResizing', false, 'true');
 }
 
+// Use CSS for style
+document.execCommand('styleWithCSS', false, true); // Firefox
+
 if(filetype !== '.txt') {
   // Make p, not div
   document.execCommand('defaultParagraphSeparator', false, 'p'); // Chrome
