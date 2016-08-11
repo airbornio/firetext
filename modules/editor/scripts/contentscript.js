@@ -170,7 +170,37 @@ initNight(document, parentMessageProxy);
 initPrintView(document, parentMessageProxy);
 
 // format document
-parentMessageProxy.registerMessageHandler(function(e) { document.execCommand(e.data.sCmd, false, e.data.sValue); }, "format")
+function getSelectedImage() {
+  var sel = document.getSelection();
+  if(!sel.rangeCount) {
+    return null;
+  }
+  var range = sel.getRangeAt(0);
+  if(
+    range.startContainer === range.endContainer &&
+    range.startContainer.nodeType === Element.ELEMENT_NODE &&
+    range.endOffset - range.startOffset === 1 &&
+    range.startContainer.childNodes[range.startOffset].nodeName === 'IMG'
+  ) {
+    return range.startContainer.childNodes[range.startOffset];
+  }
+}
+parentMessageProxy.registerMessageHandler(function(e) {
+  var img;
+  if(e.data.sCmd.substr(0, 7) === 'justify' && (img = getSelectedImage())) {
+    img.style.float = img.style.display = img.style.marginLeft = img.style.marginRight = img.style.marginBottom = '';
+    if(e.data.sCmd === 'justifyLeft' || e.data.sCmd === 'justifyRight') {
+      img.style.float = e.data.sCmd === 'justifyLeft' ? 'left' : 'right';
+      img.style[e.data.sCmd === 'justifyLeft' ? 'marginRight' : 'marginLeft'] = '10px';
+      img.style.marginBottom = '5px';
+    } else if(e.data.sCmd === 'justifyCenter') {
+      img.style.display = 'block';
+      img.style.marginLeft = img.style.marginRight = 'auto';
+    }
+    return;
+  }
+  document.execCommand(e.data.sCmd, false, e.data.sValue);
+}, "format")
 
 function getHTML(doc) {
   /*** This function is duplicated in docIO.js and partially below as getElementInnerHTML ***/

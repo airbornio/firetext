@@ -241,8 +241,24 @@ function initDocIO(document, messageProxy, loadCallback) {
 	messageProxy.registerMessageHandler(function(e) {
 		var commands = e.data.commands
 		var commandStates = {};
+		var img, active;
+		if(commands.indexOf('justifyCenter') !== -1 && (img = window.getSelectedImage())) { // "window." for Firefox
+			if(img.style.float === 'left') {
+				active = 'justifyLeft';
+			} else if(img.style.float === 'right') {
+				active = 'justifyRight';
+			} else if(img.style.marginLeft === 'auto') {
+				active = 'justifyCenter';
+			} else {
+				active = 'justifyFull';
+			}
+		}
 		for(var i = 0; i < commands.length; i++) {
 			commandStates[commands[i]] = {};
+			if(img && commands[i].substr(0, 7) === 'justify') {
+				commandStates[commands[i]].state = commands[i] === active;
+				continue;
+			}
 			commandStates[commands[i]].state = document.queryCommandState(commands[i]);
 			commandStates[commands[i]].value = document.queryCommandValue(commands[i]);
 		}
