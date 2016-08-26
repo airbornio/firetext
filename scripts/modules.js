@@ -66,7 +66,7 @@ if (!app) {
 											break;
 										}
 										if (done) {
-											callback(null, createBlob(response));
+											callback(null, 'data:text/html,' + encodeURIComponent(response.documentElement.outerHTML));
 										}
 									}
 								}, false);
@@ -81,12 +81,6 @@ if (!app) {
 			}
 		}, false);
 		request.send();
-	}
-	
-	function createBlob(response) {
-		var moduleBlob = new Blob([response.documentElement.outerHTML], {type: "text/html"});
-		var moduleURL = URL.createObjectURL ? URL.createObjectURL(moduleBlob) : URL.webkitCreateObjectURL ? URL.webkitCreateObjectURL(moduleBlob) : null;
-		return moduleURL;	
 	}
 	
 	var cache = {};
