@@ -135,5 +135,6 @@
       },
       "returnValue": false
     }
-  }
+  },
+  "window_size": "maximize"
 }
