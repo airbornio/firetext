@@ -82,7 +82,7 @@ firetext.shared = {
 		}
 	},
 	getCollabLink: function(attrs) {
-		return airborn.top_location.origin + '/run#firetext:s=' + encodeURIComponent(this.collabEncrypt(attrs, JSON.stringify(attrs))) + (attrs['collab-use-password'] ? '&p=1' : '');
+		return airborn.top_location.origin + '/run#open=firetext;firetext:s=' + encodeURIComponent(this.collabEncrypt(attrs, JSON.stringify(attrs))) + (attrs['collab-use-password'] ? '&p=1' : '');
 	},
 	getPublishLink: function(attrs) {
 		return airborn.top_location.origin + '/pub#?f=' + attrs.S3Prefix + '/' + attrs.object + (attrs['publish-use-password'] ? '&p=1' : '');
