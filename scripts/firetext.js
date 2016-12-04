@@ -34,7 +34,7 @@ var locationLegend, locationSelect, locationDevice, locationDropbox;
 var editorMessageProxy;
 
 // Lists
-var welcomeMainArea, welcomeDocsList, openDialogMainArea, openDialogRecentsArea, openDialogRecentsList;
+var welcomeMainArea, welcomeDocsList;
 var welcomeRecentsArea, welcomeRecentsList;
 
 // Cache
@@ -262,9 +262,6 @@ function initElements() {
 	welcomeDocsList = document.getElementById('welcome-docs-list');
 	welcomeRecentsArea = document.getElementById('welcome-recents-area');
 	welcomeRecentsList = document.getElementById('welcome-recents-list');
-	openDialogMainArea = document.getElementById('open-dialog-main-area');
-	openDialogRecentsArea = document.getElementById('open-dialog-recents-area');
-	openDialogRecentsList = document.getElementById('open-dialog-recents-list');
 
 	// Formatting
 	bold = document.getElementById('bold');
@@ -323,7 +320,6 @@ function initListeners() {
 		}
 	}
 	welcomeMainArea.addEventListener('scroll', throttle(updatePreviews,300));
-	openDialogMainArea.addEventListener('scroll', throttle(updatePreviews,300));
 	welcomeDocsList.addEventListener(
 		'contextmenu', function contextmenu(event) {
 			event.preventDefault();
@@ -412,7 +408,7 @@ function updateAllDocs() {
 		}
 		return true;
 	});
-	buildDocList(allDocs, [welcomeRecentsList, openDialogRecentsList], 'documents-found');
+	buildDocList(allDocs, welcomeRecentsList, 'documents-found');
 }
 
 function updatePreviewsEnabled() {
@@ -655,7 +651,7 @@ function updatePreviews() {
 			// We're in edit mode, item is hidden.
 			return;
 		}
-		var scrollParent = welcomeMainArea.contains(item) ? welcomeMainArea : openDialogMainArea;
+		var scrollParent = welcomeMainArea;
 		if(item.offsetTop < item.offsetParent.offsetHeight + scrollParent.scrollTop &&
 			item.offsetTop + item.offsetHeight > scrollParent.offsetTop + scrollParent.scrollTop) {			
 			var directory = item.getAttribute('data-click-directory');
@@ -695,7 +691,7 @@ function scrollDocList() {
 			// We're in edit mode, item is hidden.
 			return;
 		}
-		var scrollParent = welcomeMainArea.contains(item) ? welcomeMainArea : openDialogMainArea;
+		var scrollParent = welcomeMainArea;
 		if(item.offsetTop < item.offsetParent.offsetHeight + scrollParent.scrollTop &&
 			item.offsetTop + item.offsetHeight > scrollParent.offsetTop + scrollParent.scrollTop) {
 			// Show item
@@ -708,7 +704,7 @@ function scrollDocList() {
 	
 }
 
-function buildDocListItems(DOCS, listElms, ctr) {
+function buildDocListItems(DOCS, listElm, ctr) {
 	// Get current doc
 	var DOC = DOCS[ctr];
 	
@@ -736,23 +732,20 @@ function buildDocListItems(DOCS, listElms, ctr) {
 	output += '</div>'; 
 	output += '</a></li>';
 	
-	// Display output HTML
-	for (var i = 0; i < listElms.length; i++) {
-		var elm = listElms[i].querySelector(
-			'.fileListItem' +
-			'[data-click-directory="' + DOC[0] + '"]' +
-			'[data-click-filename="' + DOC[1] + '"]' +
-			'[data-click-filetype="' + DOC[2] + '"]' +
-			'[data-click-location="' + location + '"]'
-		);
-		if(elm) {
-			elm.className = className;
-			elm.setAttribute('data-index', ctr);
-			elm.style.webkitOrder = ctr;
-			elm.style.order = ctr;
-		} else {
-			listElms[i].insertAdjacentHTML('beforeend', output);
-		}
+	var elm = listElm.querySelector(
+		'.fileListItem' +
+		'[data-click-directory="' + DOC[0] + '"]' +
+		'[data-click-filename="' + DOC[1] + '"]' +
+		'[data-click-filetype="' + DOC[2] + '"]' +
+		'[data-click-location="' + location + '"]'
+	);
+	if(elm) {
+		elm.className = className;
+		elm.setAttribute('data-index', ctr);
+		elm.style.webkitOrder = ctr;
+		elm.style.order = ctr;
+	} else {
+		listElm.insertAdjacentHTML('beforeend', output);
 	}
 	
 	// Fetch previews
@@ -764,34 +757,30 @@ function buildDocListItems(DOCS, listElms, ctr) {
 	}
 	
 	// build next item
-	buildDocListItems(DOCS, listElms, ctr + 1);
+	buildDocListItems(DOCS, listElm, ctr + 1);
 }
 
-function buildDocList(DOCS, listElms, display) {
-	if (listElms && DOCS) {
+function buildDocList(DOCS, listElm, display) {
+	if (listElm && DOCS) {
 		// Make sure list is not an edit list
-		for (var i = 0; i < listElms.length; i++) {
-			listElms[i].setAttribute("data-type", "list");
-		}
+		listElm.setAttribute("data-type", "list");
 		
 		if (DOCS.length > 0) {
 			// build next item
-			buildDocListItems(DOCS, listElms, 0);
+			buildDocListItems(DOCS, listElm, 0);
 			
 			// remove outdated items
-			for (var i = 0; i < listElms.length; i++) {
-				for (var j = 0; j < listElms[i].childNodes.length; j++) {
-					var childNode = listElms[i].childNodes[j];
-					var DOC = DOCS[childNode.getAttribute('data-index')];
-					if (
-						!DOC ||
-						DOC[0] !== childNode.getAttribute('data-click-directory') ||
-						DOC[1] !== childNode.getAttribute('data-click-filename') ||
-						DOC[2] !== childNode.getAttribute('data-click-filetype') ||
-						(DOC[4] || 'internal') !== childNode.getAttribute('data-click-location')
-					) {
-						listElms[i].removeChild(childNode);
-					}
+			for (var j = 0; j < listElm.childNodes.length; j++) {
+				var childNode = listElm.childNodes[j];
+				var DOC = DOCS[childNode.getAttribute('data-index')];
+				if (
+					!DOC ||
+					DOC[0] !== childNode.getAttribute('data-click-directory') ||
+					DOC[1] !== childNode.getAttribute('data-click-filename') ||
+					DOC[2] !== childNode.getAttribute('data-click-filetype') ||
+					(DOC[4] || 'internal') !== childNode.getAttribute('data-click-location')
+				) {
+					listElm.removeChild(childNode);
 				}
 			}
 		} else {
@@ -802,9 +791,7 @@ function buildDocList(DOCS, listElms, display) {
 			output += '</li>';
 			
 			// Display output HTML
-			for (var i = 0; i < listElms.length; i++) {
-				listElms[i].innerHTML = output;
-			}
+			listElm.innerHTML = output;
 		}
 	}
 }
