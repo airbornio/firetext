@@ -196,8 +196,8 @@ prepareFile(argv._[0].replace('../', ''), {compat: false, _compat: false, bootst
 		}, function(err, css) {
 			// Remove unused glyphs from icon font
 			var rIconFontUrl = /(url\(".*?materialdesignicons-webfont.woff.*?base64,)(.*?)("\))/;
-			var rIconRuleMatch = /\.icon-.*?:before {\n  content: "\\([\da-f]+)";\n}/g;
-			var rIconRuleExtract = /\.icon-.*?:before {\n  content: "\\([\da-f]+)";\n}/; // not global
+			var rIconRuleMatch = /\.icon-.*?:before {\n  content: "\\([\da-f]+)";\n}/ig;
+			var rIconRuleExtract = /\.icon-.*?:before {\n  content: "\\([\da-f]+)";\n}/i; // not global
 			
 			window.language = 'en-US'; // Since there is a window, fontmin expects window.language
 			
