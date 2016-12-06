@@ -27,10 +27,10 @@ var documentSizeStyle = document.createElement('style');
 documentSizeStyle.setAttribute('_firetext_remove', '');
 function printViewOnInput(evt) {
 	documentSizeStyle.textContent = '';
-	var pages = Math.ceil(document.body.offsetHeight / (document.documentElement.offsetHeight - 65));
+	var pages = Math.ceil(document.body.offsetHeight / (document.documentElement.offsetHeight - 30));
 	documentSizeStyle.textContent = [
 		'html {',
-		'	padding-right: calc(' + (pages - 1) + ' * (var(--width) - 2 * var(--margin) + 65px) + 65px);',
+		'	padding-right: calc(' + (pages - 1) + ' * (var(--width) - 2 * var(--margin) + 40px) + 40px);',
 		'}',
 		'body {',
 		'	height: ' + pages + '00%;',
@@ -45,7 +45,7 @@ var windowSizeStyle = document.createElement('style');
 windowSizeStyle.setAttribute('_firetext_remove', '');
 var scale;
 function printViewOnResize() {
-	scale = (window.innerHeight - 65) / document.documentElement.offsetHeight;
+	scale = window.innerHeight / (document.documentElement.offsetHeight + 30);
 	windowSizeStyle.textContent = [
 		'html {',
 		'	transform: scale(' + scale + ');',

@@ -388,6 +388,10 @@ section[data-type="sidebar"] [role="toolbar"] button.active {
   right: 0;
 }
 
+#tab-design {
+  top: 4rem;
+}
+
 /* Zen mode */
 .fullscreen .edit-header {
   top: 0rem;
@@ -429,6 +433,10 @@ section[data-type="sidebar"] [role="toolbar"] button.active {
 
 .fullscreen .editor-container {
   height: 100%;
+}
+
+.fullscreen #tab-design {
+  top: 5rem;
 }
 
 .fullscreen #rawEditor {
