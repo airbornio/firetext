@@ -138,14 +138,19 @@ section[data-type="sidebar"] > nav > .url-menu > ul > li > a {
 
 section[data-type="sidebar"] > nav > .url-menu > ul > li > a > [class^="icon"] {
   position: absolute;
-  left: 0;
+  left: 2rem;
   top: 1.35rem;
   opacity: .7;
+  text-indent: 0;
 }
 
 section[data-type="sidebar"] > nav > .url-menu > ul > li > a > .icon-checkbox-blank-circle {
   opacity: .6;
   transform: scale(.75);
+}
+
+section[data-type="sidebar"] > nav > .url-menu > ul > li > a > .icon-counter {
+  transform: scale(1.2);
 }
 
 .titlePopup {

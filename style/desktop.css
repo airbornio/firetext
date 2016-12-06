@@ -392,6 +392,10 @@ section[data-type="sidebar"] [role="toolbar"] button.active {
   top: 4rem;
 }
 
+#word-count {
+  transition-duration: 0.2s;
+}
+
 /* Zen mode */
 .fullscreen .edit-header {
   top: 0rem;

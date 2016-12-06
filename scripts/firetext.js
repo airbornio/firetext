@@ -32,6 +32,7 @@ var bold, fontSelect, fontSizeSelect, italic, justifySelect, strikethrough, styl
 var underline, underlineCheckbox;
 var locationLegend, locationSelect, locationDevice, locationDropbox;
 var editorMessageProxy;
+var wordCountElement, wordCountEnabled = false;
 
 // Lists
 var welcomeMainArea, welcomeDocsList;
@@ -250,6 +251,7 @@ function initElements() {
 	locationSelect = document.getElementById('createDialogFileLocation');	
 	printButton = document.getElementById('printButton');
 	mainButtonConnectDropbox = document.getElementById('mainButtonConnectDropbox');
+	wordCountElement = document.getElementById('word-count');
 	
 	// Current file information
 	currentFileName = document.getElementById('currentFileName');
@@ -1514,6 +1516,10 @@ function processActions(eventAttribute, target, event) {
 			} else {
 				regions.nav('table');
 			}
+		} else if (calledFunction == 'openWordCount') {
+			wordCountEnabled = !wordCountEnabled;
+			wordCount();
+			regions.navBack();
 		} else if (calledFunction == 'openPageSetup') {
 			var key = editorMessageProxy.registerMessageHandler(function(e) {
 				var values = e.data.propertyValues;
@@ -1875,6 +1881,36 @@ function initCopyButtons() {
 	});
 	clipboard.on('error', function(evt) {
 		firetext.notify(navigator.mozL10n.get('copy-manually'));
+	});
+}
+
+function wordCount() {
+	if(wordCountEnabled) {
+		setTimeout(function() {
+			wordCountElement.style.visibility = 'visible';
+			wordCountElement.style.bottom = '0';
+			tabDesign.style.bottom = '25px';
+		}, deviceType == 'desktop' ? 0 : 250);
+		
+		editorMessageProxy.registerMessageHandler(function(e) {
+			var d = e.data;
+			wordCountElement.innerHTML = [
+				d.pages != null && !d.selection ? '<span class="nowrap">' + navigator.mozL10n.get('pages') + ': <span class="count pages">' + d.pages + '</span></span>' : '',
+				'<span class="nowrap">' + navigator.mozL10n.get('words') + ': <span class="count words">' + (d.selection ? d.selectionWordCount.words + '/' : '') + d.documentWordCount.words + '</span></span>',
+				'<span class="nowrap">' + navigator.mozL10n.get('characters') + ': <span class="count">' + (d.selection ? d.selectionWordCount.chars + '/' : '') + d.documentWordCount.chars + '</span></span>',
+				'<span class="nowrap">' + navigator.mozL10n.get('characters-without-spaces') + ': <span class="count">' + (d.selection ? d.selectionWordCount.charsWithoutSpaces + '/' : '') + d.documentWordCount.charsWithoutSpaces + '</span></span>',
+			].join('\n');
+		}, "wordCountData");
+	} else {
+		wordCountElement.style.visibility = 'hidden';
+		wordCountElement.style.bottom = '-25px';
+		tabDesign.style.bottom = '0';
+		editorMessageProxy.unRegisterMessageHandler("wordCountData");
+	}
+	
+	editorMessageProxy.postMessage({
+		command: "wordCount",
+		wordCount: wordCountEnabled
 	});
 }
 

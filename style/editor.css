@@ -132,3 +132,42 @@
 	border-color: #737373;
 	color: #1f1f1f;
 }
+
+/* Word count */
+#word-count {
+	visibility: hidden;
+	position: fixed;
+	bottom: -25px;
+	transition: all .4s;
+	left: 0;
+	font-family: sans-serif;
+	width: 100%;
+	background: white;
+	border-top: 1px solid #aaa;
+	font-size: small;
+	text-align: center;
+	padding: 0 10px;
+	height: 25px;
+	line-height: 24px;
+	box-sizing: border-box;
+}
+
+#word-count .nowrap {
+	white-space: nowrap;
+}
+
+#word-count .count {
+	min-width: 70px;
+	display: inline-block;
+	padding-right: 10px;
+	color: black;
+	box-sizing: border-box;
+}
+
+#word-count .count.pages {
+	min-width: 40px;
+}
+
+#word-count .count.words {
+	min-width: 60px;
+}

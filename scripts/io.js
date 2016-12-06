@@ -513,6 +513,8 @@ function loadToEditor(directory, filename, filetype, location, editable, addToRe
 				
 				// Re-initialize night
 				night();
+				
+				wordCount();
 			})
 		} else {
 			firetext.notify(navigator.mozL10n.get('load-unsuccessful')+result);

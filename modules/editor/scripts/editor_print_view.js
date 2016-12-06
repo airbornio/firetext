@@ -2,6 +2,7 @@ function initPrintView(document, messageProxy){
 	messageProxy.registerMessageHandler(function(e) { printView(e.data.printView); }, "printView");
 }
 
+var pages;
 function printView(printView) {
 	var html = document.getElementsByTagName('html')[0];
 	if(printView) {
@@ -20,6 +21,10 @@ function printView(printView) {
 		document.removeEventListener('wheel', printViewOnWheel);
 		if(documentSizeStyle.parentElement) documentSizeStyle.parentElement.removeChild(documentSizeStyle);
 		if(windowSizeStyle.parentElement) windowSizeStyle.parentElement.removeChild(windowSizeStyle);
+		pages = null;
+		if(wordCountEnabled) {
+			updateWordCountElement();
+		}
 	}
 }
 
@@ -27,7 +32,7 @@ var documentSizeStyle = document.createElement('style');
 documentSizeStyle.setAttribute('_firetext_remove', '');
 function printViewOnInput(evt) {
 	documentSizeStyle.textContent = '';
-	var pages = Math.ceil(document.body.offsetHeight / (document.documentElement.offsetHeight - 30));
+	pages = Math.ceil(document.body.offsetHeight / (document.documentElement.offsetHeight - 30));
 	documentSizeStyle.textContent = [
 		'html {',
 		'	padding-right: calc(' + (pages - 1) + ' * (var(--width) - 2 * var(--margin) + 40px) + 40px);',
@@ -38,6 +43,9 @@ function printViewOnInput(evt) {
 	].join('\n');
 	if(evt.detail) { // fromCollab or fromProperties might change page size
 		printViewOnResize();
+	}
+	if(wordCountEnabled) {
+		updateWordCountElement();
 	}
 }
 

@@ -192,6 +192,7 @@ prepareFile(argv._[0].replace('../', ''), {compat: false, _compat: false, bootst
 				/\.icon-format-float-left/,
 				/\.icon-chevron-right/,
 				/\.icon-checkbox-blank-circle/,
+				/#word-count/,
 			]
 		}, function(err, css) {
 			// Remove unused glyphs from icon font

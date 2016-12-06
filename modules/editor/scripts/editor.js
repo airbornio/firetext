@@ -43,6 +43,8 @@ var mainClosure = function() {
 		initNight(doc, parentMessageProxy);
 		// print view
 		initPrintView(doc, parentMessageProxy);
+		// word count
+		initWordCount(doc, parentMessageProxy);
 		
 		var content_styles = document.querySelectorAll('style[data-for-content]');
 		
@@ -53,6 +55,7 @@ var mainClosure = function() {
 			window.parentMessageProxy = parentMessageProxy;
 			window.initNight = initNight;
 			window.initPrintView = initPrintView;
+			window.initWordCount = initWordCount;
 			window.filetype = filetype;
 			window.user_location = user_location;
 			window.odtdoc = odtdoc;

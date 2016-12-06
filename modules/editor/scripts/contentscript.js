@@ -204,6 +204,8 @@ fixupDocument();
 initNight(document, parentMessageProxy);
 // print view
 initPrintView(document, parentMessageProxy);
+// word count
+initWordCount(document, parentMessageProxy);
 
 // format document
 function getSelectedImage() {
@@ -268,10 +270,10 @@ document.addEventListener('selectionchange', throttle(function() {
     command: "update-toolbar"
   });
 }, 100));
-if(!('onselectionchange' in document)) { // Firefox
+if(!('onselectionchange' in document)) { // Firefox <52
   var getSelectionRange = function() {
     var selection = document.getSelection();
-    return selection.rangeCount ? selection.getRangeAt(selection.rangeCount - 1) : null; // Last range to match Firefox behavior
+    return selection.rangeCount ? selection.getRangeAt(0) : null;
   }
   var prevRange;
   setInterval(function() {
@@ -280,9 +282,7 @@ if(!('onselectionchange' in document)) { // Firefox
       (!range || !prevRange || ['startContainer', 'startOffset', 'endContainer', 'endOffset'].some(function(attr) {
         return range[attr] !== prevRange[attr];
       }))) {
-      parentMessageProxy.postMessage({
-        command: "update-toolbar"
-      });
+      document.dispatchEvent(new Event('selectionchange'));
     }
     prevRange = range;
   }, 100);

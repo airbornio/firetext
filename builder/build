@@ -29,7 +29,6 @@ cp ../scripts/lib/jszip-deflate.js  ../build/scripts/lib
 cp ../scripts/lib/jszip-inflate.js  ../build/scripts/lib
 cp ../scripts/lib/jszip-load.js  ../build/scripts/lib
 cp ../scripts/lib/stringview.js  ../build/scripts/lib
-cp ../scripts/lib/innertext.js  ../build/scripts/lib
 cp ../scripts/parsers/plain-text.js  ../build/scripts/parsers
 cp ../scripts/parsers/odt.js/lib/odt.js  ../build/scripts/parsers/odt.js/lib
 

@@ -127,13 +127,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 		return html;
 	}
 	function getText() {
-		var textValue;
-		if (!('innerText' in document.documentElement)) {
-			textValue = innerText(document.documentElement)
-		} else {
-			textValue = document.documentElement.innerText;
-		}
-		return textValue;
+		return document.body.innerText;
 	}
 
 	function load(content, _filename, _filetype, user_location, _readOnly) {
