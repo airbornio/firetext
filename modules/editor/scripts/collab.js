@@ -139,7 +139,7 @@ function keepKeyboardOpen() {
     keepKeyboardOpenTextarea = document.createElement('textarea');
     keepKeyboardOpenTextarea.id = 'keepKeyboardOpenTextarea';
     keepKeyboardOpenTextarea.setAttribute('_firetext_remove', '');
-    keepKeyboardOpenTextarea.setAttribute('style', 'position: fixed; left: -9999px');
+    keepKeyboardOpenTextarea.setAttribute('style', 'position: fixed; top: 0; left: -9999px');
     document.documentElement.appendChild(keepKeyboardOpenTextarea);
   }
   keepKeyboardOpenTextarea.focus();
