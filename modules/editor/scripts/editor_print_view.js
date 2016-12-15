@@ -4,7 +4,8 @@ function initPrintView(document, messageProxy){
 
 var pages;
 function printView(printView) {
-	var html = document.getElementsByTagName('html')[0];
+	var selection = window.recordSelection();
+	var scroll = window.recordScroll();
 	if(printView) {
 		document.documentElement.setAttribute('_firetext_print_view', '');
 		document.addEventListener('input', printViewOnInput);
@@ -21,6 +22,8 @@ function printView(printView) {
 			// doesn't work either so maybe it's better this way.
 			document.body.innerHTML = document.body.innerHTML;
 		}
+		window.setSelection(selection);
+		window.setScroll(scroll);
 	} else {
 		document.documentElement.removeAttribute('_firetext_print_view');
 		document.removeEventListener('input', printViewOnInput);
@@ -32,6 +35,8 @@ function printView(printView) {
 		if(wordCountEnabled) {
 			updateWordCountElement();
 		}
+		window.setSelection(selection);
+		window.setScroll(scroll);
 		document.documentElement.spellcheck = true;
 		if(navigator.userAgent.match(/Chrome/)) {
 			// Add squiggly spell check lines.

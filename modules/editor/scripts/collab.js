@@ -70,7 +70,8 @@ function getClosestLock(el, userId) {
     }
   }
 }
-function recordSelection() {
+/* Used in editor_print_view.js. Needs to be on window namespace for Firefox. */
+window.recordSelection = function() {
   var sel = document.getSelection();
   if(!sel.rangeCount) {
     return null;
@@ -83,7 +84,7 @@ function recordSelection() {
     endOffset: range.endOffset
   };
 }
-function setSelection(selection) {
+window.setSelection = function(selection) {
   if(!selection) {
     return;
   }
@@ -109,7 +110,7 @@ function setSelection(selection) {
     sel.addRange(range);
   }
 }
-function recordScroll() {
+window.recordScroll = function() {
   var sel = document.getSelection();
   if(!sel.rangeCount) {
     return null;
@@ -124,7 +125,7 @@ function recordScroll() {
     selectionTop: rect.top
   };
 }
-function setScroll(before) {
+window.setScroll = function(before) {
   var after = recordScroll();
   if(before && after) {
     window.scrollBy(
