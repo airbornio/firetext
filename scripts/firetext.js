@@ -1579,7 +1579,7 @@ function processActions(eventAttribute, target, event) {
 					document.getElementById('collab-link').value = firetext.shared.getCollabLink(shared);
 				} else {
 					document.getElementById('collab-ACL').value = 'public-read-write';
-					document.getElementById('collab-use-password').checked = true;
+					document.getElementById('collab-use-password').checked = false;
 					document.getElementById('collab-password').value = generateNewPassword();
 					document.getElementById('collab-iter').value = 10000;
 					document.getElementById('collab-salt').value = sjcl.codec.base64.fromBits(sjcl.random.randomWords(2,0));
