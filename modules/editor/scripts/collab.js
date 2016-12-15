@@ -26,7 +26,7 @@ function setElementCollabIDs() {
 var shadowDocument;
 function elementPath(element) {
   var path = [];
-  while(element !== element.ownerDocument.documentElement) {
+  while(element.parentElement) {
     if(element.hasAttribute && element.hasAttribute('collab-id')) {
       path.push(element.getAttribute('collab-id'));
     } else {

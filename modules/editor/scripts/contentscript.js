@@ -249,7 +249,7 @@ function getHTML(doc) {
     + (!doctype.publicId && doctype.systemId ? ' SYSTEM' : '') 
     + (doctype.systemId ? ' "' + doctype.systemId + '"' : '')
     + '>' : '';
-  return doctypeString + (doc || document).documentElement.outerHTML.replace(/<([a-z]+)[^>]*_firetext_remove=""[^>]*>[^<>]*(?:<\/\1>)?/g, '').replace(/ _firetext_[a-z_]+=""/g, '').replace(/ contenteditable="(?:true|false)"/g, '').replace(/<p[^>]+collab-added=""[^>]+><br><\/p>(<\/body>)/, '$1').replace(/ collab[-a-z]*="[a-z\d.]*"/g, '');
+  return doctypeString + (doc || document).documentElement.outerHTML.replace(/<([a-z]+)[^>]*_firetext_remove=""[^>]*>[^<>]*(?:<\/\1>)?/g, '').replace(/ _firetext_[a-z_]+=""/g, '').replace(/ contenteditable="(?:true|false)"/g, '').replace(/<p[^>]+collab-added=""[^>]+><br><\/p>(<\/body>)/, '$1').replace(/ collab[-a-z]*="[a-z\d.]*"/g, '').replace(/ spellcheck="(?:true|false)"/, '');
 }
 function getElementInnerHTML(element) {
   return element.innerHTML.replace(/ contenteditable="(?:true|false)"/g, ''); // Don't remove collab-id's

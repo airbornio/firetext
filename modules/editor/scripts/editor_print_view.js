@@ -14,6 +14,13 @@ function printView(printView) {
 		document.head.appendChild(windowSizeStyle);
 		printViewOnInput({});
 		printViewOnResize();
+		document.documentElement.spellcheck = false;
+		if(navigator.userAgent.match(/Chrome/)) {
+			// Remove squiggly spell check lines.
+			// Doesn't work in Safari, but then again adding them back
+			// doesn't work either so maybe it's better this way.
+			document.body.innerHTML = document.body.innerHTML;
+		}
 	} else {
 		document.documentElement.removeAttribute('_firetext_print_view');
 		document.removeEventListener('input', printViewOnInput);
@@ -24,6 +31,42 @@ function printView(printView) {
 		pages = null;
 		if(wordCountEnabled) {
 			updateWordCountElement();
+		}
+		document.documentElement.spellcheck = true;
+		if(navigator.userAgent.match(/Chrome/)) {
+			// Add squiggly spell check lines.
+			// 
+			// Chrome spell checks a paragraph when you click in it.
+			// So the basic idea here is to visit every paragraph (every
+			// block-level element, in fact), select it, and wait a bit
+			// to give Chrome a chance to spell check it. It doesn't
+			// seem to work too well in table cells (only the bottom-
+			// right-most cell gets spell checked).
+			// 
+			// Chrome also spell checks on paste, but execCommand('paste')
+			// is disabled, so that's not very useful to us.
+			var sel = document.getSelection();
+			var range = sel.rangeCount && sel.getRangeAt(0);
+			sel.removeAllRanges();
+			var elms = document.querySelectorAll(blockElementNames.replace('html,', ''));
+			var i = 0;
+			(function next(i) {
+				if(sel.rangeCount) {
+					// User clicked somewhere, stop selecting stuff.
+					return;
+				}
+				var r = document.createRange();
+				r.selectNode(elms[i]);
+				sel.addRange(r);
+				sel.removeAllRanges();
+				setTimeout(function() {
+					if(i + 1 === elms.length) {
+						if(range) sel.addRange(range);
+					} else {
+						next(i + 1);
+					}
+				});
+			})(0);
 		}
 	}
 }
