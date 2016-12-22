@@ -98,6 +98,9 @@ if(document.getElementsByTagName('style').length === 0) {
     'table.default, table.default td {',
     '  border: 1px solid #afafaf;',
     '}',
+    'a:link, a:visited {',
+    '  color: #0000ee;',
+    '}',
   ].join('\n');
   document.head.appendChild(style);
 }
