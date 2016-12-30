@@ -109,18 +109,20 @@ if(document.getElementsByTagName('style').length === 0) {
 // For reviewers, just in case this looks like a security problem:
 // This frame is sandboxed, so I had to add the listeners to do this.
 // The content CANNOT call any of the parents functions, so this is not a security issue.
-window.addEventListener('focus', function (event) {
-  parentMessageProxy.postMessage({
-    command: "focus",
-    focus: true
+if(!readOnly) {
+  window.addEventListener('focus', function (event) {
+    parentMessageProxy.postMessage({
+      command: "focus",
+      focus: true
+    });
   });
-});
-window.addEventListener('blur', function (event) {
-  parentMessageProxy.postMessage({
-    command: "focus",
-    focus: false
+  window.addEventListener('blur', function (event) {
+    parentMessageProxy.postMessage({
+      command: "focus",
+      focus: false
+    });
   });
-});
+}
 
 // Keyboard shortcuts
 document.addEventListener('keypress', function (event) {
