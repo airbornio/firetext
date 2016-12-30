@@ -1710,7 +1710,22 @@ function processActions(eventAttribute, target, event) {
 						`<li><a href="#" data-click="loadToEditor" data-click-directory="${split[0]}" data-click-filename="${split[1]}" data-click-filetype="${split[2]}" data-click-location="${location}">${split[0] === directory && split[1] === filename && split[2] === filetype ? ' <span class="icon icon-checkbox-blank-circle"></span>' : ''}<span data-l10n-id="current-version"></span></a></li>`
 					].concat(Object.keys(contents).reverse().map(function(name) {
 						var split = firetext.io.split(name);
-						return `<li><a href="#" data-click="loadToEditor" data-click-directory="${path + '.history/'}" data-click-filename="${split[1]}" data-click-filetype="${split[2]}" data-click-location="${location}" data-click-editable="false" data-click-addtorecents="false">${path + '.history/' === directory && split[1] === filename && split[2] === filetype ? ' <span class="icon icon-checkbox-blank-circle"></span>' : ''}${name}</a></li>`;
+						var now = new Date();
+						var created = contents[name].created;
+						if(created) {
+							var dateDiffers = created.getDate() !== now.getDate() || created.getMonth() !== now.getMonth() || created.getFullYear() !== now.getFullYear();
+							created = created.toLocaleString(navigator.languages, {
+								year:		created.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+								month:		dateDiffers ? 'numeric' : undefined,
+								day:		dateDiffers ? 'numeric' : undefined,
+								weekday:	dateDiffers ? 'short' : undefined,
+								hour: 'numeric',
+								minute: 'numeric',
+								second: 'numeric',
+							});
+						}
+						var size = contents[name].size;
+						return `<li><a href="#" data-click="loadToEditor" data-click-directory="${path + '.history/'}" data-click-filename="${split[1]}" data-click-filetype="${split[2]}" data-click-location="${location}" data-click-editable="false" data-click-addtorecents="false">${path + '.history/' === directory && split[1] === filename && split[2] === filetype ? ' <span class="icon icon-checkbox-blank-circle"></span>' : ''}${name} (${created ? created + ', ' : ''}${size} <span data-l10n-id="bytes"></span>)</a></li>`;
 					})).join('\n');
 				});
 			
