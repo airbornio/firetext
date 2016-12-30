@@ -4,6 +4,8 @@ html {
 	margin: 0 auto;
 	max-width: var(--width) !important; /* Older documents have style="max-width: 690px" */
 	position: relative;
+	--margin-ver: var(--margin);
+	--margin-hor: var(--margin);
 }
 
 [_firetext_night] {
@@ -11,7 +13,7 @@ html {
 }
 
 body {
-	padding: var(--margin);
+	padding: var(--margin-ver) var(--margin-hor);
 	margin: 0;
 	outline: none;
 	word-wrap: break-word;
@@ -33,7 +35,7 @@ body:after {
 	box-sizing: border-box;
 	width: 8px;
 	height: 8px;
-	margin: calc(var(--margin) - 18px) calc(var(--margin) - 8px);
+	margin: calc(var(--margin-ver) - 18px) calc(var(--margin-hor) - 8px);
 	border: 1px solid #999;
 	pointer-events: none;
 }
@@ -52,12 +54,13 @@ html:before {
 }
 
 html:after {
-	margin-top: calc(-1 * var(--margin));
+	margin-top: calc(-1 * var(--margin-ver));
 	border-bottom-width: 0;
 	border-left-width: 0;
 }
 
 body:before {
+	top: 10px;
 	right: 0;
 	border-top-width: 0;
 	border-right-width: 0;
@@ -76,8 +79,8 @@ body:after {
 	column-count: 1;
 		-moz-column-gap: 40px;
 	column-gap: 40px;
-	width: calc(var(--width) - 2 * var(--margin));
-	height: calc(var(--height) - 2 * var(--margin));
+	width: calc(var(--width) - 2 * var(--margin-hor));
+	height: calc(var(--height) - 2 * var(--margin-ver));
 	overflow-y: hidden;
 	transform-origin: 0 0;
 	padding-left: 40px;
@@ -122,6 +125,7 @@ body:after {
 @media (max-width: 766px) {
 	html:not([_firetext_print_view]) {
 		--margin: 10px !important;
+		--margin-ver: 40px !important;
 	}
 }
 
@@ -156,13 +160,13 @@ body:after {
 	pointer-events: none;
 }
 [collab-id]:before {
-	left: calc(-1 * var(--margin) - 2px);
-	width: calc(var(--margin) - 2px);
+	left: calc(-1 * var(--margin-hor) - 2px);
+	width: calc(var(--margin-hor) - 2px);
 	border-left: 4px solid var(--dark-color);
 }
 [collab-id]:after {
 	left: 100%;
-	width: var(--margin);
+	width: var(--margin-hor);
 }
 [_firetext_print_view] [collab-id]:before,
 [_firetext_print_view] [collab-id]:before {
