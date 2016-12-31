@@ -7,6 +7,7 @@ input[type="email"],
 input[type="tel"],
 input[type="search"],
 input[type="url"],
+input[type="number"],
 textarea {
   box-sizing: border-box;
   display: block;
@@ -45,6 +46,10 @@ textarea:invalid {
   margin-top: 1rem;
 }
 
+.form p:not(:hover) input[type="number"]:not(:focus) {
+  -moz-appearance: textfield;
+}
+
 .form p input + button[type="reset"],
 .form p textarea + button[type="reset"] {
   position: absolute;
@@ -60,6 +65,10 @@ textarea:invalid {
   pointer-events: none;
   background: url(input_areas/images/icons/clear.png) no-repeat 50% 50%;
   transition: opacity .3s;
+}
+
+.form p input[type="number"] + button[type="reset"] {
+  transition-duration: 0s;
 }
 
 textarea {
@@ -134,6 +143,7 @@ fieldset section input[type="password"],
 fieldset section input[type="email"],
 fieldset section input[type="tel"],
 fieldset section input[type="search"],
+fieldset section input[type="number"],
 fieldset section textarea {
   height: 4rem;
   border: none;
