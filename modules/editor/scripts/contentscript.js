@@ -104,6 +104,10 @@ if(document.getElementsByTagName('style').length === 0) {
     'a:link, a:visited {',
     '  color: #0000ee;',
     '}',
+    'hr {',
+    '  border: none;',
+    '  border-bottom: 1px solid black;',
+    '}',
   ].join('\n');
   document.head.appendChild(style);
 }
@@ -166,7 +170,7 @@ function isFrame(element) {
 document.addEventListener('click', onFrameClick);
 document.addEventListener('contextmenu', onFrameClick);
 function onFrameClick(event) {
-  if(isFrame(event.target)) {
+  if(isFrame(event.target) || event.target.nodeName === 'HR') {
     var range = document.createRange();
     range.selectNode(event.target);
     document.getSelection().removeAllRanges();

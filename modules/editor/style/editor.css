@@ -180,7 +180,7 @@ td, blockquote {
 	z-index: 1;
 }
 
-img, ._firetext_frame {
+img, ._firetext_frame, hr {
 	cursor: default;
 }
 ._firetext_frame_contents {
