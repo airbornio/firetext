@@ -156,11 +156,14 @@ document.addEventListener('keydown', function (event) {
   }
 });
 
-// [Chrome] Select images on click
-document.addEventListener('click', onImageClick);
-document.addEventListener('contextmenu', onImageClick);
-function onImageClick(event) {
-  if(event.target.nodeName === 'IMG') {
+// Select images and text frames on click
+function isFrame(element) {
+  return element.nodeName === 'IMG' || (element.nodeName === 'DIV' && element.classList.contains('_firetext_frame'));
+}
+document.addEventListener('click', onFrameClick);
+document.addEventListener('contextmenu', onFrameClick);
+function onFrameClick(event) {
+  if(isFrame(event.target)) {
     var range = document.createRange();
     range.selectNode(event.target);
     document.getSelection().removeAllRanges();
@@ -168,7 +171,7 @@ function onImageClick(event) {
   }
 }
 
-// [Chrome] Follow links on ctrl/cmd-click
+// Follow links on ctrl/cmd-click
 var isMac = navigator.platform.substr(0, 3) === 'Mac';
 var ctrlKeyCodes = isMac ? [
   91, // Meta left Chrome / Safari
@@ -213,7 +216,7 @@ initPrintView(document, parentMessageProxy);
 initWordCount(document, parentMessageProxy);
 
 // format document
-function getSelectedImage() {
+function getSelectedFrame() {
   var sel = document.getSelection();
   if(!sel.rangeCount) {
     return null;
@@ -223,27 +226,57 @@ function getSelectedImage() {
     range.startContainer === range.endContainer &&
     range.startContainer.nodeType === Element.ELEMENT_NODE &&
     range.endOffset - range.startOffset === 1 &&
-    range.startContainer.childNodes[range.startOffset].nodeName === 'IMG'
+    isFrame(range.startContainer.childNodes[range.startOffset])
   ) {
     return range.startContainer.childNodes[range.startOffset];
   }
 }
 parentMessageProxy.registerMessageHandler(function(e) {
-  var img;
-  if(e.data.sCmd.substr(0, 7) === 'justify' && (img = getSelectedImage())) {
-    img.style.float = img.style.display = img.style.marginLeft = img.style.marginRight = img.style.marginBottom = '';
+  var frame;
+  if(e.data.sCmd.substr(0, 7) === 'justify' && (frame = getSelectedFrame())) {
+    frame.style.float = frame.style.display = frame.style.marginLeft = frame.style.marginRight = frame.style.marginBottom = '';
     if(e.data.sCmd === 'justifyLeft' || e.data.sCmd === 'justifyRight') {
-      img.style.float = e.data.sCmd === 'justifyLeft' ? 'left' : 'right';
-      img.style[e.data.sCmd === 'justifyLeft' ? 'marginRight' : 'marginLeft'] = '10px';
-      img.style.marginBottom = '5px';
+      frame.style.float = e.data.sCmd === 'justifyLeft' ? 'left' : 'right';
+      frame.style[e.data.sCmd === 'justifyLeft' ? 'marginRight' : 'marginLeft'] = '10px';
+      frame.style.marginBottom = '5px';
     } else if(e.data.sCmd === 'justifyCenter') {
-      img.style.display = 'block';
-      img.style.marginLeft = img.style.marginRight = 'auto';
+      frame.style.display = 'block';
+      frame.style.marginLeft = frame.style.marginRight = 'auto';
     }
     return;
   }
   document.execCommand(e.data.sCmd, false, e.data.sValue);
 }, "format")
+
+parentMessageProxy.registerMessageHandler(function(e) {
+  var id = randId();
+  document.execCommand('insertHTML', false, [
+    '<div class="_firetext_frame" style="',
+      'float: left;',
+      'margin-right: 10px;',
+      'margin-bottom: 5px;',
+      'border: 1px solid black;',
+      'padding: 5px;',
+      'width: 300px;',
+    '">',
+    ' <div class="_firetext_frame_contents">',
+    '   <p id="' + id + '">',
+    '     <br>',
+    '   </p>',
+    ' </div>',
+    '</div>'
+  ].join('\n'));
+  
+  /* [Firefox] Put cursor in frame */
+  var sel = document.getSelection();
+  sel.removeAllRanges();
+  var range = document.createRange();
+  var p = document.getElementById(id);
+  range.setStart(p, 1);
+  range.setEnd(p, 1);
+  sel.addRange(range);
+  p.removeAttribute('id');
+}, "insert-text-frame");
 
 function getHTML(doc) {
   /*** This function is duplicated in docIO.js and partially below as getElementInnerHTML ***/

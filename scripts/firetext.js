@@ -1516,6 +1516,13 @@ function processActions(eventAttribute, target, event) {
 			} else {
 				regions.nav('table');
 			}
+		} else if (calledFunction == 'insertTextFrame') {
+			editorMessageProxy.postMessage({
+				command: "insert-text-frame"
+			});
+			processActions('data-change', justifySelect);
+			processActions('data-change', fontSelect);
+			formatDoc('fontSize', fontSizeSelect.value - 1);
 		} else if (calledFunction == 'openWordCount') {
 			wordCountEnabled = !wordCountEnabled;
 			wordCount();

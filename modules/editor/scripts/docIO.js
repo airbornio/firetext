@@ -235,13 +235,13 @@ function initDocIO(document, messageProxy, loadCallback) {
 	messageProxy.registerMessageHandler(function(e) {
 		var commands = e.data.commands
 		var commandStates = {};
-		var img, active;
-		if(commands.indexOf('justifyCenter') !== -1 && (img = window.getSelectedImage())) { // "window." for Firefox
-			if(img.style.float === 'left') {
+		var frame, active;
+		if(commands.indexOf('justifyCenter') !== -1 && (frame = window.getSelectedFrame())) { // "window." for Firefox
+			if(frame.style.float === 'left') {
 				active = 'justifyLeft';
-			} else if(img.style.float === 'right') {
+			} else if(frame.style.float === 'right') {
 				active = 'justifyRight';
-			} else if(img.style.marginLeft === 'auto') {
+			} else if(frame.style.marginLeft === 'auto') {
 				active = 'justifyCenter';
 			} else {
 				active = 'justifyFull';
@@ -249,7 +249,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 		}
 		for(var i = 0; i < commands.length; i++) {
 			commandStates[commands[i]] = {};
-			if(img && commands[i].substr(0, 7) === 'justify') {
+			if(frame && commands[i].substr(0, 7) === 'justify') {
 				commandStates[commands[i]].state = commands[i] === active;
 				continue;
 			}

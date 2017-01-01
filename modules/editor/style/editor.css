@@ -175,9 +175,16 @@ body:after {
 td, blockquote {
 	--margin: 2px;
 }
+[collab-id] img, [collab-id]._firetext_frame {
+	position: relative;
+	z-index: 1;
+}
 
-img {
+img, ._firetext_frame {
 	cursor: default;
+}
+._firetext_frame_contents {
+	cursor: auto;
 }
 
 [_firetext_ctrl_held] a {
