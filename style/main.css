@@ -478,14 +478,31 @@ aside select.dummy {
   width: 100%;
 }
 
-#table table td:first-child {
+#table table .table-icon {
+  width: 1px;
+  font-size: large;
+}
+
+#table table .table-icon {
+  width: 1px;
+  font-size: large;
+}
+
+#table table .table-icon-rows {
+  transform: translateX(1px) scaleX(1.4) scaleY(.8) rotate(90deg);
+}
+
+#table table .table-label {
   width: 190px; /* The longest language for this is ta-IN (second last in settings) */
 }
 
-#table table td:first-child input {
+#table table .table-label input {
   border: none;
   background: none;
 }
+
+#table table .table-label ::-webkit-input-placeholder { color: inherit; }
+#table table .table-label ::-moz-placeholder { color: #6f6f6f; opacity: 1; }
 
 /* Document Configuration dialogs */
 .config-dialog table {

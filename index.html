@@ -580,23 +580,29 @@
 				<fieldset class="button-block">
 					<table>
 						<tr>
-							<td>
-								<input data-l10n-id="number-of-rows" placeholder="# of rows" required="" type="text" disabled="">
+							<td class="table-icon">
+								<span class="icon-view-column"></span>
 							</td>
-							<td>
-								<p>
-									<input required="" type="number" id="table-rows" data-enter="table" data-enter-dialog="true">
-									<button type="reset" data-mouse-down="clearForm"></button>
-								</p>
-							</td>
-						</tr>
-						<tr>
-							<td>
+							<td class="table-label">
 								<input data-l10n-id="number-of-columns" placeholder="# of columns" required="" type="text" disabled="">
 							</td>
 							<td>
 								<p>
 									<input required="" type="number" id="table-columns" data-enter="table" data-enter-dialog="true">
+									<button type="reset" data-mouse-down="clearForm"></button>
+								</p>
+							</td>
+						</tr>
+						<tr>
+							<td class="table-icon">
+								<span class="icon-view-column table-icon-rows"></span>
+							</td>
+							<td class="table-label">
+								<input data-l10n-id="number-of-rows" placeholder="# of rows" required="" type="text" disabled="">
+							</td>
+							<td>
+								<p>
+									<input required="" type="number" id="table-rows" data-enter="table" data-enter-dialog="true">
 									<button type="reset" data-mouse-down="clearForm"></button>
 								</p>
 							</td>
