@@ -442,7 +442,7 @@ function download() {
 	});
 }
 
-function loadToEditor(directory, filename, filetype, location, editable, addToRecents) {
+function loadToEditor(directory, filename, filetype, location, editable, fromHistory) {
 	// Reset variables
 	tempText = undefined;
 	
@@ -495,14 +495,23 @@ function loadToEditor(directory, filename, filetype, location, editable, addToRe
 						break;
 				}
 				
-				if (addToRecents != false) {
+				if (!fromHistory) {
 					// Add file to recent docs
 					firetext.recents.add([fileInfo[0], fileInfo[1], fileInfo[2]], location);
+					
+					// Show editor
+					regions.nav('edit');
+					regions.tab('design', 'design');
+				} else {
+					// Show editor
+					regions.nav('edit');
+					
+					// Update history list
+					processActions('data-click', document.getElementById('open-history-button'));
+					
+					// Re-init selected tab
+					processActions('data-click', document.querySelector('.selected-tab-button'));
 				}
-		
-				// Show editor
-				regions.nav('edit');
-				regions.tab('design', 'design');
 		
 				// Hide save button if autosave is enabled
 				if (firetext.settings.get('autosave') != 'false') {

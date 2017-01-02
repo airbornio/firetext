@@ -1282,12 +1282,12 @@ function processActions(eventAttribute, target, event) {
 		}
 		
 		// Don't navigate to #
-		if (eventAttribute === 'data-click' && event.target.nodeName.toLowerCase() === 'a') {
+		if (eventAttribute === 'data-click' && event && event.target.nodeName.toLowerCase() === 'a') {
 			event.preventDefault();
 		}
 		
 		if (calledFunction == 'loadToEditor') {
-			loadToEditor(target.getAttribute(eventAttribute + '-directory'), target.getAttribute(eventAttribute + '-filename'), target.getAttribute(eventAttribute + '-filetype'), target.getAttribute(eventAttribute + '-location'), target.getAttribute(eventAttribute + '-editable') != 'false', target.getAttribute(eventAttribute + '-addtorecents') != 'false');
+			loadToEditor(target.getAttribute(eventAttribute + '-directory'), target.getAttribute(eventAttribute + '-filename'), target.getAttribute(eventAttribute + '-filetype'), target.getAttribute(eventAttribute + '-location'), target.getAttribute(eventAttribute + '-editable') != 'false', target.getAttribute(eventAttribute + '-fromhistory') == 'true');
 		} else if (calledFunction == 'nav') {
 			regions.nav(target.getAttribute(eventAttribute + '-location'));
 		} else if (calledFunction == 'navBack') {
@@ -1714,7 +1714,7 @@ function processActions(eventAttribute, target, event) {
 					
 					var split = firetext.io.split(path);
 					document.getElementById('history_entries').innerHTML = [
-						`<li><a href="#" data-click="loadToEditor" data-click-directory="${split[0]}" data-click-filename="${split[1]}" data-click-filetype="${split[2]}" data-click-location="${location}">${split[0] === directory && split[1] === filename && split[2] === filetype ? ' <span class="icon icon-checkbox-blank-circle"></span>' : ''}<span data-l10n-id="current-version"></span></a></li>`
+						`<li><a href="#" data-click="loadToEditor" data-click-directory="${split[0]}" data-click-filename="${split[1]}" data-click-filetype="${split[2]}" data-click-location="${location}" data-click-fromhistory="true">${split[0] === directory && split[1] === filename && split[2] === filetype ? ' <span class="icon icon-checkbox-blank-circle"></span>' : ''}<span data-l10n-id="current-version"></span></a></li>`
 					].concat(Object.keys(contents).reverse().map(function(name) {
 						var split = firetext.io.split(name);
 						var now = new Date();
@@ -1732,7 +1732,7 @@ function processActions(eventAttribute, target, event) {
 							});
 						}
 						var size = contents[name].size;
-						return `<li><a href="#" data-click="loadToEditor" data-click-directory="${path + '.history/'}" data-click-filename="${split[1]}" data-click-filetype="${split[2]}" data-click-location="${location}" data-click-editable="false" data-click-addtorecents="false">${path + '.history/' === directory && split[1] === filename && split[2] === filetype ? ' <span class="icon icon-checkbox-blank-circle"></span>' : ''}${name} (${created ? created + ', ' : ''}${size} <span data-l10n-id="bytes"></span>)</a></li>`;
+						return `<li><a href="#" data-click="loadToEditor" data-click-directory="${path + '.history/'}" data-click-filename="${split[1]}" data-click-filetype="${split[2]}" data-click-location="${location}" data-click-editable="false" data-click-fromhistory="true">${path + '.history/' === directory && split[1] === filename && split[2] === filetype ? ' <span class="icon icon-checkbox-blank-circle"></span>' : ''}${name} (${created ? created + ', ' : ''}${size} <span data-l10n-id="bytes"></span>)</a></li>`;
 					})).join('\n');
 				});
 			
