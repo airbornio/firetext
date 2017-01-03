@@ -252,6 +252,16 @@ parentMessageProxy.registerMessageHandler(function(e) {
     }
     return;
   }
+  if(['superscript', 'subscript'].includes(e.data.sCmd)) {
+    // With styleWithCSS, Chrome only applies `vertical-align: super;`,
+    // which doesn't make the text smaller (which we want for super/
+    // subscript). So we temporarily turn off styleWithCSS to get <sup>/
+    // <sub> elements (which Firefox also does even with styleWithCSS.)
+    document.execCommand('styleWithCSS', false, false);
+    document.execCommand(e.data.sCmd, false, e.data.sValue);
+    document.execCommand('styleWithCSS', false, true);
+    return;
+  }
   document.execCommand(e.data.sCmd, false, e.data.sValue);
 }, "format")
 

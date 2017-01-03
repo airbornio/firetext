@@ -28,7 +28,7 @@ var themeColor = document.getElementById("theme-color");
 var loadSpinner, editor, toolbar, editWindow, editState, rawEditor, rawEditorElement, tempText, tabRaw, tabDesign, printButton, mainButtonConnectDropbox;
 var currentFileName, currentFileType, currentFileLocation, currentFileDirectory;
 var deviceType, fileChanged, saveTimeout, saving;
-var bold, fontSelect, fontSizeSelect, italic, justifySelect, strikethrough, styleSelect;
+var bold, fontSelect, fontSizeSelect, italic, justifySelect, strikeThrough, superscript, subscript, styleSelect;
 var underline, underlineCheckbox;
 var locationLegend, locationSelect, locationDevice, locationDropbox;
 var editorMessageProxy;
@@ -271,7 +271,9 @@ function initElements() {
 	fontSizeSelect = document.getElementById('font-size-select');
 	italic = document.getElementById('italic');
 	justifySelect = document.getElementById('justify-select');
-	strikethrough = document.getElementById('strikethrough');
+	strikeThrough = document.getElementById('strikethrough');
+	superscript = document.getElementById('superscript');
+	subscript = document.getElementById('subscript');
 	underline = document.getElementById('underline');
 	styleSelect = document.getElementById('style-select');
 }
@@ -1126,25 +1128,20 @@ function updateToolbar() {
 		var key = editorMessageProxy.registerMessageHandler(function(e){
 			var commandStates = e.data.commandStates;
 			
-			// Bold
-			if (commandStates.bold.state) {
-				bold.classList.add('active');
-			} else {
-				bold.classList.remove('active');
-			}
+			// Bold, Italic, Underline, Strikethrough, Superscript, Subscript
+			["bold", "italic", "underline", "strikeThrough", "superscript", "subscript"].forEach(function(style) {
+				if (commandStates[style].state) {
+					window[style].classList.add('active');
+				} else {
+					window[style].classList.remove('active');
+				}
+			});
 			
 			// Font
 			fontSelect.value = commandStates.fontName.value.replace(/'/g, '"').replace(/,\s*/g, ', ');
 			
 			// Font size
 			fontSizeSelect.value = commandStates.fontSize.value;
-			
-			// Italic
-			if (commandStates.italic.state) {
-				italic.classList.add('active');
-			} else {
-				italic.classList.remove('active');
-			}
 			
 			// Justify
 			if (commandStates.justifyCenter.state) {
@@ -1157,20 +1154,6 @@ function updateToolbar() {
 				justifySelect.value = 'l';
 			}
 			
-			// Underline
-			if (commandStates.underline.state) {
-				underline.classList.add('active');
-			} else {
-				underline.classList.remove('active');
-			}
-			
-			// Strikethrough
-			if (commandStates.strikeThrough.state) {
-				strikethrough.classList.add('active');
-			} else {
-				strikethrough.classList.remove('active');
-			}
-			
 			// Style
 			styleSelect.value = commandStates.formatBlock.value;
 			
@@ -1179,7 +1162,7 @@ function updateToolbar() {
 		}, null, true);
 		editorMessageProxy.postMessage({
 			command: "query-command-states",
-			commands: ["bold", "fontName", "fontSize", "italic", "justifyCenter", "justifyFull", "justifyRight", "underline", "strikeThrough", "formatBlock"],
+			commands: ["bold", "fontName", "fontSize", "italic", "justifyCenter", "justifyFull", "justifyRight", "underline", "strikeThrough", "superscript", "subscript", "formatBlock"],
 			key: key
 		});
 	}
