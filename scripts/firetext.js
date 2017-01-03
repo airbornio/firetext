@@ -28,7 +28,7 @@ var themeColor = document.getElementById("theme-color");
 var loadSpinner, editor, toolbar, editWindow, editState, rawEditor, rawEditorElement, tempText, tabRaw, tabDesign, printButton, mainButtonConnectDropbox;
 var currentFileName, currentFileType, currentFileLocation, currentFileDirectory;
 var deviceType, fileChanged, saveTimeout, saving;
-var bold, fontSelect, fontSizeSelect, italic, justifySelect, strikeThrough, superscript, subscript, styleSelect;
+var bold, fontSelect, fontSizeSelect, italic, justifyLeft, justifyCenter, justifyRight, justifyFull, strikeThrough, superscript, subscript, styleSelect;
 var underline, underlineCheckbox;
 var locationLegend, locationSelect, locationDevice, locationDropbox;
 var editorMessageProxy;
@@ -270,7 +270,10 @@ function initElements() {
 	fontSelect = document.getElementById('font-select');
 	fontSizeSelect = document.getElementById('font-size-select');
 	italic = document.getElementById('italic');
-	justifySelect = document.getElementById('justify-select');
+	justifyLeft = document.getElementById('justify-left');
+	justifyCenter = document.getElementById('justify-center');
+	justifyRight = document.getElementById('justify-right');
+	justifyFull = document.getElementById('justify-full');
 	strikeThrough = document.getElementById('strikethrough');
 	superscript = document.getElementById('superscript');
 	subscript = document.getElementById('subscript');
@@ -1128,8 +1131,7 @@ function updateToolbar() {
 		var key = editorMessageProxy.registerMessageHandler(function(e){
 			var commandStates = e.data.commandStates;
 			
-			// Bold, Italic, Underline, Strikethrough, Superscript, Subscript
-			["bold", "italic", "underline", "strikeThrough", "superscript", "subscript"].forEach(function(style) {
+			["bold", "italic", "underline", "strikeThrough", "superscript", "subscript", "justifyLeft", "justifyRight", "justifyCenter", "justifyFull"].forEach(function(style) {
 				if (commandStates[style].state) {
 					window[style].classList.add('active');
 				} else {
@@ -1143,17 +1145,6 @@ function updateToolbar() {
 			// Font size
 			fontSizeSelect.value = commandStates.fontSize.value;
 			
-			// Justify
-			if (commandStates.justifyCenter.state) {
-				justifySelect.value = 'c';
-			} else if (commandStates.justifyFull.state) {
-				justifySelect.value = 'j';
-			} else if (commandStates.justifyRight.state) {
-				justifySelect.value = 'r';
-			} else {
-				justifySelect.value = 'l';
-			}
-			
 			// Style
 			styleSelect.value = commandStates.formatBlock.value;
 			
@@ -1162,7 +1153,7 @@ function updateToolbar() {
 		}, null, true);
 		editorMessageProxy.postMessage({
 			command: "query-command-states",
-			commands: ["bold", "fontName", "fontSize", "italic", "justifyCenter", "justifyFull", "justifyRight", "underline", "strikeThrough", "superscript", "subscript", "formatBlock"],
+			commands: ["bold", "fontName", "fontSize", "italic", "justifyLeft", "justifyRight", "justifyCenter", "justifyFull", "underline", "strikeThrough", "superscript", "subscript", "formatBlock"],
 			key: key
 		});
 	}
@@ -1368,18 +1359,6 @@ function processActions(eventAttribute, target, event) {
 			}
 			
 			visitURL(target.getAttribute(eventAttribute + '-location'));
-		} else if (calledFunction == 'justify') {
-			var justifyDirection = justifySelect.value;			 
-			if (justifyDirection == 'l') {
-				justifyDirection = 'Left';			
-			} else if (justifyDirection == 'r') {
-				justifyDirection = 'Right';			 
-			} else if (justifyDirection == 'c') {
-				justifyDirection = 'Center';			
-			} else if (justifyDirection == 'j') {
-				justifyDirection = 'Full';
-			}
-			formatDoc('justify'+justifyDirection);
 		} else if (calledFunction == 'style') {
 			formatDoc('formatBlock', styleSelect.value);
 		} else if (calledFunction == 'hideToolbar') {
@@ -1503,7 +1482,7 @@ function processActions(eventAttribute, target, event) {
 			editorMessageProxy.postMessage({
 				command: "insert-text-frame"
 			});
-			processActions('data-change', justifySelect);
+			processActions('data-click', document.querySelector('.format-align.active'));
 			processActions('data-change', fontSelect);
 			formatDoc('fontSize', fontSizeSelect.value - 1);
 		} else if (calledFunction == 'openWordCount') {

@@ -239,17 +239,24 @@ function getSelectedFrame() {
   }
 }
 parentMessageProxy.registerMessageHandler(function(e) {
-  var frame;
-  if(e.data.sCmd.substr(0, 7) === 'justify' && (frame = getSelectedFrame())) {
-    frame.style.float = frame.style.display = frame.style.marginLeft = frame.style.marginRight = frame.style.marginBottom = '';
-    if(e.data.sCmd === 'justifyLeft' || e.data.sCmd === 'justifyRight') {
-      frame.style.float = e.data.sCmd === 'justifyLeft' ? 'left' : 'right';
-      frame.style[e.data.sCmd === 'justifyLeft' ? 'marginRight' : 'marginLeft'] = '10px';
-      frame.style.marginBottom = '5px';
-    } else if(e.data.sCmd === 'justifyCenter') {
-      frame.style.display = 'block';
-      frame.style.marginLeft = frame.style.marginRight = 'auto';
+  if(e.data.sCmd.substr(0, 7) === 'justify') {
+    var frame = getSelectedFrame();
+    if(frame) {
+      frame.style.float = frame.style.display = frame.style.marginLeft = frame.style.marginRight = frame.style.marginBottom = '';
+      if(e.data.sCmd === 'justifyLeft' || e.data.sCmd === 'justifyRight') {
+        frame.style.float = e.data.sCmd === 'justifyLeft' ? 'left' : 'right';
+        frame.style[e.data.sCmd === 'justifyLeft' ? 'marginRight' : 'marginLeft'] = '10px';
+        frame.style.marginBottom = '5px';
+      } else if(e.data.sCmd === 'justifyCenter') {
+        frame.style.display = 'block';
+        frame.style.marginLeft = frame.style.marginRight = 'auto';
+      }
+    } else {
+      document.execCommand(e.data.sCmd, false, e.data.sValue);
     }
+    parentMessageProxy.postMessage({
+      command: "update-toolbar"
+    });
     return;
   }
   if(['superscript', 'subscript'].includes(e.data.sCmd)) {
