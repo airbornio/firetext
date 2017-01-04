@@ -90,6 +90,10 @@
       "description": "Required for document storage.",
       "access": "readwrite"
     },
+    "device-storage:system": {
+      "description": "Required to use jquery.js.",
+      "access": "readonly"
+    },
     "get-object-locations": {}
   },
   "redirects": [

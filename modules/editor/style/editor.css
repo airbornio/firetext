@@ -129,6 +129,14 @@ body:after {
 	}
 }
 
+/* Color picker view */
+[_firetext_colorpicker_view] ::-moz-selection {
+	background-color: transparent;
+}
+[_firetext_colorpicker_view] ::selection {
+	background-color: transparent;
+}
+
 /* Collaboration */
 [collab-id] {
 	transition: background .5s;

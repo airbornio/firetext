@@ -221,6 +221,8 @@ initNight(document, parentMessageProxy);
 initPrintView(document, parentMessageProxy);
 // word count
 initWordCount(document, parentMessageProxy);
+// color picker view
+initColorPickerView(document, parentMessageProxy);
 
 // format document
 function getSelectedFrame() {

@@ -29,13 +29,16 @@ cp ../scripts/lib/jszip-deflate.js  ../build/scripts/lib
 cp ../scripts/lib/jszip-inflate.js  ../build/scripts/lib
 cp ../scripts/lib/jszip-load.js  ../build/scripts/lib
 cp ../scripts/lib/stringview.js  ../build/scripts/lib
+cp ../scripts/lib/spectrum.js  ../build/scripts/lib
 cp ../scripts/parsers/plain-text.js  ../build/scripts/parsers
 cp ../scripts/parsers/odt.js/lib/odt.js  ../build/scripts/parsers/odt.js/lib
 
 mkdir -p ../build/style/icons/app
+mkdir -p ../build/style/lib
 cp ../style/icons/app/64.png ../build/style/icons/app
 cp ../style/icons/app/128.png ../build/style/icons/app
 cp ../style/icons/app/256.png ../build/style/icons/app
 cp ../style/icons/app/firetext_christmas.svg ../build/style/icons/app
+cp ../style/lib/spectrum.css ../build/style/lib
 
 cd $original_dir

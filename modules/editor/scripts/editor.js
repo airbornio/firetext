@@ -38,14 +38,6 @@ var mainClosure = function() {
 			};
 		}
 		
-		// initialize modules/register handlers
-		// night mode
-		initNight(doc, parentMessageProxy);
-		// print view
-		initPrintView(doc, parentMessageProxy);
-		// word count
-		initWordCount(doc, parentMessageProxy);
-		
 		var content_styles = document.querySelectorAll('style[data-for-content]');
 		
 		var content_scripts = document.querySelectorAll('script[data-for-content]');
@@ -56,6 +48,7 @@ var mainClosure = function() {
 			window.initNight = initNight;
 			window.initPrintView = initPrintView;
 			window.initWordCount = initWordCount;
+			window.initColorPickerView = initColorPickerView;
 			window.filetype = filetype;
 			window.user_location = user_location;
 			window.odtdoc = odtdoc;

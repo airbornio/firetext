@@ -100,6 +100,59 @@
 	text-overflow: ellipsis;
 }
 
+/* Color pickers */
+.sp-palette {
+	max-width: 200px !important;
+}
+
+.sp-input {
+	height: 27px !important;
+}
+
+#edit-zone .sp-replacer {
+	cursor: default;
+	padding: 0;
+	overflow: visible;
+	pointer-events: none;
+}
+.sp-container, #edit-zone .sp-replacer:hover, #edit-zone .sp-replacer.sp-active {
+	color: #F0C49B;
+	border-color: #91765d !important;
+}
+
+#edit-zone .sp-dd {
+	padding: 5px 4px;
+	pointer-events: all;
+}
+#edit-zone .sp-dd:hover, #edit-zone .sp-replacer.sp-active .sp-dd {
+	border-color: #F0C49B;
+}
+
+#edit-zone .sp-preview {
+	visibility: hidden;
+}
+
+#edit-zone .format-color-li {
+	position: relative;
+	padding: 0 .5rem;
+}
+
+#edit-zone .format-color {
+	position: absolute;
+	top: 5px;
+	left: 3px;
+	padding-top: 2px;
+	transform: scale(.75);
+	margin: 0; /* Mobile */
+}
+
+#backColorButton {
+	background: currentColor;
+}
+#backColorButton:before {
+	color: black;
+}
+
 /* Raw editor */
 #rawEditor {
 	direction: ltr;

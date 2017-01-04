@@ -304,7 +304,7 @@
 
             updateSelectionPaletteFromStorage();
 
-            offsetElement.bind("click.spectrum touchstart.spectrum", function (e) {
+            offsetElement.bind("click.spectrum", function (e) {
                 if (!disabled) {
                     toggle();
                 }
@@ -471,7 +471,7 @@
                 return false;
             }
 
-            var paletteEvent = IE ? "mousedown.spectrum" : "click.spectrum touchstart.spectrum";
+            var paletteEvent = IE ? "mousedown.spectrum" : "click.spectrum";
             paletteContainer.delegate(".sp-thumb-el", paletteEvent, paletteElementClick);
             initialColorContainer.delegate(".sp-thumb-el:nth-child(1)", paletteEvent, { ignore: true }, paletteElementClick);
         }
@@ -580,12 +580,14 @@
 
             if ((value === null || value === "") && allowEmpty) {
                 set(null);
+                move();
                 updateOriginalInput(true);
             }
             else {
                 var tiny = tinycolor(value);
                 if (tiny.isValid()) {
                     set(tiny);
+                    move();
                     updateOriginalInput(true);
                 }
                 else {
@@ -909,7 +911,7 @@
 
         function destroy() {
             boundElement.show();
-            offsetElement.unbind("click.spectrum touchstart.spectrum");
+            offsetElement.unbind("click.spectrum");
             container.remove();
             replacer.remove();
             spectrums[spect.id] = null;

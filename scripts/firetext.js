@@ -174,6 +174,9 @@ function initModules(callback) {
 	// Initialize copy buttons
 	initCopyButtons();
 
+	// Init color pickers
+	initColorPickers();
+
 	// Initialize Christmas
 	christmas();
 }
@@ -1150,10 +1153,22 @@ function updateToolbar() {
 			
 			// Update select current styles
 			updateSelectStyles();
+			
+			// Text color
+			if($('#foreColor').spectrum('container').is(':hidden')) {
+				$('#foreColor').spectrum('set', commandStates.foreColor.value);
+			}
+			
+			// Back color
+			// Note: Chrome returns white for the current backColor when
+			// there is no backColor
+			if($('#backColor').spectrum('container').is(':hidden')) {
+				$('#backColor').spectrum('set', commandStates.backColor.value);
+			}
 		}, null, true);
 		editorMessageProxy.postMessage({
 			command: "query-command-states",
-			commands: ["bold", "fontName", "fontSize", "italic", "justifyLeft", "justifyRight", "justifyCenter", "justifyFull", "underline", "strikeThrough", "superscript", "subscript", "formatBlock"],
+			commands: ["bold", "fontName", "fontSize", "italic", "justifyLeft", "justifyRight", "justifyCenter", "justifyFull", "underline", "strikeThrough", "superscript", "subscript", "formatBlock", "foreColor", "backColor"],
 			key: key
 		});
 	}
@@ -1895,6 +1910,82 @@ function wordCount() {
 	editorMessageProxy.postMessage({
 		command: "wordCount",
 		wordCount: wordCountEnabled
+	});
+}
+
+function initColorPickers() {
+	airborn.fs.getFile('/Core/jquery.min.js', function(contents) {
+		window.eval(contents);
+		ljs.load([
+			'style/lib/spectrum.css',
+			'scripts/lib/spectrum.js',
+		], function() {
+			$.extend($.fn.spectrum.defaults, {
+				showInput: true,
+				showButtons: false,
+				containerClassName: 'full-spectrum',
+				showInitial: true,
+				showPalette: true,
+				showSelectionPalette: true,
+				maxSelectionSize: 10,
+				preferredFormat: 'hex',
+				localStorageKey: 'spectrum',
+				move: function(color) {
+					formatDoc(this.id, color ? color.toHexString() : 'transparent');
+					if(color) {
+						window[this.id + 'Button'].dataset.clickValue =
+						window[this.id + 'Button'].style.color =
+							color.toHexString();
+					}
+				},
+				show: function() {
+					this.$background = $('<div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 101;"></div>');
+					this.$background.on('click', () => $(this).spectrum('hide'));
+					this.$background.on('mousedown', false);
+					this.$background.insertAfter($(this).spectrum('container'));
+					editorMessageProxy.postMessage({command: 'colorPickerView', enabled: true});
+				},
+				beforeShow: function() {
+					
+				},
+				hide: function(color) {
+					this.$background.remove();
+					editorMessageProxy.postMessage({command: 'colorPickerView', enabled: false});
+					$(this).spectrum('set', color); // Add to recently selected colors
+					editor.contentWindow.focus();
+				},
+				palette: [
+					['rgb(0, 0, 0)', 'rgb(67, 67, 67)', 'rgb(102, 102, 102)', 'rgb(153, 153, 153)','rgb(183, 183, 183)',
+					'rgb(204, 204, 204)', 'rgb(217, 217, 217)', 'rgb(239, 239, 239)', 'rgb(243, 243, 243)', 'rgb(255, 255, 255)'],
+					['rgb(152, 0, 0)', 'rgb(255, 0, 0)', 'rgb(255, 153, 0)', 'rgb(255, 255, 0)', 'rgb(0, 255, 0)',
+					'rgb(0, 255, 255)', 'rgb(74, 134, 232)', 'rgb(0, 0, 255)', 'rgb(153, 0, 255)', 'rgb(255, 0, 255)'],
+					['rgb(230, 184, 175)', 'rgb(244, 204, 204)', 'rgb(252, 229, 205)', 'rgb(255, 242, 204)', 'rgb(217, 234, 211)',
+					'rgb(208, 224, 227)', 'rgb(201, 218, 248)', 'rgb(207, 226, 243)', 'rgb(217, 210, 233)', 'rgb(234, 209, 220)',
+					'rgb(221, 126, 107)', 'rgb(234, 153, 153)', 'rgb(249, 203, 156)', 'rgb(255, 229, 153)', 'rgb(182, 215, 168)',
+					'rgb(162, 196, 201)', 'rgb(164, 194, 244)', 'rgb(159, 197, 232)', 'rgb(180, 167, 214)', 'rgb(213, 166, 189)',
+					'rgb(204, 65, 37)', 'rgb(224, 102, 102)', 'rgb(246, 178, 107)', 'rgb(255, 217, 102)', 'rgb(147, 196, 125)',
+					'rgb(118, 165, 175)', 'rgb(109, 158, 235)', 'rgb(111, 168, 220)', 'rgb(142, 124, 195)', 'rgb(194, 123, 160)',
+					'rgb(166, 28, 0)', 'rgb(204, 0, 0)', 'rgb(230, 145, 56)', 'rgb(241, 194, 50)', 'rgb(106, 168, 79)',
+					'rgb(69, 129, 142)', 'rgb(60, 120, 216)', 'rgb(61, 133, 198)', 'rgb(103, 78, 167)', 'rgb(166, 77, 121)',
+					/*'rgb(133, 32, 12)', 'rgb(153, 0, 0)', 'rgb(180, 95, 6)', 'rgb(191, 144, 0)', 'rgb(56, 118, 29)',
+					'rgb(19, 79, 92)', 'rgb(17, 85, 204)', 'rgb(11, 83, 148)', 'rgb(53, 28, 117)', 'rgb(116, 27, 71)',*/
+					'rgb(91, 15, 0)', 'rgb(102, 0, 0)', 'rgb(120, 63, 4)', 'rgb(127, 96, 0)', 'rgb(39, 78, 19)',
+					'rgb(12, 52, 61)', 'rgb(28, 69, 135)', 'rgb(7, 55, 99)', 'rgb(32, 18, 77)', 'rgb(76, 17, 48)']
+				],
+			})
+			$('#foreColor').spectrum();
+			$('#backColor').spectrum({
+				allowEmpty: true,
+			});
+			/* Prevent blur, and Firefox's grey selection highlight with it. */
+			$('#foreColor').spectrum('container').add(
+			$('#backColor').spectrum('container')
+			).on('mousedown', function(evt) {
+				if(evt.target.nodeName !== 'INPUT' && document.activeElement.nodeName === 'IFRAME') {
+					evt.preventDefault();
+				}
+			});
+		});
 	});
 }
 
