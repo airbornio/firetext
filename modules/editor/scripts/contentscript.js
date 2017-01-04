@@ -284,9 +284,7 @@ parentMessageProxy.registerMessageHandler(function(e) {
       'width: 300px;',
     '">',
     ' <div class="_firetext_frame_contents">',
-    '   <p id="' + id + '">',
-    '     <br>',
-    '   </p>',
+    '   <p id="' + id + '"><br></p>',
     ' </div>',
     '</div>'
   ].join('\n'));
@@ -296,8 +294,8 @@ parentMessageProxy.registerMessageHandler(function(e) {
   sel.removeAllRanges();
   var range = document.createRange();
   var p = document.getElementById(id);
-  range.setStart(p, 1);
-  range.setEnd(p, 1);
+  range.setStart(p, 0);
+  range.setEnd(p, 0);
   sel.addRange(range);
   p.removeAttribute('id');
 }, "insert-text-frame");

@@ -838,9 +838,7 @@ firetext.io.getDefaultContent = function (extension) {
 				'	</style>',
 				'</head>',
 				'<body>',
-				'	<p>',
-				'		<br>',
-				'	</p>',
+				'	<p><br></p>',
 				'</body>',
 				'</html>',
 				''
