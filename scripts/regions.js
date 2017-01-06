@@ -157,7 +157,11 @@ regions.tab = function (id, name) {
 
 		/* Remove this section when porting to other projects */
 		if (name === 'raw') {
-			ljs.load('scripts/lib/codemirror-compressed.js', function() {
+			ljs.load([
+				'scripts/lib/codemirror-compressed.js',
+				'style/codemirror/codemirror.css',
+				'style/codemirror/tomorrow-night-bright.css',
+			], function() {
 				if (!(rawEditor instanceof CodeMirror)) {
 					// Initialize raw editor
 					rawEditor = CodeMirror(rawEditorElement, {

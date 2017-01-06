@@ -40,5 +40,6 @@ cp ../style/icons/app/128.png ../build/style/icons/app
 cp ../style/icons/app/256.png ../build/style/icons/app
 cp ../style/icons/app/firetext_christmas.svg ../build/style/icons/app
 cp ../style/lib/spectrum.css ../build/style/lib
+cp -r ../style/codemirror ../build/style
 
 cd $original_dir
