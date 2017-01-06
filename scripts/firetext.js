@@ -176,6 +176,9 @@ function initModules(callback) {
 
 	// Init color pickers
 	initColorPickers();
+	
+	// Prefetch the editor for .html/.txt documents
+	prefetchHTMLEditor();
 
 	// Initialize Christmas
 	christmas();
@@ -1987,6 +1990,10 @@ function initColorPickers() {
 			});
 		});
 	});
+}
+
+function prefetchHTMLEditor() {
+	app.modules.load('modules/editor/editor.html', {}, function() {});
 }
 
 function christmas() {
