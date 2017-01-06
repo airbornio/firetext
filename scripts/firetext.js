@@ -125,13 +125,15 @@ firetext.init = function () {
 		initElementTitles();
 		
 		// Freeze style selectors width, for Chrome
-		Array.prototype.forEach.call(toolbar.getElementsByTagName('select'), function(select) {
-			var style = select.getAttribute('style') || '';
-			select.setAttribute('style', '');
-			var width = select.clientWidth;
-			select.setAttribute('style', style);
-			select.style.width = width + 'px';
-		});
+		setTimeout(function freezeStyleSelectors() {
+			Array.prototype.forEach.call(toolbar.getElementsByTagName('select'), function(select) {
+				var style = select.getAttribute('style') || '';
+				select.setAttribute('style', '');
+				var width = select.clientWidth;
+				select.setAttribute('style', style);
+				select.style.width = width + 'px';
+			});
+		}, 1250);
 	});
 };
 
@@ -169,16 +171,16 @@ function initModules(callback) {
 	});
 
 	// Initialize print button
-	initPrintButton(function() {});
+	setTimeout(initPrintButton, 1500, function() {});
 
 	// Initialize copy buttons
 	initCopyButtons();
 
 	// Init color pickers
-	initColorPickers();
+	setTimeout(initColorPickers, 1000);
 	
 	// Prefetch the editor for .html/.txt documents
-	prefetchHTMLEditor();
+	setTimeout(prefetchHTMLEditor, 500);
 
 	// Initialize Christmas
 	christmas();
@@ -1157,16 +1159,18 @@ function updateToolbar() {
 			// Update select current styles
 			updateSelectStyles();
 			
-			// Text color
-			if($('#foreColor').spectrum('container').is(':hidden')) {
-				$('#foreColor').spectrum('set', commandStates.foreColor.value);
-			}
-			
-			// Back color
-			// Note: Chrome returns white for the current backColor when
-			// there is no backColor
-			if($('#backColor').spectrum('container').is(':hidden')) {
-				$('#backColor').spectrum('set', commandStates.backColor.value);
+			if(window.$) {
+				// Text color
+				if($('#foreColor').spectrum('container').is(':hidden')) {
+					$('#foreColor').spectrum('set', commandStates.foreColor.value);
+				}
+				
+				// Back color
+				// Note: Chrome returns white for the current backColor when
+				// there is no backColor
+				if($('#backColor').spectrum('container').is(':hidden')) {
+					$('#backColor').spectrum('set', commandStates.backColor.value);
+				}
 			}
 		}, null, true);
 		editorMessageProxy.postMessage({
