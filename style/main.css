@@ -84,13 +84,6 @@ html, body {
   border-right: none;
 }
 
-/* Fonts */
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  src: local('OpenSans'), url(fonts/OpenSans.woff) format('woff');
-}
-
 /* Style hacks */
 [role="toolbar"] button.ftanylitics {
   background-color: #444;
@@ -216,7 +209,6 @@ label.pack-switch {
   padding: 0.5rem 2rem;
   color: #2C2C2C;
   margin: 0 0;
-  font-family: "Open Sans";
   font-weight: normal;
   font-size: 1.7rem;
   position: sticky;
