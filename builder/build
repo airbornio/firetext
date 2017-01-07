@@ -11,35 +11,38 @@ npm install
 node build.js ../index.html "$@"
 [ -e ../build/scripts.js.map ] && (echo "//# sourceMappingURL=scripts.js.map" >> ../build/scripts.js)
 
-function CC {
-	echo Compiling $1
-	java -jar node_modules/google-closure-compiler/compiler.jar --language_in ECMASCRIPT6 --language_out ECMASCRIPT5 $1 > ${1/../..\/build}
+maxprocs=$(( $(nproc --all) - 1 ))
+
+function CjC {
+	java -jar node_modules/google-closure-compiler/compiler.jar --language_in ECMASCRIPT6 --language_out ECMASCRIPT5 $1 > ${1/../..\/build} &&
+	echo Compiled $1
 }
+export -f CjC
 
 cp -r ../modules ../build
-for file in $(find ../modules/ -name "*.js"); do
-	CC $file
-done
+find ../modules/ -name "*.js" | xargs -n1 -P $maxprocs -I{} bash -c "CjC {}"
 cp -r ../locales ../build
 cp ../manifest.webapp ../build
 
 mkdir -p ../build/scripts/cloud
 mkdir -p ../build/scripts/lib
 mkdir -p ../build/scripts/parsers/odt.js/lib
-CC ../scripts/messages.js
-CC ../scripts/cloud/dropbox.min.js
-CC ../scripts/cloud/dropbox_authdriver_firefoxos_receiver.js
-CC ../scripts/lib/codemirror-compressed.js
-CC ../scripts/lib/socket.io.js
-CC ../scripts/lib/sjcl.js
-CC ../scripts/lib/jszip.js
-CC ../scripts/lib/jszip-deflate.js
-CC ../scripts/lib/jszip-inflate.js
-CC ../scripts/lib/jszip-load.js
-CC ../scripts/lib/stringview.js
-CC ../scripts/lib/spectrum.js
-CC ../scripts/parsers/plain-text.js
-CC ../scripts/parsers/odt.js/lib/odt.js
+echo -n \
+	../scripts/messages.js \
+	../scripts/cloud/dropbox.min.js \
+	../scripts/cloud/dropbox_authdriver_firefoxos_receiver.js \
+	../scripts/lib/codemirror-compressed.js \
+	../scripts/lib/socket.io.js \
+	../scripts/lib/sjcl.js \
+	../scripts/lib/jszip.js \
+	../scripts/lib/jszip-deflate.js \
+	../scripts/lib/jszip-inflate.js \
+	../scripts/lib/jszip-load.js \
+	../scripts/lib/stringview.js \
+	../scripts/lib/spectrum.js \
+	../scripts/parsers/plain-text.js \
+	../scripts/parsers/odt.js/lib/odt.js \
+| xargs -n1 -P $maxprocs -d ' ' -I{} bash -c "CjC {}"
 
 mkdir -p ../build/style/icons/app
 mkdir -p ../build/style/lib
