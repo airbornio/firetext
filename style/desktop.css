@@ -186,11 +186,11 @@ section[data-type="sidebar"] > nav:after {
 }
 
 section[data-type="sidebar"] > nav:before {
-  background-image: linear-gradient(to bottom, white, transparent);
+  background-image: linear-gradient(to bottom, white, rgba(255, 255, 255, 0));
 }
 
 section[data-type="sidebar"] > nav:after {
-  background-image: linear-gradient(to top, white, transparent);
+  background-image: linear-gradient(to top, white, rgba(255, 255, 255, 0));
   bottom: -1px;
 }
 

@@ -228,10 +228,10 @@
 		border-bottom-color: #161616;
 	}
 	.night section[data-type="sidebar"] > nav:before {
-		background-image: linear-gradient(to bottom, #161616, transparent);
+		background-image: linear-gradient(to bottom, #161616, rgba(22, 22, 22, 0));
 	}
 	.night section[data-type="sidebar"] > nav:after {
-		background-image: linear-gradient(to top, #161616, transparent);
+		background-image: linear-gradient(to top, #161616, rgba(22, 22, 22, 0));
 	}
 	.night section[data-type="sidebar"] > nav > h2 {
 		background-color: transparent;
@@ -297,13 +297,14 @@
 	}
 }
 
-/* Fix for currentColor glitch in Chrome: repeat styles identical to what we declared ealier */
+/* Fix for currentColor glitch in Chrome: repeat styles that do the same as what we declared ealier.
+ * Also, the right shade of transparent is needed for Safari. */
 .night #edit-zone:before {
-	background-image: linear-gradient(to right, currentColor, transparent);
+	background-image: linear-gradient(to right, currentColor, rgba(17, 17, 17, 0));
 }
 
 .night #edit-zone:after {
-	background-image: linear-gradient(to left, currentColor, transparent);
+	background-image: linear-gradient(to left, currentColor, rgba(17, 17, 17, 0));
 }
 
 /* Toolbar */
