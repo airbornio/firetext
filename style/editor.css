@@ -41,6 +41,7 @@
 
 #edit-zone {
 	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
 	white-space: nowrap;
 	box-sizing: border-box;
 }

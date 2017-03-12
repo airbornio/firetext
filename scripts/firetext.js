@@ -25,7 +25,7 @@ firetext.initialized = new CustomEvent('firetext.initialized');
 firetext.isInitialized = false;
 var html = document.getElementsByTagName('html')[0], head = document.getElementsByTagName("head")[0];
 var themeColor = document.getElementById("theme-color");
-var loadSpinner, editor, toolbar, editWindow, editState, rawEditor, rawEditorElement, tempText, tabRaw, tabDesign, printButton, mainButtonConnectDropbox;
+var loadSpinner, editor, editHeader, editBar, toolbar, editWindow, editState, rawEditor, rawEditorElement, tempText, tabRaw, tabDesign, printButton, mainButtonConnectDropbox;
 var currentFileName, currentFileType, currentFileLocation, currentFileDirectory;
 var deviceType, fileChanged, saveTimeout, saving;
 var bold, fontSelect, fontSizeSelect, italic, justifyLeft, justifyCenter, justifyRight, justifyFull, strikeThrough, superscript, subscript, styleSelect;
@@ -253,6 +253,8 @@ function initElements() {
 	tabRaw = document.getElementById('tab-raw');
 	editor = document.getElementById('editor');
 	rawEditorElement = document.getElementById('rawEditor');
+	editHeader = document.querySelector('.edit-header');
+	editBar = document.getElementById('edit-bar');
 	toolbar = document.getElementById('edit-zone');
 	editWindow = document.getElementById('edit');
 	locationLegend = document.getElementById('locationLegend');
@@ -1384,10 +1386,10 @@ function processActions(eventAttribute, target, event) {
 		} else if (calledFunction == 'style') {
 			formatDoc('formatBlock', styleSelect.value);
 		} else if (calledFunction == 'hideToolbar') {
-			if (deviceType != 'desktop' && !document.getElementById('edit-bar').contains(document.activeElement)) {
+			if (deviceType != 'desktop' && !editBar.contains(document.activeElement) && !editBar.matches(':hover')) {
 				if (target.id === 'editor' || target.id === 'hide-keyboard-button') {
-					document.querySelector('.edit-header').classList.remove('hidden');
-					document.getElementById('edit-bar').classList.add('hidden');
+					editHeader.classList.remove('hidden');
+					editBar.classList.add('hidden');
 				}
 				document.getElementById('header-close-file').style.visibility = '';
 				document.getElementById('hide-keyboard-button').classList.add('hidden');
@@ -1395,8 +1397,8 @@ function processActions(eventAttribute, target, event) {
 		} else if (calledFunction == 'showToolbar') {
 			if (deviceType != 'desktop') {
 				if (target.id === 'editor' || target.id === 'hide-keyboard-button') {
-					document.querySelector('.edit-header').classList.add('hidden');
-					document.getElementById('edit-bar').classList.remove('hidden');
+					editHeader.classList.add('hidden');
+					editBar.classList.remove('hidden');
 				}
 				document.getElementById('header-close-file').style.visibility = 'hidden';
 				document.getElementById('hide-keyboard-button').classList.remove('hidden');
