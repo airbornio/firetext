@@ -1,5 +1,5 @@
 {
-  "name": "Firetext",
+  "name": "Documents",
   "description": "The word processor for Firefox OS",
   "version": "0.5.1",
   "type": "privileged",
@@ -15,75 +15,115 @@
   },
   "default_locale": "en",
   "locales": {
-	"bg": {
-	  "description": "Програмата за текстова обработка на Файърфокс ОС"
-	},
-	"bn-BD": {
-	  "description": "ফায়ারফক্স ওএস এর জন্য ওয়ার্ড প্রসেসর"
-	},
-	"bn-IN": {
-	  "description": "Firefox OS এর word processor"
-	},
-	"cs": {
-	  "description": "Textový procesor pro Firefox OS"
-	},
-	"de": {
-	  "description": "Die Textverarbeitung für Firefox OS"
-	},
-	"eo": {
-	  "description": "La tekstredaktilo por Firefox OS"
-	},
-	"es": {
-	  "description": "El procesador de textos para Firefox OS"
-	},
-	"fa-IR": {
-	  "description": "پردازش واژه برای سیستم عامل فایرفاکس"
-	},
-	"fr": {
-	  "description": "L'éditeur de texte pour Firefox OS"
-	},
-	"he": {
-	  "description": "מעבד התמלילים ל-Firefox OS"
-	},
-	"hi-IN": {
-	  "description": "फ़ायरफ़ॉक्स ओएस के लिए फायरटेक्सट"
-	},
-	"hu": {
-	  "description": "A Firefox OS szövegszerkesztője"
-	},
-	"id": {
-	  "description": "Pengolah kata untuk Firefox OS"
-	},
-	"it": {
-	  "description": "L'editor di testo per Firefox OS"
-	},
-	"ja": {
-	  "description": "Firefox OS 用のワードプロセッサーです"
-	},
-	"ml-IN": {
-	  "description": "ഫയര്‍ഫോക്സ് ഒയസിന്റെ വേര്‍ഡ്‌ പ്രോസ്സസര്‍"
-	},
-	"nl": {
-	  "description": "De tekstverwerker voor Firefox OS"
-	},
-	"pl": {
-	  "description": "Procesor tekstu dla Firefox OS"
-	},
-	"pt-BR": {
-	  "description": "O processador de texto para Firefox OS"
-	},
-	"ro": {
-	  "description": "Procesorul word pentru Firefox OS"
-	},
-	"ru": {
-	  "description": "Текстовый процессор для Firefox OS"
-	},
-	"ta-IN": {
-	  "description": "Firefox OS க்கான சொல் செயலி"
-	},
-	"zh-CN": {
-	  "description": "适用于 Firefox OS 的文字处理程序"
-	}
+    "ar": {
+      "name": "المستندات"
+    },
+    "bg": {
+      "name": "Документи",
+      "description": "Програмата за текстова обработка на Файърфокс ОС"
+    },
+    "bn-BD": {
+      "name": "নথিসমূহ",
+      "description": "ফায়ারফক্স ওএস এর জন্য ওয়ার্ড প্রসেসর"
+    },
+    "bn-IN": {
+      "name": "নথিসমূহ",
+      "description": "Firefox OS এর word processor"
+    },
+    "br": {
+      "name": "Teulioù"
+    },
+    "cs": {
+      "name": "Dokumenty",
+      "description": "Textový procesor pro Firefox OS"
+    },
+    "de": {
+      "name": "Dokumente",
+      "description": "Die Textverarbeitung für Firefox OS"
+    },
+    "eo": {
+      "name": "Dokumentoj",
+      "description": "La tekstredaktilo por Firefox OS"
+    },
+    "es": {
+      "name": "Documentos",
+      "description": "El procesador de textos para Firefox OS"
+    },
+    "fa-IR": {
+      "name": "اسناد",
+      "description": "پردازش واژه برای سیستم عامل فایرفاکس"
+    },
+    "fr": {
+      "description": "L'éditeur de texte pour Firefox OS"
+    },
+    "he": {
+      "name": "מסמכים",
+      "description": "מעבד התמלילים ל-Firefox OS"
+    },
+    "hi-IN": {
+      "name": "डॉक्यूमेंट",
+      "description": "फ़ायरफ़ॉक्स ओएस के लिए फायरटेक्सट"
+    },
+    "hu": {
+      "name": "Dokumentumok",
+      "description": "A Firefox OS szövegszerkesztője"
+    },
+    "id": {
+      "name": "Dokumen",
+      "description": "Pengolah kata untuk Firefox OS"
+    },
+    "it": {
+      "name": "Documenti",
+      "description": "L'editor di testo per Firefox OS"
+    },
+    "ja": {
+      "name": "キュメント",
+      "description": "Firefox OS 用のワードプロセッサーです"
+    },
+    "ml-IN": {
+      "name": "ഡോകുമെന്റ്സ്",
+      "description": "ഫയര്‍ഫോക്സ് ഒയസിന്റെ വേര്‍ഡ്‌ പ്രോസ്സസര്‍"
+    },
+    "nl": {
+      "name": "Documenten",
+      "description": "De tekstverwerker voor Firefox OS"
+    },
+    "pl": {
+      "name": "Dokumenty",
+      "description": "Procesor tekstu dla Firefox OS"
+    },
+    "pt-BR": {
+      "name": "Documentos",
+      "description": "O processador de texto para Firefox OS"
+    },
+    "ro": {
+      "name": "Documente",
+      "description": "Procesorul word pentru Firefox OS"
+    },
+    "ru": {
+      "name": "Документы",
+      "description": "Текстовый процессор для Firefox OS"
+    },
+    "sk": {
+      "name": "Dokument"
+    },
+    "ta-IN": {
+      "name": "ஆவணங்கள்",
+      "description": "Firefox OS க்கான சொல் செயலி"
+    },
+    "te-IN": {
+      "name": "Patralu"
+    },
+    "tr": {
+      "name": "Dokümanlar"
+    },
+    "zh-CN": {
+      "name": "上的文档",
+      "description": "适用于 Firefox OS 的文字处理程序"
+    },
+    "zh-TW": {
+      "name": "上的文件"
+    }
   },
   "permissions": {
     "device-storage:sdcard": {
@@ -98,9 +138,9 @@
   },
   "redirects": [
     {
-	  "from": "https://firetext-server.herokuapp.com/auth/dropbox/oauth2/",
+      "from": "https://firetext-server.herokuapp.com/auth/dropbox/oauth2/",
       "to": "/modules/oauth2/index.html"
-	}
+    }
   ],
   "activities": {
     "open": {
