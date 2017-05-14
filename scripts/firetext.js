@@ -1923,7 +1923,7 @@ function wordCount() {
 }
 
 function initColorPickers() {
-	airborn.fs.getFile('/Core/jquery.min.js', function(contents) {
+	airborn.fs.getFile('/Core/modules/window_manager/res/lib/jquery/jquery.min.js', function(contents) {
 		window.eval(contents);
 		ljs.load([
 			'style/lib/spectrum.css',
