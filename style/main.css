@@ -407,8 +407,13 @@ label.pack-switch {
   padding-top: 11px;  
 }
 
+#uploadDialogLegend {
+  margin: 1.6rem;
+  line-height: 1.5;
+}
+
 #uploadDialogFiles {
-  margin: 1.6rem auto 0.4rem;
+  margin: 1.6rem auto;
   display: block;
 }
 
@@ -420,6 +425,10 @@ label.pack-switch {
   text-align: center;
 }
   
+fieldset {
+  color: #2C2C2C;
+}
+
 fieldset legend {
   text-transform: initial;
 }
