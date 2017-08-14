@@ -131,22 +131,26 @@ if(!readOnly) {
   });
 }
 
+function updateToolbar() {
+  parentMessageProxy.postMessage({
+    command: "update-toolbar"
+  });
+}
+
 // Keyboard shortcuts
 document.addEventListener('keypress', function (event) {
   if((event.ctrlKey || event.metaKey) && !event.shiftKey) {
     if(event.which === 98) { // b
-      document.execCommand('bold');
+      format('bold');
     } else if(event.which === 105) { // i
-      document.execCommand('italic');
+      format('italic');
     } else if(event.which === 117) { // u
-      document.execCommand('underline');
+      format('underline');
     } else {
       return;
     }
     event.preventDefault();
-    parentMessageProxy.postMessage({
-      command: "update-toolbar"
-    });
+    updateToolbar();
   }
 });
 document.addEventListener('keydown', function (event) {
@@ -157,9 +161,7 @@ document.addEventListener('keydown', function (event) {
       document.execCommand('indent');
     }
     event.preventDefault();
-    parentMessageProxy.postMessage({
-      command: "update-toolbar"
-    });
+    updateToolbar();
   }
 });
 
@@ -211,6 +213,16 @@ document.addEventListener('mousedown', function(event) {
   }
 });
 
+// Keep track of whether mouse is pressed for docIO.js query-command-states handler
+window.mousePressed = 0;
+document.addEventListener('mousedown', function() {
+  window.mousePressed++;
+});
+document.addEventListener('mouseup', function() {
+  window.mousePressed--;
+  if(navigator.userAgent.includes('Chrome')) updateToolbar();
+});
+
 // Fix up document
 document.addEventListener('input', fixupDocument);
 fixupDocument();
@@ -240,6 +252,20 @@ function getSelectedFrame() {
     return range.startContainer.childNodes[range.startOffset];
   }
 }
+function format(cmd, value) {
+  /* Duplicated in docIO.js */
+  var sel = document.getSelection(), modified = false;
+  if(/[^ ] $/.test(sel) && sel.setBaseAndExtent && sel.modify) { // A selection ending in a space, indicating double-clicked word on Windows
+    var range = sel.getRangeAt(0);
+    sel.setBaseAndExtent(range.startContainer, range.startOffset, range.endContainer, range.endOffset); // Make selection forwards
+    sel.modify('extend', 'backward', 'character');
+    modified = true;
+  }
+  document.execCommand(cmd, false, value);
+  if(modified) {
+    sel.modify('extend', 'forward', 'character');
+  }
+}
 parentMessageProxy.registerMessageHandler(function(e) {
   if(e.data.sCmd.substr(0, 7) === 'justify') {
     var frame = getSelectedFrame();
@@ -254,24 +280,20 @@ parentMessageProxy.registerMessageHandler(function(e) {
         frame.style.marginLeft = frame.style.marginRight = 'auto';
       }
     } else {
-      document.execCommand(e.data.sCmd, false, e.data.sValue);
+      format(e.data.sCmd, e.data.sValue);
     }
-    parentMessageProxy.postMessage({
-      command: "update-toolbar"
-    });
-    return;
-  }
-  if(['superscript', 'subscript'].includes(e.data.sCmd)) {
+    updateToolbar();
+  } else if(['superscript', 'subscript'].includes(e.data.sCmd)) {
     // With styleWithCSS, Chrome only applies `vertical-align: super;`,
     // which doesn't make the text smaller (which we want for super/
     // subscript). So we temporarily turn off styleWithCSS to get <sup>/
     // <sub> elements (which Firefox also does even with styleWithCSS.)
     document.execCommand('styleWithCSS', false, false);
-    document.execCommand(e.data.sCmd, false, e.data.sValue);
+    format(e.data.sCmd, e.data.sValue);
     document.execCommand('styleWithCSS', false, true);
-    return;
+  } else {
+    format(e.data.sCmd, e.data.sValue);
   }
-  document.execCommand(e.data.sCmd, false, e.data.sValue);
 }, "format")
 
 parentMessageProxy.registerMessageHandler(function(e) {
@@ -327,25 +349,22 @@ document.addEventListener('input', function() {
 });
 
 // Update toolbar on selectionchange
-document.addEventListener('selectionchange', throttle(function() {
-  parentMessageProxy.postMessage({
-    command: "update-toolbar"
-  });
-}, 100));
-if(!('onselectionchange' in document)) { // Firefox <52
-  var getSelectionRange = function() {
-    var selection = document.getSelection();
-    return selection.rangeCount ? selection.getRangeAt(0) : null;
+var getSelectionRange = function() {
+  var selection = document.getSelection();
+  return selection.rangeCount ? selection.getRangeAt(0) : null;
+}
+var prevRange;
+function onSelectionChange() {
+  var range = getSelectionRange();
+  if(range !== prevRange &&
+    (!range || !prevRange || ['startContainer', 'startOffset', 'endContainer', 'endOffset'].some(function(attr) {
+      return range[attr] !== prevRange[attr];
+    }))) {
+    updateToolbar();
   }
-  var prevRange;
-  setInterval(function() {
-    var range = getSelectionRange();
-    if(range !== prevRange &&
-      (!range || !prevRange || ['startContainer', 'startOffset', 'endContainer', 'endOffset'].some(function(attr) {
-        return range[attr] !== prevRange[attr];
-      }))) {
-      document.dispatchEvent(new Event('selectionchange'));
-    }
-    prevRange = range;
-  }, 100);
+  prevRange = range;
+}
+document.addEventListener('selectionchange', throttle(onSelectionChange, 100));
+if(!('onselectionchange' in document)) { // Firefox <52
+  setInterval(onSelectionChange, 100);
 }

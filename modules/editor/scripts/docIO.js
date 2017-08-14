@@ -247,6 +247,19 @@ function initDocIO(document, messageProxy, loadCallback) {
 				active = 'justifyFull';
 			}
 		}
+		/* Duplicated in contentscript.js */
+		var sel = document.getSelection(), modified = false;
+		if(
+			/[^ ] $/.test(sel) && // A selection ending in a space, indicating double-clicked word on Windows
+			(!window.mousePressed || !navigator.userAgent.includes('Chrome')) && // Chrome doesn't like us modifying selections while still making them
+			sel.setBaseAndExtent && sel.modify
+		) {
+			var anchorNode = sel.anchorNode, anchorOffset = sel.anchorOffset, focusNode = sel.focusNode, focusOffset = sel.focusOffset;
+			var range = sel.getRangeAt(0);
+			sel.setBaseAndExtent(range.startContainer, range.startOffset, range.endContainer, range.endOffset); // Make selection forwards
+			sel.modify('extend', 'backward', 'character');
+			modified = true;
+		}
 		for(var i = 0; i < commands.length; i++) {
 			commandStates[commands[i]] = {};
 			if(frame && commands[i].substr(0, 7) === 'justify') {
@@ -255,6 +268,9 @@ function initDocIO(document, messageProxy, loadCallback) {
 			}
 			commandStates[commands[i]].state = document.queryCommandState(commands[i]);
 			commandStates[commands[i]].value = document.queryCommandValue(commands[i]);
+		}
+		if(modified) {
+			sel.setBaseAndExtent(anchorNode, anchorOffset, focusNode, focusOffset); // Restore selection, including direction
 		}
 		messageProxy.postMessage({
 			command: e.data.key,
