@@ -1548,14 +1548,14 @@ function processActions(eventAttribute, target, event) {
 					margin: margin,
 				}
 			});
-		} else if (calledFunction == 'openCollab') {
+		} else if (calledFunction == 'openShare') {
 			var location = document.getElementById('currentFileLocation').textContent;
 			var directory = document.getElementById('currentFileDirectory').textContent;
 			var filename = document.getElementById('currentFileName').textContent;
 			var filetype = document.getElementById('currentFileType').textContent;
 			
 			if(location.substr(0, 8) !== 'internal') {
-				firetext.notify(navigator.mozL10n.get('cant-collab-noninternal'));
+				firetext.notify(navigator.mozL10n.get('cant-share-noninternal'));
 				return;
 			}
 			if (directory[0] !== '/') {
@@ -1563,25 +1563,63 @@ function processActions(eventAttribute, target, event) {
 			}
 			ljs.load('sjcl', function() {
 				var shared = firetext.shared.get(location + directory + filename + filetype);
-				if(shared && shared['collab-ACL']) {
-					document.getElementById('collab-ACL').value = shared['collab-ACL'];
+				var collab = shared['collab-ACL'] && shared['collab-ACL'] !== 'private';
+				var publish = shared['publish-ACL'] && shared['publish-ACL'] !== 'private';
+				if(collab) {
 					document.getElementById('collab-use-password').checked = shared['collab-use-password'];
 					document.getElementById('collab-password').value = shared['collab-password'];
 					document.getElementById('collab-iter').value = shared['collab-iter'];
 					document.getElementById('collab-salt').value = shared['collab-salt'];
 					document.getElementById('collab-link').value = firetext.shared.getCollabLink(shared);
 				} else {
-					document.getElementById('collab-ACL').value = 'public-read-write';
 					document.getElementById('collab-use-password').checked = false;
-					document.getElementById('collab-password').value = generateNewPassword();
+					document.getElementById('collab-password').value = '';
 					document.getElementById('collab-iter').value = 10000;
 					document.getElementById('collab-salt').value = sjcl.codec.base64.fromBits(sjcl.random.randomWords(2,0));
 					document.getElementById('collab-link').value = '';
 				}
+				document.getElementById('collab-use-password').disabled = collab;
+				document.getElementById('collab-password').readOnly = collab;
+				document.getElementById('collab-link-generate').style.display = collab ? 'none' : '';
+				document.getElementById('collab-link-revoke').style.display = collab ? '' : 'none';
+				document.getElementById('publish-link-generate').disabled =
+				document.getElementById('publish-link-revoke').disabled = collab;
+				if(publish) {
+					document.getElementById('publish-use-password').checked = shared['publish-use-password'];
+					document.getElementById('publish-password').value = shared['publish-password'];
+					document.getElementById('publish-iter').value = shared['publish-iter'];
+					document.getElementById('publish-salt').value = shared['publish-salt'];
+					document.getElementById('publish-link').value = firetext.shared.getPublishLink(shared);
+				} else {
+					document.getElementById('publish-use-password').checked = false;
+					document.getElementById('publish-password').value = '';
+					document.getElementById('publish-iter').value = 10000;
+					document.getElementById('publish-salt').value = sjcl.codec.base64.fromBits(sjcl.random.randomWords(2,0));
+					document.getElementById('publish-link').value = '';
+				}
+				document.getElementById('publish-use-password').disabled = publish;
+				document.getElementById('publish-password').readOnly = publish;
+				document.getElementById('publish-link-generate').style.display = publish ? 'none' : '';
+				document.getElementById('publish-link-revoke').style.display = publish ? '' : 'none';
 				
-				regions.nav('collab');
+				airborn.fs.getObjectLocation('/Documents/', function(ownObjectLoc) {
+					if(shared.S3Prefix && shared.S3Prefix !== ownObjectLoc.S3Prefix) {
+						document.getElementById('collab-link-generate').disabled =
+						document.getElementById('collab-link-revoke').disabled =
+						document.getElementById('collab-use-password').disabled =
+						document.getElementById('publish-link-generate').disabled =
+						document.getElementById('publish-link-revoke').disabled =
+						document.getElementById('publish-use-password').disabled = true;
+						document.getElementById('collab-password').readOnly =
+						document.getElementById('publish-password').readOnly = true;
+					}
+					
+					regions.nav('share');
+				});
 			});
 		} else if (calledFunction == 'collab') {
+			var revoke = target.hasAttribute(eventAttribute + '-revoke');
+			
 			var location = document.getElementById('currentFileLocation').textContent;
 			var directory = document.getElementById('currentFileDirectory').textContent;
 			var filename = document.getElementById('currentFileName').textContent;
@@ -1595,9 +1633,9 @@ function processActions(eventAttribute, target, event) {
 					firetext.notify(navigator.mozL10n.get('cant-collab-nohist'), '<a href="' + airborn.top_location.origin + '/plans" target="_blank">' + navigator.mozL10n.get('click-to-open-plans').replace(/</g, '&lt;') + '</a>', 10000);
 					return;
 				}
-				var shared = firetext.shared.get(location + directory + filename + filetype, shared) || {};
+				var shared = firetext.shared.get(location + directory + filename + filetype, shared);
 				for(var i in objectLoc) { shared[i] = objectLoc[i]; }
-				shared['collab-ACL'] = document.getElementById('collab-ACL').value;
+				shared['collab-ACL'] = revoke ? 'private' : 'public-read-write';
 				shared['collab-use-password'] = document.getElementById('collab-use-password').checked;
 				shared['collab-password'] = document.getElementById('collab-password').value;
 				shared['collab-iter'] = parseInt(document.getElementById('collab-iter').value);
@@ -1607,41 +1645,17 @@ function processActions(eventAttribute, target, event) {
 				firetext.shared.set(location + directory + filename + filetype, shared);
 				firetext.shared.updateCollab(location + directory + filename + filetype);
 				saveFromEditor(true, true);
-				document.getElementById('collab-link').value = firetext.shared.getCollabLink(shared);
-			});
-		} else if (calledFunction == 'openPublish') {
-			var location = document.getElementById('currentFileLocation').textContent;
-			var directory = document.getElementById('currentFileDirectory').textContent;
-			var filename = document.getElementById('currentFileName').textContent;
-			var filetype = document.getElementById('currentFileType').textContent;
-			
-			if(location.substr(0, 8) !== 'internal') {
-				firetext.notify(navigator.mozL10n.get('cant-publish-noninternal'));
-				return;
-			}
-			if (directory[0] !== '/') {
-				directory = '/sdcard/' + directory;
-			}
-			ljs.load('sjcl', function() {
-				var shared = firetext.shared.get(location + directory + filename + filetype);
-				if(shared && shared['publish-ACL']) {
-					document.getElementById('publish-ACL').value = shared['publish-ACL'];
-					document.getElementById('publish-use-password').checked = shared['publish-use-password'];
-					document.getElementById('publish-password').value = shared['publish-password'];
-					document.getElementById('publish-iter').value = shared['publish-iter'];
-					document.getElementById('publish-salt').value = shared['publish-salt'];
-					document.getElementById('publish-link').value = firetext.shared.getPublishLink(shared);
-				} else {
-					document.getElementById('publish-ACL').value = 'public-read';
-					document.getElementById('publish-use-password').checked = false;
-					document.getElementById('publish-iter').value = 10000;
-					document.getElementById('publish-salt').value = sjcl.codec.base64.fromBits(sjcl.random.randomWords(2,0));
-					document.getElementById('publish-link').value = '';
-				}
-				
-				regions.nav('publish');
+				document.getElementById('collab-link').value = revoke ? '' : firetext.shared.getCollabLink(shared);
+				document.getElementById('collab-use-password').disabled = !revoke;
+				document.getElementById('collab-password').readOnly = !revoke;
+				document.getElementById('collab-link-generate').style.display = !revoke ? 'none' : '';
+				document.getElementById('collab-link-revoke').style.display = !revoke ? '' : 'none';
+				document.getElementById('publish-link-generate').disabled =
+				document.getElementById('publish-link-revoke').disabled = !revoke;
 			});
 		} else if (calledFunction == 'publish') {
+			var revoke = target.hasAttribute(eventAttribute + '-revoke');
+			
 			var location = document.getElementById('currentFileLocation').textContent;
 			var directory = document.getElementById('currentFileDirectory').textContent;
 			var filename = document.getElementById('currentFileName').textContent;
@@ -1655,9 +1669,9 @@ function processActions(eventAttribute, target, event) {
 					firetext.notify(navigator.mozL10n.get('cant-publish-demo'));
 					return;
 				}
-				var shared = firetext.shared.get(location + directory + filename + filetype, shared) || {};
+				var shared = firetext.shared.get(location + directory + filename + filetype, shared);
 				for(var i in objectLoc) { shared[i] = objectLoc[i]; }
-				shared['publish-ACL'] = document.getElementById('publish-ACL').value;
+				shared['publish-ACL'] = revoke ? 'private' : 'public-read';
 				shared['publish-use-password'] = document.getElementById('publish-use-password').checked;
 				shared['publish-password'] = document.getElementById('publish-password').value;
 				shared['publish-iter'] = parseInt(document.getElementById('publish-iter').value);
@@ -1665,7 +1679,11 @@ function processActions(eventAttribute, target, event) {
 				shared.path = location + directory + filename + filetype;
 				firetext.shared.set(location + directory + filename + filetype, shared);
 				saveFromEditor(true, true);
-				document.getElementById('publish-link').value = firetext.shared.getPublishLink(shared);
+				document.getElementById('publish-link').value = revoke ? '' : firetext.shared.getPublishLink(shared);
+				document.getElementById('publish-use-password').disabled = !revoke;
+				document.getElementById('publish-password').readOnly = !revoke;
+				document.getElementById('publish-link-generate').style.display = !revoke ? 'none' : '';
+				document.getElementById('publish-link-revoke').style.display = !revoke ? '' : 'none';
 			});
 		} else if (calledFunction == 'openHistory') {
 			if(document.querySelector('.current').id == 'sidebar_history') {

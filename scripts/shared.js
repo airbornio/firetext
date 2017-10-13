@@ -9,13 +9,15 @@ firetext.shared = {
 		});
 	},
 	get: function(path) {
-		return JSON.parse(localStorage['firetext.shared'] || '{}')[path];
+		return JSON.parse(localStorage['firetext.shared'] || '{}')[path] || {};
 	},
 	getOptions: function(path, callback) {
 		var attrs = this.get(path);
-		if(attrs) {
+		var collab = attrs['collab-ACL'] && attrs['collab-ACL'] !== 'private';
+		var publish = attrs['publish-ACL'] && attrs['publish-ACL'] !== 'private';
+		if(collab || publish) {
 			ljs.load('sjcl', function() {
-				if(attrs['publish-ACL'] && attrs['publish-ACL'] !== 'private') {
+				if(publish) {
 					var iter = attrs['publish-use-password'] ? attrs['publish-iter'] : 101;
 					var password = attrs['publish-use-password'] ? attrs['publish-password'] : '';
 					var salt = attrs['publish-salt'];
@@ -28,7 +30,7 @@ firetext.shared = {
 				var private_key = key.slice(0, 128/32); // First half
 				var shared_key = key.slice(128/32); // Second half
 				var authkey = sjcl.codec.hex.fromBits(shared_key).toUpperCase();
-				if(attrs['collab-ACL'] && attrs['collab-ACL'] !== 'private') {
+				if(collab) {
 					authkey += ':' + sjcl.codec.hex.fromBits(
 						sjcl.misc.cachedPbkdf2(
 							attrs['collab-use-password'] ? attrs['collab-password'] : '', {
@@ -39,7 +41,7 @@ firetext.shared = {
 					).toUpperCase();
 				}
 				callback({
-					ACL: attrs['collab-ACL'] && attrs['collab-ACL'] !== 'private' ? attrs['collab-ACL'] : attrs['publish-ACL'],
+					ACL: collab ? attrs['collab-ACL'] : attrs['publish-ACL'],
 					S3Prefix: attrs.S3Prefix,
 					object: attrs.object,
 					password: private_key,
@@ -60,7 +62,7 @@ firetext.shared = {
 	},
 	updateCollab: function(path) {
 		var attrs = this.get(path);
-		if(attrs && attrs['collab-ACL'] !== 'private') {
+		if(attrs['collab-ACL'] && attrs['collab-ACL'] !== 'private') {
 			if(!socket) {
 				ljs.load('collab', function() {
 					initSocket();

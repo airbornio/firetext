@@ -95,7 +95,7 @@ regions.nav = function (location, histEntry) {
 		} else if (location != 'welcome-edit-mode') {
 			// Focus first input
 			setTimeout(function() {
-				var input = locationElement.querySelector('input:not([disabled]), .config-dialog select') || locationElement.querySelector('button');
+				var input = locationElement.querySelector('input:not([disabled]), .config-dialog select, .config-dialog table button') || locationElement.querySelector('button');
 				if (input) {
 					editor.blur();
 					input.focus();

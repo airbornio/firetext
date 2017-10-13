@@ -511,9 +511,13 @@ aside select.dummy {
 }
 
 .config-dialog table td:first-child {
-  width: 190px;
+  width: 230px;
   height: 4.2rem;
-  padding-left: 1rem;
+  padding: 0.2rem 1rem;
+}
+
+.config-dialog table button {
+  margin: 0;
 }
 
 .config-dialog table select {
@@ -523,17 +527,32 @@ aside select.dummy {
 
 .config-dialog table input {
   margin: 0;
+  vertical-align: middle;
+}
+
+.config-dialog table label {
+  padding-top: .4rem;
+  display: inline-block;
 }
 
 .config-dialog table span {
-  vertical-align: top;
   margin-right: 2rem;
+}
+
+.config-dialog table input[disabled] + span,
+.config-dialog table .share-password-input[readonly] {
+  color: rgb(100, 100, 100);
 }
 
 .config-dialog .input-icon-button {
   background: none !important;
   font-size: 1.6rem !important;
   transform: scaleX(-1);
+}
+
+.config-dialog input:not([readonly]) ~ .copy-button,
+.config-dialog input[readonly] ~ .generate-button {
+  display: none;
 }
 
 /* Spinner (Throbber) */

@@ -50,8 +50,8 @@ textarea:invalid {
   -moz-appearance: textfield;
 }
 
-.form p input + button[type="reset"],
-.form p textarea + button[type="reset"] {
+.form p input ~ button[type="reset"],
+.form p textarea ~ button[type="reset"] {
   position: absolute;
   top: 0;
   right: 0;
@@ -67,7 +67,7 @@ textarea:invalid {
   transition: opacity .3s;
 }
 
-.form p input[type="number"] + button[type="reset"] {
+.form p input[type="number"] ~ button[type="reset"] {
   transition-duration: 0s;
 }
 
@@ -85,10 +85,10 @@ textarea {
   padding-right: 3rem;
 }
 
-.form p:hover input + button[type="reset"],
-.form p input:focus + button[type="reset"],
-.form p:hover textarea + button[type="reset"],
-.form p textarea:focus + button[type="reset"] {
+.form p:hover input ~ button[type="reset"],
+.form p input:focus ~ button[type="reset"],
+.form p:hover textarea ~ button[type="reset"],
+.form p textarea:focus ~ button[type="reset"] {
   opacity: 1;
   pointer-events: all;
 }
@@ -284,8 +284,8 @@ section[role="region"] > header:first-child + .form[role="search"]:after {
   padding: 0.8rem 0.8rem 0.8rem 3.5rem;
 }
 
-[dir="rtl"] .form p input + button[type="reset"],
-[dir="rtl"] .form p textarea + button[type="reset"] {
+[dir="rtl"] .form p input ~ button[type="reset"],
+[dir="rtl"] .form p textarea ~ button[type="reset"] {
   right: auto;
   left: 0;
 }

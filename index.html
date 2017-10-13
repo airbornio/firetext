@@ -233,13 +233,13 @@
 	</section>
 	<div class="background" data-click="navBack"></div>
 	
-	<section role="dialog" id="collab" class="config-dialog">
+	<section role="dialog" id="share" class="config-dialog">
 		<header>
 			<button data-click="navBack" data-l10n-title="close"><span class="icon icon-close"></span></button>
 			<menu type="toolbar">
-				<button data-click="collab" data-l10n-id="okay"></button>
+				<button data-click="navBack" data-l10n-id="okay"></button>
 			</menu>
-			<h1 data-l10n-id="collaborate"></h1>
+			<h1 data-l10n-id="share"></h1>
 		</header>
 		<div role="main">
 			<div class="form">
@@ -247,65 +247,17 @@
 				<fieldset class="button-block">
 					<table>
 						<tr>
-							<td data-l10n-id="public"></td>
-							<td>
-								<p>
-									<select id="collab-ACL">
-										<option value="private" data-l10n-id="no"></option>
-										<option value="public-read" data-l10n-id="can-view"></option>
-										<option value="public-read-write" data-l10n-id="can-edit"></option>
-									</select>
-								</p>
-							</td>
+							<td><h3 data-l10n-id="publish"></h3></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" id="collab-use-password"> <span data-l10n-id="use-password"></span></label></td>
 							<td>
-								<p>
-									<input type="text" id="collab-password" data-enter="collab">
-									<button type="reset" data-mouse-down="generateNewPasswordForm" class="input-icon-button icon-refresh"></button>
-									<input type="hidden" id="collab-iter">
-									<input type="hidden" id="collab-salt">
-								</p>
+								<button data-click="publish" data-l10n-id="publish-link-generate" id="publish-link-generate"></button>
+								<button data-click="publish" data-l10n-id="publish-link-revoke" id="publish-link-revoke" data-click-revoke></button>
 							</td>
-						</tr>
-						<tr>
-							<td data-l10n-id="link"></td>
 							<td>
 								<p>
-									<input readonly="" type="text" id="collab-link">
-									<button type="reset" data-mouse-down="copyForm" data-clipboard-target="#collab-link" class="copy-button input-icon-button icon-content-copy"></button>
-								</p>
-							</td>
-						</tr>
-					</table>
-				</fieldset>
-			</div>
-		</div>
-	</section>
-	<div class="background" data-click="navBack"></div>
-	
-	<section role="dialog" id="publish" class="config-dialog">
-		<header>
-			<button data-click="navBack" data-l10n-title="close"><span class="icon icon-close"></span></button>
-			<menu type="toolbar">
-				<button data-click="publish" data-l10n-id="okay"></button>
-			</menu>
-			<h1 data-l10n-id="publish"></h1>
-		</header>
-		<div role="main">
-			<div class="form">
-				<br>
-				<fieldset class="button-block">
-					<table>
-						<tr>
-							<td data-l10n-id="public"></td>
-							<td>
-								<p>
-									<select id="publish-ACL">
-										<option value="private" data-l10n-id="no"></option>
-										<option value="public-read" data-l10n-id="can-view"></option>
-									</select>
+									<input readonly="" type="text" id="publish-link">
+									<button type="reset" data-mouse-down="copyForm" data-clipboard-target="#publish-link" class="copy-button input-icon-button icon-content-copy"></button>
 								</p>
 							</td>
 						</tr>
@@ -313,19 +265,43 @@
 							<td><label><input type="checkbox" id="publish-use-password"> <span data-l10n-id="use-password"></span></label></td>
 							<td>
 								<p>
-									<input type="text" id="publish-password" data-enter="publish">
-									<button type="reset" data-mouse-down="generateNewPasswordForm" class="input-icon-button icon-refresh"></button>
+									<input type="text" id="publish-password" class="share-password-input" data-enter="publish">
+									<button type="reset" data-mouse-down="generateNewPasswordForm" class="generate-button input-icon-button icon-autorenew"></button>
+									<button type="reset" data-mouse-down="copyForm" data-clipboard-target="#publish-password" class="copy-button input-icon-button icon-content-copy"></button>
 									<input type="hidden" id="publish-iter">
 									<input type="hidden" id="publish-salt">
 								</p>
 							</td>
 						</tr>
+					</table>
+				</fieldset>
+				<br>
+				<fieldset class="button-block">
+					<table>
 						<tr>
-							<td data-l10n-id="link"></td>
+							<td><h3 data-l10n-id="collaborate"></h3></td>
+						</tr>
+						<tr>
+							<td>
+								<button data-click="collab" data-l10n-id="collab-link-generate" id="collab-link-generate"></button>
+								<button data-click="collab" data-l10n-id="collab-link-revoke" id="collab-link-revoke" data-click-revoke></button>
+							</td>
 							<td>
 								<p>
-									<input readonly="" type="text" id="publish-link">
-									<button type="reset" data-mouse-down="copyForm" data-clipboard-target="#publish-link" class="copy-button input-icon-button icon-content-copy"></button>
+									<input readonly="" type="text" id="collab-link">
+									<button type="reset" data-mouse-down="copyForm" data-clipboard-target="#collab-link" class="copy-button input-icon-button icon-content-copy"></button>
+								</p>
+							</td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" id="collab-use-password"> <span data-l10n-id="use-password"></span></label></td>
+							<td>
+								<p>
+									<input type="text" id="collab-password" class="share-password-input" data-enter="collab">
+									<button type="reset" data-mouse-down="generateNewPasswordForm" class="generate-button input-icon-button icon-autorenew"></button>
+									<button type="reset" data-mouse-down="copyForm" data-clipboard-target="#collab-password" class="copy-button input-icon-button icon-content-copy"></button>
+									<input type="hidden" id="collab-iter">
+									<input type="hidden" id="collab-salt">
 								</p>
 							</td>
 						</tr>
@@ -374,8 +350,6 @@
 				<ul>
 					<li><a href="#" data-click="saveFromEditor"><span class="icon icon-content-save"></span><span data-l10n-id="save"></span></a></li>
 					<li><a href="#" data-click="nav" data-click-location="save-as" data-l10n-id="save-as"></a></li>
-					<li><a href="#" data-click="openCollab" data-l10n-id="collaborate"></a></li>
-					<li><a href="#" data-click="openPublish" data-l10n-id="publish"></a></li>
 					<li><a href="#" data-click="downloadFile"><span class="icon icon-cloud-download"></span><span data-l10n-id="export"></span></a></li>
 					<li><a href="#" data-click="openWordCount"><span class="icon icon-counter"></span><span data-l10n-id="word-count"></span></a></li>
 					<li><a href="#" data-click="openPageSetup" data-l10n-id="page-setup"></a></li>
@@ -412,6 +386,7 @@
 			<button id="header-close-file" data-click="closeFile" class="no-zen" data-l10n-title="close"><span class="icon icon-close"></span></button>
 			<menu type="toolbar">
 				<button data-click="fullscreen" id="editor-zen-button" data-l10n-title="fullscreen"><span class="icon icon-fullscreen"></span></button>
+				<button data-click="openShare" data-l10n-title="share"><span class="icon icon-account-multiple"></span></button>
 				<button data-click="openHistory" class="menu drawerEnabled no-zen" id="open-history-button" data-l10n-title="history"><span class="icon icon-history"></span></button>
 				<button data-click="sidebar" data-click-location="sidebar_main" class="menu drawerEnabled no-zen" data-l10n-title="menu"><span class="icon icon-menu"></span></button>
 			</menu>
