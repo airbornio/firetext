@@ -1752,6 +1752,34 @@ function processActions(eventAttribute, target, event) {
 			formatDoc("fontName", target.value);
 		} else if (calledFunction == 'fontSize') {
 			formatDoc("fontSize", target.value);
+		} else if (calledFunction == 'importGoogleDrive') {
+			var width = Math.min(599, window.screen.width - 20),
+				height = Math.min(600, window.screen.height - 30),
+				left = (window.screen.width - width) / 2,
+				top = (window.screen.height - height) / 2;
+			airborn.core.openWindowTop(
+				airborn.top_location.origin + '/google-drive-import',
+				'google-drive-import',
+				['toolbar=no,location=yes,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,copyhistory=no', 'width=' + width, 'height=' + height, 'top=' + top, 'left=' + left].join(),
+				function(channel) {
+					channel.onmessage = function(evt) {
+						if(evt.data.action === 'importFile') {
+							airborn.fs.putFile(
+								'/Documents/Documents/Google Drive Imports/' + evt.data.name.replace(/[".\/]/g, '') + '.' + evt.data.ext,
+								{codec: 'blob'},
+								new Blob([evt.data.contents], {type: evt.data.type}),
+								{
+									created: evt.data.created && new Date(evt.data.created),
+									edited: evt.data.edited && new Date(evt.data.edited),
+								}
+							);
+						} else if(evt.data.action === 'noFilesFound') {
+							firetext.notify(navigator.mozL10n.get('no-google-drive-documents-found'));
+						}
+					};
+				}
+			);
+			regions.nav('welcome');
 		}
 	}
 }
