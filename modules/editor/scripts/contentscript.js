@@ -13,7 +13,7 @@ function fixupDocument(evt) {
       odtdoc.setHTML(getHTML());
     } catch(e) {
       document.execCommand('undo');
-      evt.stopImmediatePropagation();
+      if(evt) evt.stopImmediatePropagation();
     }
   }
   // [Collab] If the last <p> is not editable, add an editable <p> after it
