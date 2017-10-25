@@ -199,6 +199,25 @@ img, ._firetext_frame, hr {
 	cursor: pointer;
 }
 
+hr.page-break {
+	border: none;
+	border-bottom: 1px dashed #7070ff;
+	margin-right: calc(-2 * var(--margin-hor));
+	transform: translateX(calc(-1 * var(--margin-hor)));
+}
+[_firetext_print_view] hr.page-break {
+	margin-right: 0;
+	transform: none;
+}
+@supports (break-before: column) or (-webkit-column-break-before: always) {
+	[_firetext_print_view] hr.page-break {
+		-webkit-column-break-before: always;
+		break-before: column;
+		margin: 0;
+		border: none;
+	}
+}
+
 @media (min-width: 767px) {
 	html {
 		padding-top: 30px;

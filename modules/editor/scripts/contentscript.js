@@ -146,6 +146,18 @@ document.addEventListener('keypress', function (event) {
       format('italic');
     } else if(event.which === 117) { // u
       format('underline');
+    } else if(event.which === 13 || event.which === 10) { // enter in FF and Chrome resp. (https://bugs.chromium.org/p/chromium/issues/detail?id=79407)
+      document.execCommand('insertHTML', false, '<hr class="page-break">');
+      var sel = document.getSelection();
+      if(
+        sel.anchorOffset &&
+        sel.anchorNode.childNodes[sel.anchorOffset - 1].nodeName === 'HR' &&
+        !(sel.anchorNode.childNodes[sel.anchorOffset] && sel.anchorNode.childNodes[sel.anchorOffset].nodeType === Node.ELEMENT_NODE)
+      ) {
+        var p = document.createElement('p');
+        p.appendChild(document.createElement('br'));
+        sel.anchorNode.appendChild(p);
+      }
     } else {
       return;
     }
@@ -361,6 +373,23 @@ function onSelectionChange() {
       return range[attr] !== prevRange[attr];
     }))) {
     updateToolbar();
+    if(range && range.collapsed) {
+      var nextEl;
+      if(
+        range.startContainer.childNodes[range.startOffset - 1] &&
+        range.startContainer.childNodes[range.startOffset - 1].nodeName === 'HR'
+      ) {
+        nextEl = range.startContainer.childNodes[range.startOffset - 1].nextElementSibling;
+      } else if(
+        range.startContainer.childNodes[range.startOffset] &&
+        range.startContainer.childNodes[range.startOffset].nodeName === 'HR'
+      ) {
+        nextEl = range.startContainer.childNodes[range.startOffset].nextElementSibling;
+      }
+      if(nextEl) {
+        range.setStart(nextEl.firstChild && nextEl.firstChild.nodeName !== 'BR' ? nextEl.firstChild : nextEl, 0);
+      }
+    }
   }
   prevRange = range;
 }
