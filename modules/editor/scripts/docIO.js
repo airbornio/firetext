@@ -109,8 +109,8 @@ function initDocIO(document, messageProxy, loadCallback) {
 				'	</style>',
 				'	<!--_firetext_import_remove_end--></head>',
 			].join('\n'))
-			.replace('<body>', [
-				'<body><!--_firetext_import_remove_start-->',
+			.replace(/<body[^>]*>/, [
+				'$&<!--_firetext_import_remove_start-->',
 				'<table style="border-collapse: collapse; table-layout: fixed; width: 100%;">',
 				'	<thead>',
 				'		<tr class="firetext_page_margin"><td style="padding: 0;"></td></tr>',
