@@ -31,7 +31,7 @@ var deviceType, fileChanged, saveTimeout, saving;
 var bold, fontSelect, fontSizeSelect, italic, justifyLeft, justifyCenter, justifyRight, justifyFull, strikeThrough, superscript, subscript, styleSelect;
 var underline, underlineCheckbox;
 var locationLegend, locationSelect, locationDevice, locationDropbox;
-var editorMessageProxy;
+var editorMessageProxy, printButtonMessageProxy;
 var wordCountElement, wordCountEnabled = false;
 
 // Lists
@@ -1554,6 +1554,19 @@ function processActions(eventAttribute, target, event) {
 					margin: margin,
 				}
 			});
+		} else if (calledFunction == 'printFile') {
+			var key = editorMessageProxy.registerMessageHandler(function(editorEvt){
+				printButtonMessageProxy.postMessage({
+					command: 'print',
+					content: editorEvt.data.content,
+					'automatic-printing-failed': navigator.mozL10n.get('automatic-printing-failed')
+				});
+			}, null, true);
+			editorMessageProxy.postMessage({
+				command: "get-content-html",
+				key: key
+			});
+			regions.nav('edit');
 		} else if (calledFunction == 'openShare') {
 			var location = document.getElementById('currentFileLocation').textContent;
 			var directory = document.getElementById('currentFileDirectory').textContent;
@@ -1890,24 +1903,9 @@ function printButtonCommunication(callback) {
 	printButton.onload = null;
 	printButton.onload = function() {
 		// See: scripts/messages.js
-		var printButtonMessageProxy = new MessageProxy();
+		printButtonMessageProxy = new MessageProxy();
 		printButtonMessageProxy.setSend(printButton.contentWindow);
 		printButtonMessageProxy.setRecv(window);
-
-		printButtonMessageProxy.registerMessageHandler(function(printEvt) {
-			var key = editorMessageProxy.registerMessageHandler(function(editorEvt){
-				printButtonMessageProxy.postMessage({
-					command: printEvt.data.key,
-					content: editorEvt.data.content,
-					'automatic-printing-failed': navigator.mozL10n.get('automatic-printing-failed')
-				});
-			}, null, true);
-			editorMessageProxy.postMessage({
-				command: "get-content-html",
-				key: key
-			});
-			regions.nav('edit');
-		}, "print-button-pressed");
 	}
 }
 
