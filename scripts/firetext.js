@@ -170,17 +170,19 @@ function initModules(callback) {
 		callback();
 	});
 
+	var wait = !airborn.top_location.hash.includes('s=');
+	
 	// Initialize print button
-	setTimeout(initPrintButton, 1500, function() {});
+	setTimeout(initPrintButton, 1500 * wait, function() {});
 
 	// Initialize copy buttons
 	initCopyButtons();
 
 	// Init color pickers
-	setTimeout(initColorPickers, 1000);
+	setTimeout(initColorPickers, 1000 * wait);
 	
 	// Prefetch the editor for .html/.txt documents
-	setTimeout(prefetchHTMLEditor, 500);
+	setTimeout(prefetchHTMLEditor, 500 * wait);
 
 	// Initialize Christmas
 	christmas();
