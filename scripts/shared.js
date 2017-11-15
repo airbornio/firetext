@@ -8,8 +8,11 @@ firetext.shared = {
 			return firetext.io.split(path.substr(path.indexOf('/'))).concat('', path.substr(0, path.indexOf('/')));
 		});
 	},
+	getRaw: function(path) {
+		return JSON.parse(localStorage['firetext.shared'] || '{}')[path];
+	},
 	get: function(path) {
-		return JSON.parse(localStorage['firetext.shared'] || '{}')[path] || {};
+		return this.getRaw(path) || {};
 	},
 	getOptions: function(path, callback) {
 		var attrs = this.get(path);
@@ -161,7 +164,7 @@ function openSharedDocument(password, dontNotify) {
 		throw new Error('Document is collab-version ' + props['collab-version'] + ', this Firetext is collab-version ' + firetext.shared.collabVersion);
 	}
 	var path = props.path.replace('internal/', 'internal-' + props.S3Prefix + '/');
-	var newDoc = !firetext.shared.get(path);
+	var newDoc = !firetext.shared.getRaw(path);
 	firetext.shared.set(path, props);
 	if(newDoc) {
 		setTimeout(function() {
