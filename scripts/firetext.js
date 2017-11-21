@@ -345,7 +345,7 @@ function initListeners() {
 			if (editState != true) {
 				editDocs();
 			}
-			var elm = event.target.closest('.fileListItem');
+			var elm = event.target.closest('.fileListItemLink');
 			if (elm) {
 				elm.getElementsByClassName('edit-selected')[0].click();
 				updateSelectButton();
@@ -671,7 +671,7 @@ function updatePreviews() {
 	if(!welcomeDocsList.classList.contains('previews')) {
 		return;
 	}
-	Array.prototype.forEach.call(document.getElementsByClassName('fileListItem'), function(item) {
+	Array.prototype.forEach.call(document.getElementsByClassName('fileListItemLink'), function(item) {
 		if(!item.offsetParent) {
 			// We're in edit mode, item is hidden.
 			return;
@@ -693,7 +693,7 @@ function updatePreviews() {
 					(filetype === '.odt' ? ljs.load.bind(ljs, 'odt') : setTimeout)(function() {
 						gettingPreview[key] = [getPreview(filetype, result, error)];
 						Array.prototype.forEach.call(document.querySelectorAll(
-							'.fileListItem' +
+							'.fileListItemLink' +
 							'[data-click-directory="' + directory + '"]' +
 							'[data-click-filename="' + filename + '"]' +
 							'[data-click-filetype="' + filetype + '"]' +
@@ -711,7 +711,7 @@ function updatePreviews() {
 }
 
 function scrollDocList() {
-	Array.prototype.forEach.call(document.getElementsByClassName('fileListItem'), function(item) {
+	Array.prototype.forEach.call(document.getElementsByClassName('fileListItemLink'), function(item) {
 		if(!item.offsetParent) {
 			// We're in edit mode, item is hidden.
 			return;
@@ -746,8 +746,8 @@ function buildDocListItems(DOCS, listElm, ctr) {
 			
 	// Generate item
 	var className = 'fileListItem' + (ctr === DOCS.length - 1 ? ' lastItem' : '');
-	var output = '<li class="'+className+'" data-click="loadToEditor" data-click-directory="'+DOC[0]+'" data-click-filename="'+DOC[1]+'" data-click-filetype="'+DOC[2]+'" data-click-location="'+location+'" data-index="'+ctr+'" style="-webkit-order: '+ctr+'; order: '+ctr+';">';
-	output += '<a href="#">';
+	var output = '<a class="fileListItemLink" href="#" data-click="loadToEditor" data-click-directory="'+DOC[0]+'" data-click-filename="'+DOC[1]+'" data-click-filetype="'+DOC[2]+'" data-click-location="'+location+'" data-index="'+ctr+'" style="-webkit-order: '+ctr+'; order: '+ctr+';">';
+	output += '<li class="'+className+'">';
 	output += '<div class="fileItemDescription"></div>';
 	output += '<div class="fileItemInfo">';
 	output += '<aside class="pack-end icon-chevron-right"></aside>';	
@@ -755,17 +755,17 @@ function buildDocListItems(DOCS, listElm, ctr) {
 	output += '<p class="fileItemName" title="'+DOC[1]+DOC[2]+'">'+DOC[1]+DOC[2]+'</p>'; 
 	output += '<p class="fileItemPath" title="'+directory+DOC[1]+DOC[2]+'">'+(location==='dropbox'?'<span class="icon-dropbox" title="'+navigator.mozL10n.get('documents-dropbox')+'"></span> ':'')+directory+DOC[1]+DOC[2]+'</p>';
 	output += '</div>'; 
-	output += '</a></li>';
+	output += '</li></a>';
 	
 	var elm = listElm.querySelector(
-		'.fileListItem' +
+		'.fileListItemLink' +
 		'[data-click-directory="' + DOC[0] + '"]' +
 		'[data-click-filename="' + DOC[1] + '"]' +
 		'[data-click-filetype="' + DOC[2] + '"]' +
 		'[data-click-location="' + location + '"]'
 	);
 	if(elm) {
-		elm.className = className;
+		elm.firstChild.className = className;
 		elm.setAttribute('data-index', ctr);
 		elm.style.webkitOrder = ctr;
 		elm.style.order = ctr;
@@ -1017,12 +1017,12 @@ function editModeListeners() {
 		for (var i = 0; i < checkboxes.length; i++ ) {
 			checkboxes[i].onchange = updateSelectButton;
 		}
-		var listItems = welcomeDocsList.getElementsByClassName('fileListItem');
+		var listItems = welcomeDocsList.getElementsByClassName('fileListItemLink');
 		for (var i = 0; i < listItems.length; i++ ) {
 			listItems[i].onclick = updateCheckbox;
 		}
 	} else {
-		var listItems = welcomeDocsList.getElementsByClassName('fileListItem');
+		var listItems = welcomeDocsList.getElementsByClassName('fileListItemLink');
 		for (var i = 0; i < listItems.length; i++ ) {
 			listItems[i].onclick = null;
 		}
@@ -1117,7 +1117,7 @@ function deleteSelected(confirmed) {
 		// Delete selected files
 		for (var i = 0; i < selected.length; i++) {
 			// Get filename
-			var elm = selected[i].closest('.fileListItem');
+			var elm = selected[i].closest('.fileListItemLink');
 			var filename = elm.getAttribute('data-click-directory') + elm.getAttribute('data-click-filename') + elm.getAttribute('data-click-filetype');
 			var location = elm.getAttribute('data-click-location');
 			
@@ -1288,7 +1288,7 @@ function processActions(eventAttribute, target, event) {
 		}
 		
 		// Don't navigate to #
-		if (eventAttribute === 'data-click' && event && event.target.nodeName.toLowerCase() === 'a') {
+		if (eventAttribute === 'data-click' && target.nodeName.toLowerCase() === 'a') {
 			event.preventDefault();
 		}
 		

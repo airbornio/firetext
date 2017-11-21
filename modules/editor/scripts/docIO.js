@@ -148,7 +148,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 		filename = _filename;
 		filetype = _filetype;
 		readOnly = _readOnly;
-		document.open();
+		document.open("text/html", "replace");
 		switch (filetype) {
 			case ".txt":
 				content = firetext.parsers.plain.parse(content, "HTML");

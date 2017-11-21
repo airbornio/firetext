@@ -84,14 +84,17 @@ if (!app) {
 	}
 	
 	var cache = {};
+	function runModule(url, frame, callback) {
+		if(frame.contentWindow) frame.contentWindow.location.replace(cache[url]);
+		callback();
+	}
 	
 	app.modules = {
 		load: function (url, frame, callback) {
 			console.log('Loading '+url);
 			
 			if(cache[url]) {
-				frame.src = cache[url];
-				callback();
+				runModule(url, frame, callback);
 				return;
 			}
 			
@@ -100,8 +103,7 @@ if (!app) {
 					console.error(err);
 				} else {
 					cache[url] = result;
-					frame.src = result;
-					callback();
+					runModule(url, frame, callback);
 				}
 			});
 		}
