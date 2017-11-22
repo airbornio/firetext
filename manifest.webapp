@@ -136,12 +136,6 @@
     },
     "get-object-locations": {}
   },
-  "redirects": [
-    {
-      "from": "https://firetext-server.herokuapp.com/auth/dropbox/oauth2/",
-      "to": "/modules/oauth2/index.html"
-    }
-  ],
   "activities": {
     "open": {
       "href": "./index.html",

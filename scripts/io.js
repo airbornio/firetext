@@ -13,91 +13,49 @@ firetext.io = {};
 
 /* Variables
 ------------------------*/
-var storage, deviceAPI, locationDevice;
+var storage, locationDevice;
 
 
 /* Init
 ------------------------*/
 firetext.io.init = function (api, callback) {
-	if (navigator.getDeviceStorage && api != 'file') {
-		// Use deviceStorage API
-		deviceAPI = 'deviceStorage';
-		storage = navigator.getDeviceStorage('sdcard');
-		if (!storage) {
-			firetext.io.init('file', callback);
-			return;
-		}
-		
-		// Check for SD card
-		var request = storage.available();
-
-		request.onsuccess = function () {
-			// The result is a string
-			if (this.result != "available") {
-				deviceAPI = null;
-				storage = null;
-				firetext.notify(navigator.mozL10n.get('shared-sdcard'));
-				firetext.io.init('file', callback);
-				return;
-			} else {
-				storage.onchange = function (change) {
-					var fileparts = firetext.io.split(change.path)
-					resetPreview(fileparts[0], fileparts[1], fileparts[2], 'internal');
-					var location = (document.querySelector('.current') || {}).id;
-					if (location == 'welcome' || location == 'welcome-edit-mode' || location == 'open') {
-						updateDocLists(['internal', 'recents']);
-					}
-				}
-				enableInternalStorage();
-				callback();
-			}
-		};
-
-		request.onerror = function () {
-			deviceAPI = null;
-			storage = null;
-			firetext.notify(navigator.mozL10n.get('unable-to-get-sdcard') + this.error.name);
-			firetext.io.init('file', callback);
-			return;
-		};
-	} else {
-		// Check for File API
-		window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
-		if (window.requestFileSystem) {
-			var onFSError = function() {
-				firetext.notify(navigator.mozL10n.get('could-not-initialize-filesystem'));
-				deviceAPI = 'none';
-				callback();
-			}
-			var requestFs = function(grantedBytes) {
-				if(grantedBytes > 0) {
-					requestFileSystem(PERSISTENT, grantedBytes, function(fs) {
-						storage = fs;
-						storage.root.getDirectory("Documents/", {create: true});
-						deviceAPI = 'file';
-						enableInternalStorage();
-						callback();
-					}, onFSError);
-				} else {
-					onFSError();
-				}
-			}
-			if(navigator.webkitPersistentStorage) {
-				navigator.webkitPersistentStorage.requestQuota( /*5MB*/5*1024*1024, requestFs, onFSError );
-			} else if(webkitStorageInfo) {
-				webkitStorageInfo.requestQuota( PERSISTENT, /*5MB*/5*1024*1024, requestFs, onFSError );
-			} else {
-				deviceAPI = 'none';
-				callback();
-				return;
-			}
-		} else {
-			// If nonexistent, disable internal storage
-			deviceAPI = 'none';
-			callback();
-			return;
-		}
+	// Use deviceStorage API
+	storage = navigator.getDeviceStorage('sdcard');
+	if (!storage) {
+		firetext.io.init('file', callback);
+		return;
 	}
+	
+	// Check for SD card
+	var request = storage.available();
+
+	request.onsuccess = function () {
+		// The result is a string
+		if (this.result != "available") {
+			storage = null;
+			firetext.notify(navigator.mozL10n.get('shared-sdcard'));
+			firetext.io.init('file', callback);
+			return;
+		} else {
+			storage.onchange = function (change) {
+				var fileparts = firetext.io.split(change.path)
+				resetPreview(fileparts[0], fileparts[1], fileparts[2], 'internal');
+				var location = (document.querySelector('.current') || {}).id;
+				if (location == 'welcome' || location == 'welcome-edit-mode' || location == 'open') {
+					updateDocLists(['internal', 'recents']);
+				}
+			}
+			enableInternalStorage();
+			callback();
+		}
+	};
+
+	request.onerror = function () {
+		storage = null;
+		firetext.notify(navigator.mozL10n.get('unable-to-get-sdcard') + this.error.name);
+		firetext.io.init('file', callback);
+		return;
+	};
 }
 
 function enableInternalStorage() {	
@@ -126,116 +84,65 @@ firetext.io.enumerate = function (directory, callback) {
 			directory = (directory + '/');
 		}
 	
-		if (deviceAPI == 'deviceStorage') {
-			// Get all the files in the specified directory
-			if (directory == '/') {
-				var cursor = storage.enumerate();
-			} else {
-				var cursor = storage.enumerate(directory.substring(0, -1));
-			}
-		
-			cursor.onerror = function() {
-				if (cursor.error.name == 'SecurityError') {
-					firetext.notify(navigator.mozL10n.get('allow-sdcard'));
-				} else {
-					firetext.notify(navigator.mozL10n.get('load-unsuccessful')+cursor.error.name);
-				}
-			};
-			cursor.onsuccess = function() {
-				// Get file
-				var file = cursor.result;
-			
-				// Base case
-				if (!cursor.result) {						 
-					// Finish
-					callback(FILES);
-					return FILES;
-				}
-				
-				// Split name into parts
-				var thisFile = firetext.io.split(file.name);
-				thisFile[3] = file.type;
-				thisFile[4] = 'internal';
-				thisFile[5] = file.lastModifiedDate;
-				
-				// Don't get any files but docs
-				if (!thisFile[1] |
-						 thisFile[3] != 'text/html' &&
-						 thisFile[3] != 'text/plain' &&
-						 thisFile[2] != '.odt') {
-					cursor.continue();
-					return;				 
-				}
-				
-				// Remove duplicates
-				for (var i = 0; i < FILES.length; i++) {
-					if (FILES[i][0] == thisFile[0] && FILES[i][1] == thisFile[1] && FILES[i][2] == thisFile[2]) {
-					FILES.splice(i, 1);
-					break;
-				}
-				}
-				
-				// Put file directory in proper form
-				if (!thisFile[0] | thisFile[0] == '') {
-					thisFile[0] = '/';
-				}
-				
-				// Add to list of files
-				FILES.push(thisFile);
-			
-				// Check next file
-				cursor.continue();
-			};
-		} else if (deviceAPI == 'file') {
-			storage.root.getDirectory(directory, {}, function(dirEntry) {
-				var dirReader = dirEntry.createReader();
-				var SUBDIRS = [];
-				var readDirContents = function(results) {
-					if(!results.length) {
-						if (SUBDIRS.length) {
-							for (var i = 0; i < SUBDIRS.length; i++) {
-								(function(last) {
-									firetext.io.enumerate(SUBDIRS[i].fullPath, function(subFiles) {
-										FILES = FILES.concat(subFiles);
-										if(last) {
-											callback(FILES);
-										}
-									});
-								})(i === SUBDIRS.length-1);
-							}
-						} else {
-							callback(FILES);
-						}
-						return;
-					} else {
-						var fileparts;
-						var filetype;
-						var filename;
-						for(var i = 0; i < results.length; i++) {
-							if (results[i].isDirectory) {
-								SUBDIRS.push(results[i]);
-								continue;
-							}
-							fileparts = results[i].name.split(".");
-							filetype = fileparts.length >= 2 ? "." + fileparts[fileparts.length - 1] : "";
-							filename = filetype.length >= 2 ? fileparts.slice(0, -1).join("") : fileparts[0];
-							if (filetype !== ".txt" && filetype !== ".html" && filetype !== ".odt") {
-								continue;
-							}
-							FILES.push([directory, filename, filetype, undefined, 'internal']);
-						}
-						dirReader.readEntries(readDirContents);
-					}
-				}
-				dirReader.readEntries(readDirContents);
-			}, function(err) {
-				if(err.code == FileError.NOT_FOUND_ERR) {
-					callback();
-				} else {
-					firetext.notify(navigator.mozL10n.get('load-unsuccessful')+err.code);
-				}
-			});
+		// Get all the files in the specified directory
+		if (directory == '/') {
+			var cursor = storage.enumerate();
+		} else {
+			var cursor = storage.enumerate(directory.substring(0, -1));
 		}
+	
+		cursor.onerror = function() {
+			if (cursor.error.name == 'SecurityError') {
+				firetext.notify(navigator.mozL10n.get('allow-sdcard'));
+			} else {
+				firetext.notify(navigator.mozL10n.get('load-unsuccessful')+cursor.error.name);
+			}
+		};
+		cursor.onsuccess = function() {
+			// Get file
+			var file = cursor.result;
+		
+			// Base case
+			if (!cursor.result) {						 
+				// Finish
+				callback(FILES);
+				return FILES;
+			}
+			
+			// Split name into parts
+			var thisFile = firetext.io.split(file.name);
+			thisFile[3] = file.type;
+			thisFile[4] = 'internal';
+			thisFile[5] = file.lastModifiedDate;
+			
+			// Don't get any files but docs
+			if (!thisFile[1] |
+					 thisFile[3] != 'text/html' &&
+					 thisFile[3] != 'text/plain' &&
+					 thisFile[2] != '.odt') {
+				cursor.continue();
+				return;				 
+			}
+			
+			// Remove duplicates
+			for (var i = 0; i < FILES.length; i++) {
+				if (FILES[i][0] == thisFile[0] && FILES[i][1] == thisFile[1] && FILES[i][2] == thisFile[2]) {
+				FILES.splice(i, 1);
+				break;
+			}
+			}
+			
+			// Put file directory in proper form
+			if (!thisFile[0] | thisFile[0] == '') {
+				thisFile[0] = '/';
+			}
+			
+			// Add to list of files
+			FILES.push(thisFile);
+		
+			// Check next file
+			cursor.continue();
+		};
 		return FILES;
 	}
 };
@@ -247,71 +154,32 @@ firetext.io.enumerate = function (directory, callback) {
 function createAndOpen(location, directory, filename, filetype, contentBlob) {
 	// Save the file
 	if (!location | location == '' | location == 'internal') {	
-		if (deviceAPI == 'deviceStorage') {
-			if (directory[0] !== '/') {
-				directory = '/sdcard/' + directory;
+		if (directory[0] !== '/') {
+			directory = '/sdcard/' + directory;
+		}
+		var filePath = directory.replace('/sdcard/', '/Documents/') + filename + filetype;
+		airborn.fs.getFile(airborn.path.dirname(filePath), {codec: 'dir'}, function(contents) {
+			if(contents && contents.hasOwnProperty(airborn.path.basename(filePath))) {
+				setTimeout(function() {
+					firetext.notify(navigator.mozL10n.get('file-exists'));
+				});
+				return;
 			}
-			var filePath = directory.replace('/sdcard/', '/Documents/') + filename + filetype;
-			airborn.fs.getFile(airborn.path.dirname(filePath), {codec: 'dir'}, function(contents) {
-				if(contents && contents.hasOwnProperty(airborn.path.basename(filePath))) {
+			airborn.fs.putFile(filePath, {codec: contentBlob.codec}, contentBlob.content, {type: contentBlob.type}, function(err) {
+				if (err) {
 					setTimeout(function() {
-						firetext.notify(navigator.mozL10n.get('file-exists'));
+						firetext.notify(navigator.mozL10n.get('file-creation-fail')+err.statusText);
 					});
 					return;
 				}
-				airborn.fs.putFile(filePath, {codec: contentBlob.codec}, contentBlob.content, {type: contentBlob.type}, function(err) {
-					if (err) {
-						setTimeout(function() {
-							firetext.notify(navigator.mozL10n.get('file-creation-fail')+err.statusText);
-						});
-						return;
-					}
-					
-					// Load to editor
-					loadToEditor(directory, filename, filetype, 'internal');
-					
-					// Update list
-					updateDocLists(['internal']);
-				});
-			});
-		} else if (deviceAPI == 'file') {
-			storage.root.getFile(directory + filename + filetype, {create: true, exclusive: true}, function(fileEntry) {
-				fileEntry.createWriter(function(fileWriter){
-					fileWriter.onwriteend = function(e) {
-						e.target.write(contentBlob);
-						e.target.onwriteend = function(e) {
-							loadToEditor(directory, filename, filetype, 'internal');
-						}
-						e.target.onerror = function(e) {
-							firetext.notify(navigator.mozL10n.get('file-creation-fail')+e.message);
-						}
-					};
-					
-					fileWriter.onerror = function(e) {
-						firetext.notify(navigator.mozL10n.get('file-creation-fail')+e.message);
-					};
-					
-					fileWriter.truncate(0);
-				}, function(err) {
-					firetext.notify(navigator.mozL10n.get('file-creation-fail')+err.code);
-				});
-			}, function(err) {
-				if(err.code === FileError.INVALID_MODIFICATION_ERR) {
-					firetext.notify(navigator.mozL10n.get('file-exists'));
-				} else {
-					firetext.notify(navigator.mozL10n.get('file-creation-fail')+err.code);
-				}
-			});
-		}
-	} else if (location == 'dropbox') {
-		directory = ('/' + directory);
-		firetext.io.save(directory, filename, filetype, contentBlob, false, function () {	 
-			// Load to editor
-			loadToEditor(directory, filename, filetype, location);			
 				
-			// Update list
-			updateDocLists(['cloud']);
-		}, location);
+				// Load to editor
+				loadToEditor(directory, filename, filetype, 'internal');
+				
+				// Update list
+				updateDocLists(['internal']);
+			});
+		});
 	} else {
 		firetext.notify(navigator.mozL10n.get('invalid-location'));
 	}
@@ -546,99 +414,41 @@ firetext.io.save = function (directory, filename, filetype, contentBlob, showBan
 
 	var filePath = (directory + filename + filetype);
 	
-	if (location == '' | location.substr(0, 8) == 'internal' | !location) {	
-		// Start spinner	
-		if (showSpinner == true) {
-			spinner();
-		}
-		
-		// Save file
-		if (deviceAPI == 'deviceStorage') {
-			if (directory[0] !== '/') {
-				directory = '/sdcard/' + directory;
-			}
-			firetext.shared.getOptions(location + directory + filename + filetype, function(options) {
-				if (options.demo) {
-					saving = false;
-					// Hide spinner
-					if (showSpinner != false) {
-						spinner('hide');
-					}
-					callback();
-					return;
-				}
-				options.codec = contentBlob.codec;
-				airborn.fs.putFile(directory.replace('/sdcard/', '/Documents/') + filename + filetype, options, contentBlob.content, {type: contentBlob.type}, function(err) {
-					saving = false;
-					if (showSpinner == true) {
-						spinner('hide');
-					}
-					if (err) {
-						firetext.notify(navigator.mozL10n.get('save-unsuccessful') + err.statusText);
-						return;
-					}
-					if (showBanner) {
-						showSaveBanner(directory + filename + filetype);
-					}
-					callback();
-				});
-			});
-		} else if (deviceAPI == 'file') {
-			storage.root.getFile(directory + filename + filetype, {create: true}, function(fileEntry) {
-				fileEntry.createWriter(function(fileWriter){
-					fileWriter.onwriteend = function(e) {
-						e.target.onwriteend = function(e) {
-							// Show banner or hide spinner
-							if (showBanner) {
-								showSaveBanner(filePath);
-							}
-							if (showSpinner == true) {
-								spinner('hide');
-							}
-							
-							// Refresh preview
-							resetPreview(directory, filename, filetype, 'internal');
-							
-							// Finish
-							saving = false;
-							callback();
-						}
-						e.target.onerror = function(e) {
-							saving = false;
-							firetext.notify(navigator.mozL10n.get('save-unsuccessful')+e.message);
-						}
-						e.target.write(contentBlob);
-					};
-					
-					fileWriter.onerror = function(e) {
-						saving = false;
-						firetext.notify(navigator.mozL10n.get('save-unsuccessful')+e.message);
-					};
-					fileWriter.truncate(0);
-				}, function(err) {
-					saving = false;
-					firetext.notify(navigator.mozL10n.get('save-unsuccessful')+err.code);
-				});
-			}, function(err) {
-				saving = false;
-				firetext.notify(navigator.mozL10n.get('load-unsuccessful')+err.code);
-			});
-		}
-	} else if (location == 'dropbox') {
-		cloud.dropbox.save(filePath, contentBlob, showSpinner, function () { 
-			// Show banner
-			if (showBanner) {
-				showSaveBanner(filePath);
-			}
-			
-			// Refresh preview
-			resetPreview(directory, filename, filetype, 'dropbox');
-			 
-			// Finish 
-			saving = false;
-			callback(); 
-		});
+	// Start spinner	
+	if (showSpinner == true) {
+		spinner();
 	}
+	
+	// Save file
+	if (directory[0] !== '/') {
+		directory = '/sdcard/' + directory;
+	}
+	firetext.shared.getOptions(location + directory + filename + filetype, function(options) {
+		if (options.demo) {
+			saving = false;
+			// Hide spinner
+			if (showSpinner != false) {
+				spinner('hide');
+			}
+			callback();
+			return;
+		}
+		options.codec = contentBlob.codec;
+		airborn.fs.putFile(directory.replace('/sdcard/', '/Documents/') + filename + filetype, options, contentBlob.content, {type: contentBlob.type}, function(err) {
+			saving = false;
+			if (showSpinner == true) {
+				spinner('hide');
+			}
+			if (err) {
+				firetext.notify(navigator.mozL10n.get('save-unsuccessful') + err.statusText);
+				return;
+			}
+			if (showBanner) {
+				showSaveBanner(directory + filename + filetype);
+			}
+			callback();
+		});
+	});
 };
 
 firetext.io.load = function (directory, filename, filetype, callback, location, showSpinner) {
@@ -658,121 +468,45 @@ firetext.io.load = function (directory, filename, filetype, callback, location, 
 	if (directory == '/' && directory.length == 1) {
 		directory = '';
 	}
-		
-	if (location == '' | location.substr(0, 8) == 'internal' | !location) {
-		if (deviceAPI == 'deviceStorage') {
-			if (directory[0] !== '/') {
-				directory = '/sdcard/' + directory;
-			}
-			firetext.shared.getOptions(location + directory + filename + filetype, function(options) {
-				if (options.demo) {
-					// Hide spinner
-					if (showSpinner != false) {
-						spinner('hide');
-					}
-					callback(firetext.io.getDefaultContent(filetype), undefined, [directory, filename, filetype]);
-					return;
-				}
-				if (filetype == ".odt") {
-					options.codec = 'arrayBuffer';
-				}
-				airborn.fs.getFile(directory.replace('/sdcard/', '/Documents/') + filename + filetype, options, function(contents, err) {
-					// Hide spinner
-					if (showSpinner != false) {
-						spinner('hide');
-					}
-					if (err) {
-						firetext.notify(navigator.mozL10n.get('load-unsuccessful') + err.statusText);
-						return;
-					}
-					callback(contents, undefined, [directory, filename, filetype]);
-				});
-			});
-		} else if (deviceAPI == 'file') {
-			storage.root.getFile(directory + filename + filetype, {}, function(fileEntry) {
-				fileEntry.file(function(file) {
-					var reader = new FileReader();
-					
-					reader.onerror = function () {
-						// Hide spinner
-						if (showSpinner != false) {
-							spinner('hide');
-						}
-						
-						firetext.notify(navigator.mozL10n.get('load-unsuccessful')+this.error.name);
-						callback(this.error.name, true);
-					};
-					reader.onload = function () {
-						// Hide spinner
-						if (showSpinner != false) {
-							spinner('hide');
-						}
-						
-						callback(this.result, undefined, [directory, filename, filetype]);
-					};
-					
-					if (filetype === ".odt") {
-						reader.readAsArrayBuffer(file);
-					} else {
-						reader.readAsText(file);
-					}
-				}, function(err) {
-					firetext.notify(navigator.mozL10n.get('load-unsuccessful')+err.code);
-					
-					// Hide spinner
-					if (showSpinner != false) {
-						spinner('hide');
-					}
-				});
-			}, function(err) {
-				if (err.code === FileError.NOT_FOUND_ERR) {
-					firetext.notify(navigator.mozL10n.get('load-unsuccessful')+err.code);					 
-				} else {
-					firetext.notify(navigator.mozL10n.get('load-unsuccessful')+err.code);
-				}
-				
-				// Hide spinner
-				if (showSpinner != false) {
-					spinner('hide');
-				}
-			});
-		}
-	} else if (location = 'dropbox') {
-		cloud.dropbox.load(directory + filename + filetype, filetype, function (result, error) {
+	
+	if (directory[0] !== '/') {
+		directory = '/sdcard/' + directory;
+	}
+	firetext.shared.getOptions(location + directory + filename + filetype, function(options) {
+		if (options.demo) {
 			// Hide spinner
 			if (showSpinner != false) {
 				spinner('hide');
 			}
-					
-			callback(result, error, [directory, filename, filetype]);
+			callback(firetext.io.getDefaultContent(filetype), undefined, [directory, filename, filetype]);
+			return;
+		}
+		if (filetype == ".odt") {
+			options.codec = 'arrayBuffer';
+		}
+		airborn.fs.getFile(directory.replace('/sdcard/', '/Documents/') + filename + filetype, options, function(contents, err) {
+			// Hide spinner
+			if (showSpinner != false) {
+				spinner('hide');
+			}
+			if (err) {
+				firetext.notify(navigator.mozL10n.get('load-unsuccessful') + err.statusText);
+				return;
+			}
+			callback(contents, undefined, [directory, filename, filetype]);
 		});
-	}
+	});
 };
 
 firetext.io.delete = function (name, location) {
 	var path = name;
-	if (!location | location == '' | location == 'internal') {
-		if (deviceAPI == 'deviceStorage') {
-			var req = storage.delete(path);
-			req.onsuccess = function () {
-				// Code to show a deleted banner
-			}
-			req.onerror = function () {
-				// Code to show an error banner (the firetext.notify is temporary)
-				firetext.notify(navigator.mozL10n.get('delete-unsuccessful')+this.error.name);
-			}
-		} else if (deviceAPI == 'file') {
-			storage.root.getFile(path, {}, function(fileEntry) {
-				fileEntry.remove(function() {
-				}, function(err) {
-					firetext.notify(navigator.mozL10n.get('delete-unsuccessful')+err.code);
-				});
-			}, function(err) {
-				firetext.notify(navigator.mozL10n.get('delete-unsuccessful')+err.code);
-			});
-		}
-	} else if (location == 'dropbox') {
-		cloud.dropbox.delete(path);
+	var req = storage.delete(path);
+	req.onsuccess = function () {
+		// Code to show a deleted banner
+	}
+	req.onerror = function () {
+		// Code to show an error banner (the firetext.notify is temporary)
+		firetext.notify(navigator.mozL10n.get('delete-unsuccessful')+this.error.name);
 	}
 };
 

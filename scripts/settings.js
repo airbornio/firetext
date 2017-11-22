@@ -17,7 +17,6 @@ var defaultSettings = {
 	"autoload": "false",
 	"autosave": "true",
 	"autosaveNotification": "true",
-	"dropbox.enabled": "false",
 	"language": "auto",
 	"nightmode": "false",
 	"previews.enabled": "auto",
@@ -28,7 +27,6 @@ firetext.settings.init = function () {
 	var autoloadEnabled = document.querySelector('#autoload-enabled-switch');
 	var autosaveEnabled = document.querySelector('#autosave-enabled-switch');
 	var autosaveNotificationEnabled = document.querySelector('#autosave-notification-enabled-switch');
-	var dropboxEnabled = document.querySelector('#dropbox-enabled-switch');
 	var languageSelect = document.querySelector('#language-select');
 	var nightmodeSelect = document.querySelector('#nightmode-select');
 	var previewsSelect = document.querySelector('#previews-select');
@@ -94,20 +92,6 @@ firetext.settings.init = function () {
 		}
 	} else {
 		document.getElementById('autosave-notification-setting').style.display = 'none';
-	}
-
-	// Dropbox
-	switch (firetext.settings.get('dropbox.enabled')) {
-		case "true":
-			dropboxEnabled.setAttribute('checked', '');
-			break;
-		case "false":
-			dropboxEnabled.removeAttribute('checked');
-			break;
-	}
-	dropboxEnabled.onchange = function () {
-		firetext.settings.save('dropbox.enabled', this.checked);
-		cloud.init(true);
 	}
 
 	// Language

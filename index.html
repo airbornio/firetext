@@ -12,10 +12,6 @@
 
 	<title>Firetext</title>
 
-	<!-- Cloud -->
-	<script type="text/javascript" src="scripts/cloud/cloud.js" defer></script>
-	<script type="text/javascript" src="scripts/cloud/dropbox.js" defer></script>
-
 	<!-- Script loader -->
 	<script type="text/javascript" src="scripts/lib/l.min.js" defer></script>
 	
@@ -116,7 +112,6 @@
 				<button data-click="nav" data-click-location="create"><span class="icon icon-pencil"></span><span class="buttonText" data-l10n-id="create"></span></button>
 				<button data-click="nav" data-click-location="import"><span class="icon icon-cloud-upload"></span><span class="buttonText" data-l10n-id="import"></span></button>
 				<button data-click="importGoogleDrive"><span class="icon icon-google-drive"></span><span class="buttonText" data-l10n-id="import-google-drive"></span></button>
-				<button data-click="nav" data-click-location="settings" id="mainButtonConnectDropbox"><span class="icon icon-dropbox"></span><span class="buttonText" data-l10n-id="use-dropbox"></span></button>
 			</menu>
 			<article data-type="list" class="docsList" id="welcome-docs-list">
 				<div id="welcome-recents-area">
@@ -670,19 +665,6 @@
 		<div role="main" class="header-only">
 			<article data-type="list">
 				<div>
-					<h2 data-l10n-id="cloud"></h2>
-					<ul>
-						<li class="noLink">
-							<aside class="pack-end">
-								<label class="pack-switch">
-									<input type="checkbox" id="dropbox-enabled-switch">
-									<span></span>
-								</label>
-							</aside>
-							<aside class="icon-dropbox"></aside>
-							<p data-l10n-id="use-dropbox"></p>
-						</li>
-					</ul>
 					<h2 data-l10n-id="editing"></h2>
 					<ul>
 						<li class="noLink">

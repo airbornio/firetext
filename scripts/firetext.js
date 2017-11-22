@@ -25,12 +25,12 @@ firetext.initialized = new CustomEvent('firetext.initialized');
 firetext.isInitialized = false;
 var html = document.getElementsByTagName('html')[0], head = document.getElementsByTagName("head")[0];
 var themeColor = document.getElementById("theme-color");
-var loadSpinner, editor, editHeader, editBar, toolbar, editWindow, editState, rawEditor, rawEditorElement, tempText, tabRaw, tabDesign, printButton, mainButtonConnectDropbox;
+var loadSpinner, editor, editHeader, editBar, toolbar, editWindow, editState, rawEditor, rawEditorElement, tempText, tabRaw, tabDesign, printButton;
 var currentFileName, currentFileType, currentFileLocation, currentFileDirectory;
 var deviceType, fileChanged, saveTimeout, saving;
 var bold, fontSelect, fontSizeSelect, italic, justifyLeft, justifyCenter, justifyRight, justifyFull, strikeThrough, superscript, subscript, styleSelect;
 var underline, underlineCheckbox;
-var locationLegend, locationSelect, locationDevice, locationDropbox;
+var locationLegend, locationSelect, locationDevice;
 var editorMessageProxy, printButtonMessageProxy;
 var wordCountElement, wordCountEnabled = false;
 
@@ -63,36 +63,11 @@ firetext.init = function () {
 				// Only if there weren't do we navigate to welcome and possibly the most recent document here.
 				
 				// Check for recent file, and if found, load it.
-				if (firetext.settings.get('autoload') == 'true') {
-					var lastDoc = [firetext.settings.get('autoload.dir'), firetext.settings.get('autoload.name'), firetext.settings.get('autoload.ext'), firetext.settings.get('autoload.loc')];
-					if (firetext.settings.get('autoload.wasEditing') == 'true') {
-						// Wait until Dropbox is authenticated
-						if (lastDoc[3] == 'dropbox') {
-							if (firetext.settings.get('dropbox.enabled') == 'true') {
-								if (cloud.dropbox.client) {
-									loadToEditor(lastDoc[0], lastDoc[1], lastDoc[2], lastDoc[3]);
-									spinner('hide');								
-								} else {
-									window.addEventListener('cloud.dropbox.authed', function() {
-										loadToEditor(lastDoc[0], lastDoc[1], lastDoc[2], lastDoc[3]);
-										spinner('hide');
-									});								
-								}
-							} else {
-								spinner('hide');
-							}
-						} else {
-							loadToEditor(lastDoc[0], lastDoc[1], lastDoc[2], lastDoc[3]);
-							spinner('hide');
-						}
-					} else {
-						spinner('hide');
-					}
-					regions.nav('welcome');
-				} else {
-					spinner('hide');
-					regions.nav('welcome');
+				if (firetext.settings.get('autoload') == 'true' && firetext.settings.get('autoload.wasEditing') == 'true') {
+					loadToEditor(firetext.settings.get('autoload.dir'), firetext.settings.get('autoload.name'), firetext.settings.get('autoload.ext'), firetext.settings.get('autoload.loc'));
 				}
+				spinner('hide');
+				regions.nav('welcome');
 			});
 		
 			// Create listeners
@@ -138,9 +113,6 @@ firetext.init = function () {
 };
 
 function initModules(callback) {	
-	// Initialize cloud services
-	cloud.init();
-	
 	// Get user's location
 	initLocation();
 	
@@ -262,7 +234,6 @@ function initElements() {
 	locationLegend = document.getElementById('locationLegend');
 	locationSelect = document.getElementById('createDialogFileLocation');	
 	printButton = document.getElementById('printButton');
-	mainButtonConnectDropbox = document.getElementById('mainButtonConnectDropbox');
 	wordCountElement = document.getElementById('word-count');
 	
 	// Current file information
@@ -413,11 +384,10 @@ function updateAddDialog() {
 var allDocs,
 	recentsDocs,
 	sharedDocs = [],
-	internalDocs = [],
-	cloudDocs = [];
+	internalDocs = [];
 
 function updateAllDocs() {
-	allDocs = recentsDocs.concat(internalDocs.concat(cloudDocs).sort(function(a, b) {
+	allDocs = recentsDocs.concat(internalDocs.sort(function(a, b) {
 		return b[5] - a[5];
 	})).concat(sharedDocs).filter(function(doc, j, docs) {
 		for(var i = 0; i < j; i++) {
@@ -503,21 +473,6 @@ function updateDocLists(lists) {
 			updateAllDocs();
 			spinner('hide');
 		});
-	}
-		
-	if (lists.indexOf('all') != '-1' | lists.indexOf('cloud') != '-1') {
-		// Cloud
-		if (firetext.settings.get('dropbox.enabled') == 'true' && cloud.dropbox.client) {
-			spinner();
-			cloud.dropbox.enumerate('/Documents/', function(DOCS) {
-				cloudDocs = DOCS;
-				updateAllDocs();
-				spinner('hide');
-			});
-		} else {
-			cloudDocs = [];
-			updateAllDocs();
-		}
 	}
 }
 
@@ -753,7 +708,7 @@ function buildDocListItems(DOCS, listElm, ctr) {
 	output += '<aside class="pack-end icon-chevron-right"></aside>';	
 	output += '<aside class="pack-end edit-checkbox"><label class="pack-checkbox danger"><input type="checkbox" class="edit-selected"><span></span></label></aside>';
 	output += '<p class="fileItemName" title="'+DOC[1]+DOC[2]+'">'+DOC[1]+DOC[2]+'</p>'; 
-	output += '<p class="fileItemPath" title="'+directory+DOC[1]+DOC[2]+'">'+(location==='dropbox'?'<span class="icon-dropbox" title="'+navigator.mozL10n.get('documents-dropbox')+'"></span> ':'')+directory+DOC[1]+DOC[2]+'</p>';
+	output += '<p class="fileItemPath" title="'+directory+DOC[1]+DOC[2]+'">'+directory+DOC[1]+DOC[2]+'</p>';
 	output += '</div>'; 
 	output += '</li></a>';
 	
