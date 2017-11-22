@@ -1787,9 +1787,10 @@ function processActions(eventAttribute, target, event) {
 						if(evt.data.action === 'importFile') {
 							airborn.fs.putFile(
 								'/Documents/Documents/Google Drive Imports/' + evt.data.name.replace(/[".\/]/g, '') + '.' + evt.data.ext,
-								{codec: 'blob'},
-								new Blob([evt.data.contents], {type: evt.data.type}),
+								{codec: 'arrayBuffer'},
+								evt.data.contents,
 								{
+									type: evt.data.type,
 									created: evt.data.created && new Date(evt.data.created),
 									edited: evt.data.edited && new Date(evt.data.edited),
 								}

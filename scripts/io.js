@@ -248,23 +248,32 @@ function createAndOpen(location, directory, filename, filetype, contentBlob) {
 	// Save the file
 	if (!location | location == '' | location == 'internal') {	
 		if (deviceAPI == 'deviceStorage') {
-			var filePath = (directory + filename + filetype);
-			var req = storage.addNamed(contentBlob, filePath);
-			req.onerror = function () {
-				if (this.error.name == "NoModificationAllowedError" | this.error.name == "FileExistsError") {
-					firetext.notify(navigator.mozL10n.get('file-exists'));
+			if (directory[0] !== '/') {
+				directory = '/sdcard/' + directory;
+			}
+			var filePath = directory.replace('/sdcard/', '/Documents/') + filename + filetype;
+			airborn.fs.getFile(airborn.path.dirname(filePath), {codec: 'dir'}, function(contents) {
+				if(contents && contents.hasOwnProperty(airborn.path.basename(filePath))) {
+					setTimeout(function() {
+						firetext.notify(navigator.mozL10n.get('file-exists'));
+					});
+					return;
 				}
-				else {
-					firetext.notify(navigator.mozL10n.get('file-creation-fail')+this.error.name);
-				}
-			};	
-			req.onsuccess = function () {	 
-				// Load to editor
-				loadToEditor(directory, filename, filetype, 'internal');
-				
-				// Update list
-				updateDocLists(['internal']);
-			};
+				airborn.fs.putFile(filePath, {codec: contentBlob.codec}, contentBlob.content, {type: contentBlob.type}, function(err) {
+					if (err) {
+						setTimeout(function() {
+							firetext.notify(navigator.mozL10n.get('file-creation-fail')+err.statusText);
+						});
+						return;
+					}
+					
+					// Load to editor
+					loadToEditor(directory, filename, filetype, 'internal');
+					
+					// Update list
+					updateDocLists(['internal']);
+				});
+			});
 		} else if (deviceAPI == 'file') {
 			storage.root.getFile(directory + filename + filetype, {create: true, exclusive: true}, function(fileEntry) {
 				fileEntry.createWriter(function(fileWriter){
@@ -333,7 +342,7 @@ function createFromDialog() {
 	// Get mime
 	var type =  firetext.io.getMime(filetype);
 	
-	var contentBlob = new Blob([contentData], { "type" : type });
+	var contentBlob = {content: contentData, codec: 'utf8String', type: type};
 	
 	createAndOpen(location, directory, filename, filetype, contentBlob);
 }
@@ -371,7 +380,7 @@ function uploadFromDialog() {
 			continue;
 		}
 		
-		createAndOpen(location, directory, filename, filetype, file);
+		createAndOpen(location, directory, filename, filetype, {content: file, codec: 'blob', type: file.type});
 	}
 }
 
@@ -395,7 +404,7 @@ function saveAsFromDialog() {
 	location = location.toLowerCase();
 	
 	var key = editorMessageProxy.registerMessageHandler(function(e){
-		createAndOpen(location, directory, filename, filetype, new Blob([StringView.base64ToBytes(e.data.content)], {type: e.data.type}));
+		createAndOpen(location, directory, filename, filetype, e.data);
 	}, null, true);
 	editorMessageProxy.postMessage({
 		command: "get-content-blob",
@@ -418,7 +427,7 @@ function saveFromEditor(banner, spinner) {
 	var filetype = document.getElementById('currentFileType').textContent;
 
 	var key = editorMessageProxy.registerMessageHandler(function(e){
-		firetext.io.save(directory, filename, filetype, new Blob([StringView.base64ToBytes(e.data.content)], {type: e.data.type}), banner, function(){ fileChanged = false; }, location, spinner);
+		firetext.io.save(directory, filename, filetype, e.data, banner, function(){ fileChanged = false; }, location, spinner);
 	}, null, true);
 	editorMessageProxy.postMessage({
 		command: "get-content-blob",
@@ -434,7 +443,7 @@ function download() {
 	var filetype = document.getElementById('currentFileType').textContent;
 
 	var key = editorMessageProxy.registerMessageHandler(function(e){
-		saveAs(new Blob([StringView.base64ToBytes(e.data.content)], {type: e.data.type}), filename + filetype);
+		saveAs(new Blob([e.data.content], {type: e.data.type}), filename + filetype);
 	}, null, true);
 	editorMessageProxy.postMessage({
 		command: "get-content-blob",
@@ -558,8 +567,8 @@ firetext.io.save = function (directory, filename, filetype, contentBlob, showBan
 					callback();
 					return;
 				}
-				options.codec = 'blob';
-				airborn.fs.putFile(directory.replace('/sdcard/', '/Documents/') + filename + filetype, options, contentBlob, function(err) {
+				options.codec = contentBlob.codec;
+				airborn.fs.putFile(directory.replace('/sdcard/', '/Documents/') + filename + filetype, options, contentBlob.content, {type: contentBlob.type}, function(err) {
 					saving = false;
 					if (showSpinner == true) {
 						spinner('hide');

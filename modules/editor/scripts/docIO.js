@@ -190,7 +190,7 @@ function initDocIO(document, messageProxy, loadCallback) {
 	messageProxy.registerMessageHandler(function(e) {
 		var content;
 		var type;
-		var binary = false;
+		var codec = 'utf8String';
 		switch (filetype) {
 			case ".html":
 				content = getRichHTML();
@@ -202,9 +202,9 @@ function initDocIO(document, messageProxy, loadCallback) {
 				break;
 			case ".odt":
 				if(!readOnly) odtdoc.setHTML(getHTML());
-				content = odtdoc.getODT({type: 'string'});
+				content = odtdoc.getODT({type: 'arraybuffer'});
 				type = "application\/vnd.oasis.opendocument.text";
-				binary = true;
+				codec = 'arrayBuffer';
 				break;
 			/* 0.4
 			case ".docx":
@@ -219,7 +219,8 @@ function initDocIO(document, messageProxy, loadCallback) {
 		
 		messageProxy.postMessage({
 			command: e.data.key,
-			content: binary ? btoa(content) : new StringView(content).toBase64(),
+			content: content,
+			codec: codec,
 			type: type
 		});
 	}, "get-content-blob");
