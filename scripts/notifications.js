@@ -30,8 +30,8 @@ firetext.notify = function (message, html, time) {
 	
 	notificationContainer.appendChild(notification);
 	(
-		document.querySelector('section.current').getAttribute('data-type') == 'sidebar' ?
-		document.querySelector('section.parent') :
+		document.querySelector('section.current').getAttribute('data-type') == 'sidebar' || awaitingPopState ?
+		document.querySelector('section.parent') || document.querySelector('section.current') :
 		document.querySelector('section.current')
 	).appendChild(notificationContainer);
 	

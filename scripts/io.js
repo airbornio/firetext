@@ -160,16 +160,12 @@ function createAndOpen(location, directory, filename, filetype, contentBlob) {
 		var filePath = directory.replace('/sdcard/', '/Documents/') + filename + filetype;
 		airborn.fs.getFile(airborn.path.dirname(filePath), {codec: 'dir'}, function(contents) {
 			if(contents && contents.hasOwnProperty(airborn.path.basename(filePath))) {
-				setTimeout(function() {
-					firetext.notify(navigator.mozL10n.get('file-exists'));
-				});
+				firetext.notify(navigator.mozL10n.get('file-exists'));
 				return;
 			}
 			airborn.fs.putFile(filePath, {codec: contentBlob.codec}, contentBlob.content, {type: contentBlob.type}, function(err) {
 				if (err) {
-					setTimeout(function() {
-						firetext.notify(navigator.mozL10n.get('file-creation-fail')+err.statusText);
-					});
+					firetext.notify(navigator.mozL10n.get('file-creation-fail')+err.statusText);
 					return;
 				}
 				
