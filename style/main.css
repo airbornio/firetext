@@ -591,6 +591,8 @@ aside select.dummy {
   background-position: center;
   width: 33px;
   height: 33px;
+}
+.spinner.shown > div {
     -moz-animation: spin 1s linear infinite;
     -webkit-animation: spin 1s linear infinite;
     -o-animation: spin 1s linear infinite;
