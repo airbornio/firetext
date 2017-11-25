@@ -145,7 +145,7 @@ function keepKeyboardOpen() {
   }
   keepKeyboardOpenTextarea.focus();
 }
-setInterval(function() {
+function checkLocks() {
   Array.prototype.forEach.call(document.querySelectorAll('html[contenteditable="false"], html [contenteditable]'), function(element) {
     if(!locks[elementPath(element)]) {
       if(element.nodeName === 'A' && document.documentElement.hasAttribute('_firetext_ctrl_held')) {
@@ -166,7 +166,7 @@ setInterval(function() {
       setScroll(scroll);
     }
   });
-}, 100);
+}
 function getAttributes(element) {
   var attrs = {};
   [].slice.call(element.attributes).forEach(function(attr) {
@@ -304,12 +304,15 @@ var onInput = function(evt) {
   }
   sendEdit(edit);
 };
+var checkLocksInterval;
 parentMessageProxy.registerMessageHandler(function(e) {
   shadowDocument = document.cloneNode(true);
   document.addEventListener('input', onInput);
+  checkLocksInterval = setInterval(checkLocks, 100);
 }, "collab-enable");
 parentMessageProxy.registerMessageHandler(function(e) {
   document.removeEventListener('input', onInput);
+  clearInterval(checkLocksInterval);
 }, "collab-disable");
 parentMessageProxy.registerMessageHandler(function(e) {
   var type = e.data.type;
