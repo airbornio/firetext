@@ -275,6 +275,13 @@ function initDocIO(document, messageProxy, loadCallback) {
 				commandStates[commands[i]].state = commands[i] === active;
 				continue;
 			}
+			if(commands[i] === 'createLink') {
+				var range = sel.getRangeAt(0);
+				var link = range.commonAncestorContainer.closest('a');
+				commandStates[commands[i]].state = !!link;
+				commandStates[commands[i]].value = link && link.href;
+				continue;
+			}
 			commandStates[commands[i]].state = document.queryCommandState(commands[i]);
 			commandStates[commands[i]].value = document.queryCommandValue(commands[i]);
 		}

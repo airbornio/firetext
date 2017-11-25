@@ -273,6 +273,13 @@ function format(cmd, value) {
     sel.modify('extend', 'backward', 'character');
     modified = true;
   }
+  if(cmd === 'createLink' || cmd === 'unlink') {
+    var range = sel.getRangeAt(0);
+    var link = range.commonAncestorContainer.closest('a');
+    if(link) {
+      sel.selectAllChildren(link);
+    }
+  }
   document.execCommand(cmd, false, value);
   if(modified) {
     sel.modify('extend', 'forward', 'character');
