@@ -277,7 +277,7 @@ function saveAsFromDialog() {
 }
 
 function isValidFileName(filename) {
-	return (/^[a-zA-Z0-9-\._ ]+$/.test(filename) && !(/\.\./.test(filename)) && !(/\.$/.test(filename)));
+	return !filename.includes('/') && !filename.includes('"');
 }
 
 function saveFromEditor(banner, spinner) {
