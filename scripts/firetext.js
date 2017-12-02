@@ -80,7 +80,7 @@ firetext.init = function () {
 	});
 	
 	navigator.mozL10n.ready(function () {
-		// Asynchronously fetch fallback language, since Airborn OS doesn't support synchronous requests
+		// Asynchronously fetch fallback language, since Airborn doesn't support synchronous requests
 		if(
 			navigator.mozL10n.ctx.locales.en // if english locale has been created, it means we need it
 			&& !navigator.mozL10n.ctx.locales.en.isReady // if it's not ready, it means sync xhr was not supported

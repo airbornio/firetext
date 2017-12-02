@@ -5,8 +5,8 @@
   "type": "privileged",
   "launch_path": "/index.html",
   "developer": {
-    "name": "Airborn OS",
-    "url": "https://www.airbornos.com/"
+    "name": "Airborn",
+    "url": "https://www.airborn.io/"
   },
   "icons": {
     "64": "/style/icons/app/64.png",
