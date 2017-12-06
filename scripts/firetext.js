@@ -1871,9 +1871,9 @@ function setDocumentTitle() {
 	var selectedRegion = document.querySelector('section.parent') || document.querySelector('section.current');
 	if (selectedRegion) {
 		if (selectedRegion.id == 'edit') {
-			document.title = currentFileName.textContent+currentFileType.textContent+' - Firetext';
+			document.title = currentFileName.textContent+currentFileType.textContent;
 		} else {
-			document.title = 'Firetext';
+			document.title = '';
 		}		
 	}
 }
