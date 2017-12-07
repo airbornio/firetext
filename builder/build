@@ -35,6 +35,7 @@ echo -n \
 	../scripts/lib/jszip-deflate.js \
 	../scripts/lib/jszip-inflate.js \
 	../scripts/lib/jszip-load.js \
+	../scripts/lib/jquery.min.js \
 	../scripts/lib/spectrum.js \
 	../scripts/parsers/plain-text.js \
 	../scripts/parsers/odt.js/lib/odt.js \
