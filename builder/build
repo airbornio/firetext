@@ -15,7 +15,9 @@ maxprocs=$(( $(nproc --all) - 1 ))
 
 function CjC {
 	java -jar node_modules/google-closure-compiler/compiler.jar --language_in ECMASCRIPT6 --language_out ECMASCRIPT5 $1 > ${1/../..\/build} &&
-	echo Compiled $1
+	oldsize=$(stat -c %s $1)
+	newsize=$(stat -c %s ${1/../..\/build})
+	echo Compiled $1: $newsize / $oldsize = $(node -pe "($newsize / $oldsize * 100).toFixed(2)")%
 }
 export -f CjC
 
