@@ -225,13 +225,7 @@ function uploadFromDialog() {
 	for (var i = 0; i < files.length; i++) {
 		var file = files[i];
 		
-		if(file.name.lastIndexOf(".") !== -1) {
-			var filename = file.name.substr(0, file.name.lastIndexOf("."));
-			var filetype = file.name.substr(file.name.lastIndexOf("."));
-		} else {
-			var filename = file.name;
-			var filetype = "";
-		}
+		var filename = file.name;
 		
 		if (filename == null | filename == undefined | filename == '')	{
 			continue;
@@ -244,7 +238,7 @@ function uploadFromDialog() {
 			continue;
 		}
 		
-		createAndOpen(location, directory, filename, filetype, {content: file, codec: 'blob', type: file.type});
+		airborn.fs.putFile('/Documents/Documents/' + filename, {codec: 'blob'}, file);
 	}
 }
 
