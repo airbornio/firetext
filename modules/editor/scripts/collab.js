@@ -346,35 +346,39 @@ parentMessageProxy.registerMessageHandler(function(e) {
         console.warn("Element doesn't exist");
         return;
       }
-      var edit = recordEdit();
-      var selection = recordSelection();
-      var scroll = recordScroll();
-      keepKeyboardOpen();
-      collabMessages[data.id] = data.edit;
-      setLock(data.edit);
-      if(edit && !getClosestLock(edit.el, userId) && !locks[edit.el] && elementFromPath(data.edit.el).contains(elementFromPath(edit.el))) {
-        edit.tmp = true;
-        setLock(edit);
-        elementFromPath(edit.el).setAttribute('collab-tmp-lock', '');
+      if(data.edit.uid !== userId) {
+        var edit = recordEdit();
+        var selection = recordSelection();
+        var scroll = recordScroll();
+        keepKeyboardOpen();
+        collabMessages[data.id] = data.edit;
+        setLock(data.edit);
+        if(edit && !getClosestLock(edit.el, userId) && !locks[edit.el] && elementFromPath(data.edit.el).contains(elementFromPath(edit.el))) {
+          edit.tmp = true;
+          setLock(edit);
+          elementFromPath(edit.el).setAttribute('collab-tmp-lock', '');
+        }
       }
       applyEdit(data.edit, shadowDocument);
-      recordEdit(shadowDocument, document, elementFromPath(data.edit.el, shadowDocument)); // Implicit applyEdit
-      var closestLock;
-      if(edit && (closestLock = getClosestLock(edit.el, userId)) && !closestLock.tmp) {
-        applyEdit(edit);
-      }
-      Object.keys(locks).forEach(function(el) {
-        var element = elementFromPath(el.split(','));
-        if(element && locks[el]) {
-          element.setAttribute('contenteditable', locks[el].uid === userId);
-          if(locks[el].tmp) {
-            element.setAttribute('collab-tmp-lock', '');
-          }
+      if(data.edit.uid !== userId) {
+        recordEdit(shadowDocument, document, elementFromPath(data.edit.el, shadowDocument)); // Implicit applyEdit
+        var closestLock;
+        if(edit && (closestLock = getClosestLock(edit.el, userId)) && !closestLock.tmp) {
+          applyEdit(edit);
         }
-      });
-      setSelection(selection);
-      setScroll(scroll);
-      document.dispatchEvent(new CustomEvent('input', {detail: 'fromCollab'}));
+        Object.keys(locks).forEach(function(el) {
+          var element = elementFromPath(el.split(','));
+          if(element && locks[el]) {
+            element.setAttribute('contenteditable', locks[el].uid === userId);
+            if(locks[el].tmp) {
+              element.setAttribute('collab-tmp-lock', '');
+            }
+          }
+        });
+        setSelection(selection);
+        setScroll(scroll);
+        document.dispatchEvent(new CustomEvent('input', {detail: 'fromCollab'}));
+      }
     }
   }
 }, "collab-message");
