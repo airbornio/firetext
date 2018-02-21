@@ -1890,9 +1890,6 @@
 
     this.isLoading = true;
     var requested = Array.prototype.slice.call(arguments);
-    if (requested.length === 0) {
-      throw new L10nError('No locales requested');
-    }
 
     var supported = negotiate(
       this.availableLocales.concat(this.qps),
