@@ -88,6 +88,18 @@ window.setSelection = function(selection) {
   if(!selection) {
     return;
   }
+  var currentSelection = recordSelection();
+  if(
+    currentSelection &&
+    selection.startOffset === currentSelection.startOffset &&
+    selection.endOffset === currentSelection.endOffset &&
+    selection.startEl.length === currentSelection.startEl.length &&
+    selection.endEl.length === currentSelection.endEl.length &&
+    !selection.startEl.some((el, i) => el !== currentSelection.startEl[i]) &&
+    !selection.endEl.some((el, i) => el !== currentSelection.endEl[i])
+  ) {
+    return;
+  }
   
   var range = document.createRange();
   var startEl = elementFromPath(selection.startEl, document, true);
