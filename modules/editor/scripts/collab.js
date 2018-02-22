@@ -89,26 +89,26 @@ window.setSelection = function(selection) {
     return;
   }
   var currentSelection = recordSelection();
-  if(
-    currentSelection &&
-    selection.startOffset === currentSelection.startOffset &&
-    selection.endOffset === currentSelection.endOffset &&
-    selection.startEl.length === currentSelection.startEl.length &&
-    selection.endEl.length === currentSelection.endEl.length &&
-    !selection.startEl.some((el, i) => el !== currentSelection.startEl[i]) &&
-    !selection.endEl.some((el, i) => el !== currentSelection.endEl[i])
-  ) {
-    return;
-  }
-  
-  var range = document.createRange();
-  var startEl = elementFromPath(selection.startEl, document, true);
-  var endEl = elementFromPath(selection.endEl, document, true);
-  range.setStart(startEl, Math.min(selection.startOffset, 'length' in startEl ? startEl.length : startEl.childNodes.length));
-  range.setEnd(endEl, Math.min(selection.endOffset, 'length' in endEl ? endEl.length : endEl.childNodes.length));
   var sel = document.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
+  if(
+    !currentSelection ||
+    selection.startOffset !== currentSelection.startOffset ||
+    selection.endOffset !== currentSelection.endOffset ||
+    selection.startEl.length !== currentSelection.startEl.length ||
+    selection.endEl.length !== currentSelection.endEl.length ||
+    selection.startEl.some((el, i) => el !== currentSelection.startEl[i]) ||
+    selection.endEl.some((el, i) => el !== currentSelection.endEl[i])
+  ) {
+    var range = document.createRange();
+    var startEl = elementFromPath(selection.startEl, document, true);
+    var endEl = elementFromPath(selection.endEl, document, true);
+    range.setStart(startEl, Math.min(selection.startOffset, 'length' in startEl ? startEl.length : startEl.childNodes.length));
+    range.setEnd(endEl, Math.min(selection.endOffset, 'length' in endEl ? endEl.length : endEl.childNodes.length));
+    sel.removeAllRanges();
+    sel.addRange(range);
+  } else {
+    var range = sel.getRangeAt(0);
+  }
   // Chrome moves the focus to the selection, so we don't need to call `focus`.
   // (https://bugs.webkit.org/show_bug.cgi?id=38696)
   // Except when it doesn't do that. (When the document doesn't have focus?)
@@ -120,6 +120,12 @@ window.setSelection = function(selection) {
     sel.focusNode.closest('[contenteditable="false"] [contenteditable="true"], html').focus();
     sel.removeAllRanges();
     sel.addRange(range);
+  }
+  
+  var keepKeyboardOpenTextarea = document.getElementById('keepKeyboardOpenTextarea');
+  if(keepKeyboardOpenTextarea && keepKeyboardOpenTextarea.value) {
+    range.insertNode(document.createTextNode(keepKeyboardOpenTextarea.value));
+    keepKeyboardOpenTextarea.value = '';
   }
 }
 window.recordScroll = function() {
